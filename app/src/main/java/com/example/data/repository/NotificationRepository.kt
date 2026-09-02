@@ -161,4 +161,23 @@ class NotificationRepository(private val context: Context) {
             Log.e("NotificationRepo", "Firebase markAllAsRead error: ${e.message}")
         }
     }
+
+    fun removeNotification(recipientId: String, postId: String, type: String, senderId: String = "") {
+        val target = recipientId.ifBlank { "global" }
+        val current = getLocalNotifications(target).toMutableList()
+        val toRemove = current.filter {
+            it.postId == postId && it.type == type && (senderId.isBlank() || it.senderId == senderId)
+        }
+        if (toRemove.isNotEmpty()) {
+            current.removeAll(toRemove)
+            saveLocalNotifications(target, current)
+            try {
+                toRemove.forEach { n ->
+                    dbRef?.child(target)?.child(n.id)?.removeValue()
+                }
+            } catch (e: Exception) {
+                Log.e("NotificationRepo", "Firebase removeNotification error: ${e.message}")
+            }
+        }
+    }
 }

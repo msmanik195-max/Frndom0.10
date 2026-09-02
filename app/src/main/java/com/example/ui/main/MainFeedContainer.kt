@@ -249,6 +249,20 @@ fun MainFeedContainer(
                                     )
                                 }
                             },
+                            onSubmitBackgroundPost = { postTemplate, imageUris, videoUri ->
+                                val authorVerified = postTemplate.isAuthorVerified || (effectiveUserProfile?.isVerificationActive() == true) || UserRepository.isUserVerifiedStatic(postTemplate.authorId)
+                                val preparedPost = postTemplate.copy(
+                                    authorAvatarUrl = effectiveUserProfile?.profilePictureUrl ?: "",
+                                    isAuthorVerified = authorVerified
+                                )
+                                postRepository.uploadAndCreatePost(
+                                    postTemplate = preparedPost,
+                                    mediaUris = imageUris,
+                                    videoUri = videoUri,
+                                    mediaUploadService = mediaUploadService
+                                )
+                                currentDestination = if (preparedPost.mediaType == "reel") AppDestination.REELS else AppDestination.HOME
+                            },
                             onBackClick = { currentDestination = AppDestination.HOME }
                         )
                     }

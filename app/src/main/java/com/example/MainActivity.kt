@@ -78,16 +78,15 @@ fun FrndomApp(
         AppPermissionHelper.setInitialPermissionsRequested(context, true)
     }
 
-    // Automatically trigger system permission dialogs directly upon opening app / login
+    // Trigger system permission dialogs ONLY once if essential permissions are missing
     LaunchedEffect(Unit) {
-        val permissions = AppPermissionHelper.getAllEssentialPermissions()
-        permissionLauncher.launch(permissions)
-    }
-
-    LaunchedEffect(uiState.currentScreen) {
-        if (uiState.currentScreen == AuthScreen.WELCOME) {
-            val permissions = AppPermissionHelper.getAllEssentialPermissions()
-            permissionLauncher.launch(permissions)
+        if (!AppPermissionHelper.hasInitialPermissionsBeenRequested(context)) {
+            val missingPermissions = AppPermissionHelper.getMissingEssentialPermissions(context)
+            if (missingPermissions.isNotEmpty()) {
+                permissionLauncher.launch(missingPermissions)
+            } else {
+                AppPermissionHelper.setInitialPermissionsRequested(context, true)
+            }
         }
     }
 

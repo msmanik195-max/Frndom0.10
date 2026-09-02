@@ -133,6 +133,7 @@ fun HomeScreen(
 ) {
     val posts by postRepository.postsFlow.collectAsState()
     val isRefreshing by postRepository.isRefreshing.collectAsState()
+    val uploadState by postRepository.postUploadState.collectAsState()
     val stories by storyRepository.storiesFlow.collectAsState()
     val feedPosts = posts.filter { it.mediaType != "reel" }
 
@@ -283,6 +284,94 @@ fun HomeScreen(
                         }
                     )
                     Spacer(modifier = Modifier.height(8.dp))
+                }
+
+                // 2.5 Background Upload Progress Card (under Story tray)
+                if (uploadState.isUploading) {
+                    item(key = "post_upload_progress_card") {
+                        Surface(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 12.dp, vertical = 4.dp)
+                                .testTag("upload_progress_card"),
+                            shape = RoundedCornerShape(12.dp),
+                            color = Color.White,
+                            shadowElevation = 1.dp
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(12.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                // Media preview or icon
+                                Box(
+                                    modifier = Modifier
+                                        .size(46.dp)
+                                        .clip(RoundedCornerShape(8.dp))
+                                        .background(Color(0xFFEBF3FE)),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    val previewUri = uploadState.previewUri
+                                    if (previewUri != null) {
+                                        AsyncImage(
+                                            model = previewUri,
+                                            contentDescription = "Upload Preview",
+                                            contentScale = ContentScale.Crop,
+                                            modifier = Modifier.fillMaxSize()
+                                        )
+                                    } else {
+                                        Icon(
+                                            imageVector = Icons.Default.Share,
+                                            contentDescription = "Uploading",
+                                            tint = Color(0xFF1877F2),
+                                            modifier = Modifier.size(24.dp)
+                                        )
+                                    }
+                                }
+
+                                Spacer(modifier = Modifier.width(12.dp))
+
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Text(
+                                            text = uploadState.statusText.ifBlank { "Uploading post..." },
+                                            fontSize = 14.sp,
+                                            fontWeight = FontWeight.SemiBold,
+                                            color = Color(0xFF050505),
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis,
+                                            modifier = Modifier.weight(1f, fill = false)
+                                        )
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                        Text(
+                                            text = "${uploadState.progressPercent}%",
+                                            fontSize = 13.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            color = Color(0xFF1877F2)
+                                        )
+                                    }
+
+                                    Spacer(modifier = Modifier.height(6.dp))
+
+                                    androidx.compose.material3.LinearProgressIndicator(
+                                        progress = { uploadState.progress.coerceIn(0f, 1f) },
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .height(6.dp)
+                                            .clip(RoundedCornerShape(3.dp)),
+                                        color = Color(0xFF1877F2),
+                                        trackColor = Color(0xFFE4E6EB)
+                                    )
+                                }
+                            }
+                        }
+                        Spacer(modifier = Modifier.height(6.dp))
+                    }
                 }
 
                 // 3. Posts Feed

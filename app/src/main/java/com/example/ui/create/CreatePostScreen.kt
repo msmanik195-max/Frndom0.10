@@ -27,7 +27,16 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AddPhotoAlternate
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import com.example.ui.components.DEFAULT_POPULAR_HASHTAGS
+import com.example.ui.components.HashtagVisualTransformation
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.FormatAlignCenter
 import androidx.compose.material.icons.filled.FormatAlignLeft
@@ -115,6 +124,7 @@ fun CreatePostScreen(
     mediaUploadService: MediaUploadService,
     onPostCreated: (PostItem) -> Unit,
     onBackClick: () -> Unit,
+    onSubmitBackgroundPost: ((PostItem, List<Uri>, Uri?) -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     val scope = rememberCoroutineScope()
@@ -122,6 +132,7 @@ fun CreatePostScreen(
     var postText by remember { mutableStateOf("") }
     var selectedAudience by remember { mutableStateOf("Public") }
     var showAudienceSheet by remember { mutableStateOf(false) }
+    var showHashtagSheet by remember { mutableStateOf(false) }
     var showStylePanel by remember { mutableStateOf(false) }
     var selectedBackground by remember { mutableStateOf(PostBackgroundStyle.NONE) }
     var fontSize by remember { mutableIntStateOf(24) }
@@ -209,59 +220,67 @@ fun CreatePostScreen(
                 Button(
                     onClick = {
                         if (canPost) {
-                            isUploading = true
-                            scope.launch {
-                                val uploadedUrls = mutableListOf<String>()
+                            val finalMediaType = when {
+                                mediaTypeState == "reel" -> "reel"
+                                mediaTypeState == "video" -> "video"
+                                selectedMediaUris.isNotEmpty() -> "photo"
+                                else -> "text"
+                            }
 
-                                if (mediaTypeState == "reel" || mediaTypeState == "video") {
-                                    val uri = selectedVideoUri
-                                    if (uri != null) {
-                                        val res = mediaUploadService.uploadVideoUri(uri, folder = "reels")
-                                        uploadedUrls.add(res.getOrDefault(uri.toString()))
-                                    }
-                                } else if (selectedMediaUris.isNotEmpty()) {
-                                    // Upload up to 10 photos concurrently to Cloudflare R2
-                                    val uploadTasks = selectedMediaUris.map { uri ->
-                                        async {
-                                            val res = mediaUploadService.uploadImageUri(uri, folder = "posts")
-                                            res.getOrDefault(uri.toString())
+                            val isPageProfile = userProfile?.uid?.startsWith("page_profile_") == true
+                            val pageId = if (isPageProfile) userProfile!!.uid.removePrefix("page_profile_") else ""
+
+                            val postTemplate = PostItem(
+                                authorId = userProfile?.uid ?: "user_id",
+                                authorName = displayName,
+                                authorAvatarUrl = userProfile?.profilePictureUrl ?: "",
+                                content = postText.trim(),
+                                mediaUrl = "",
+                                mediaUrls = emptyList(),
+                                mediaType = finalMediaType,
+                                backgroundStyle = selectedBackground.id,
+                                fontSize = fontSize,
+                                textAlign = when (textAlignState) {
+                                    TextAlign.Left -> "left"
+                                    TextAlign.Right -> "right"
+                                    else -> if (hasBackground) "center" else "left"
+                                },
+                                pageId = pageId,
+                                audience = selectedAudience,
+                                isAuthorVerified = (userProfile?.isVerificationActive() == true) || UserRepository.isUserVerifiedStatic(userProfile?.uid ?: "")
+                            )
+
+                            if (onSubmitBackgroundPost != null) {
+                                onSubmitBackgroundPost(postTemplate, selectedMediaUris.toList(), selectedVideoUri)
+                            } else {
+                                isUploading = true
+                                scope.launch {
+                                    val uploadedUrls = mutableListOf<String>()
+
+                                    if (mediaTypeState == "reel" || mediaTypeState == "video") {
+                                        val uri = selectedVideoUri
+                                        if (uri != null) {
+                                            val res = mediaUploadService.uploadVideoUri(uri, folder = "reels")
+                                            uploadedUrls.add(res.getOrDefault(uri.toString()))
                                         }
+                                    } else if (selectedMediaUris.isNotEmpty()) {
+                                        val uploadTasks = selectedMediaUris.map { uri ->
+                                            async {
+                                                val res = mediaUploadService.uploadImageUri(uri, folder = "posts")
+                                                res.getOrDefault(uri.toString())
+                                            }
+                                        }
+                                        uploadedUrls.addAll(uploadTasks.awaitAll())
                                     }
-                                    uploadedUrls.addAll(uploadTasks.awaitAll())
+
+                                    val newPost = postTemplate.copy(
+                                        mediaUrl = uploadedUrls.firstOrNull() ?: "",
+                                        mediaUrls = uploadedUrls
+                                    )
+
+                                    isUploading = false
+                                    onPostCreated(newPost)
                                 }
-
-                                val finalMediaType = when {
-                                    mediaTypeState == "reel" -> "reel"
-                                    mediaTypeState == "video" -> "video"
-                                    uploadedUrls.isNotEmpty() -> "photo"
-                                    else -> "text"
-                                }
-
-                                val isPageProfile = userProfile?.uid?.startsWith("page_profile_") == true
-                                val pageId = if (isPageProfile) userProfile!!.uid.removePrefix("page_profile_") else ""
-
-                                val newPost = PostItem(
-                                    authorId = userProfile?.uid ?: "user_id",
-                                    authorName = displayName,
-                                    authorAvatarUrl = userProfile?.profilePictureUrl ?: "",
-                                    content = postText.trim(),
-                                    mediaUrl = uploadedUrls.firstOrNull() ?: "",
-                                    mediaUrls = uploadedUrls,
-                                    mediaType = finalMediaType,
-                                    backgroundStyle = selectedBackground.id,
-                                    fontSize = fontSize,
-                                    textAlign = when (textAlignState) {
-                                        TextAlign.Left -> "left"
-                                        TextAlign.Right -> "right"
-                                        else -> if (hasBackground) "center" else "left"
-                                    },
-                                    pageId = pageId,
-                                    audience = selectedAudience,
-                                    isAuthorVerified = (userProfile?.isVerificationActive() == true) || UserRepository.isUserVerifiedStatic(userProfile?.uid ?: "")
-                                )
-
-                                isUploading = false
-                                onPostCreated(newPost)
                             }
                         }
                     },
@@ -300,17 +319,28 @@ fun CreatePostScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Surface(
-                    modifier = Modifier.size(46.dp),
+                    modifier = Modifier
+                        .size(46.dp)
+                        .clip(CircleShape),
                     shape = CircleShape,
                     color = Color(0xFFD8DADF)
                 ) {
-                    Box(contentAlignment = Alignment.Center) {
-                        Text(
-                            text = initial,
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.primary
+                    if (!userProfile?.profilePictureUrl.isNullOrBlank()) {
+                        AsyncImage(
+                            model = userProfile?.profilePictureUrl,
+                            contentDescription = "User Avatar",
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier.fillMaxSize()
                         )
+                    } else {
+                        Box(contentAlignment = Alignment.Center) {
+                            Text(
+                                text = initial,
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        }
                     }
                 }
 
@@ -403,6 +433,15 @@ fun CreatePostScreen(
                         fontWeight = if (hasBackground) FontWeight.Bold else FontWeight.Normal,
                         textAlign = if (hasBackground) TextAlign.Center else textAlignState
                     ),
+                    visualTransformation = remember(hasBackground, selectedBackground) {
+                        HashtagVisualTransformation(
+                            hashtagColor = if (hasBackground && selectedBackground.textColor == Color.White) {
+                                Color(0xFF90CAF9)
+                            } else {
+                                Color(0xFF1877F2)
+                            }
+                        )
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 20.dp, vertical = 12.dp)
@@ -972,7 +1011,7 @@ fun CreatePostScreen(
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         modifier = Modifier
-                            .clickable {}
+                            .clickable { showHashtagSheet = true }
                             .testTag("action_add_tag")
                     ) {
                         Surface(
@@ -1001,6 +1040,29 @@ fun CreatePostScreen(
             }
 
             Spacer(modifier = Modifier.height(40.dp))
+        }
+
+        // 8.5 Hashtag & Tag Modal Bottom Sheet
+        if (showHashtagSheet) {
+            HashtagPickerBottomSheet(
+                currentText = postText,
+                onHashtagSelected = { tag ->
+                    val cleanTag = if (tag.startsWith("#")) tag else "#$tag"
+                    postText = if (postText.isBlank()) {
+                        "$cleanTag "
+                    } else if (!postText.contains(cleanTag, ignoreCase = true)) {
+                        "${postText.trim()} $cleanTag "
+                    } else {
+                        postText
+                    }
+                },
+                onHashtagRemoved = { tag ->
+                    val cleanTag = if (tag.startsWith("#")) tag else "#$tag"
+                    postText = postText.replace(cleanTag, "", ignoreCase = true).replace(Regex("\\s+"), " ").trim()
+                    if (postText.isNotEmpty()) postText = "$postText "
+                },
+                onDismiss = { showHashtagSheet = false }
+            )
         }
 
         // 9. Audience Modal Bottom Sheet
@@ -1189,6 +1251,200 @@ fun CreatePostScreen(
                     Spacer(modifier = Modifier.height(20.dp))
                 }
             }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@Composable
+fun HashtagPickerBottomSheet(
+    currentText: String,
+    onHashtagSelected: (String) -> Unit,
+    onHashtagRemoved: (String) -> Unit,
+    onDismiss: () -> Unit
+) {
+    var customTagInput by remember { mutableStateOf("") }
+    val customTags = remember { mutableStateListOf<String>() }
+
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+        containerColor = Color.White
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp, vertical = 8.dp)
+        ) {
+            // Header
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Add Hashtags & Tags",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF050505)
+                )
+                IconButton(onClick = onDismiss) {
+                    Icon(
+                        imageVector = Icons.Default.Close,
+                        contentDescription = "Close",
+                        tint = Color(0xFF65676B)
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Custom Hashtag input + Add button
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                OutlinedTextField(
+                    value = customTagInput,
+                    onValueChange = { customTagInput = it },
+                    placeholder = {
+                        Text(
+                            text = "Custom tag (e.g. viral, tour)",
+                            color = Color(0xFF8A8D91),
+                            fontSize = 14.sp
+                        )
+                    },
+                    singleLine = true,
+                    shape = RoundedCornerShape(12.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = Color(0xFF1877F2),
+                        unfocusedBorderColor = Color(0xFFCED0D4)
+                    ),
+                    modifier = Modifier
+                        .weight(1f)
+                        .testTag("custom_hashtag_input")
+                )
+
+                Spacer(modifier = Modifier.width(8.dp))
+
+                Button(
+                    onClick = {
+                        val clean = customTagInput.trim().removePrefix("#")
+                        if (clean.isNotBlank()) {
+                            val formatted = "#$clean"
+                            if (!customTags.contains(formatted)) {
+                                customTags.add(0, formatted)
+                            }
+                            onHashtagSelected(formatted)
+                            customTagInput = ""
+                        }
+                    },
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1877F2)),
+                    contentPadding = PaddingValues(horizontal = 14.dp, vertical = 12.dp),
+                    modifier = Modifier.testTag("add_custom_hashtag_button")
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = "Add",
+                        tint = Color.White,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = "Add",
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White,
+                        fontSize = 14.sp
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(14.dp))
+
+            Text(
+                text = "Popular Hashtags (Tap to insert)",
+                fontSize = 14.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = Color(0xFF65676B)
+            )
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            // Combined list: custom user-added hashtags + 24 default popular tags
+            val allTags = remember(customTags.toList()) {
+                (customTags + DEFAULT_POPULAR_HASHTAGS).distinct()
+            }
+
+            FlowRow(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                allTags.forEach { tag ->
+                    val isSelected = currentText.contains(tag, ignoreCase = true)
+                    Surface(
+                        shape = RoundedCornerShape(20.dp),
+                        color = if (isSelected) Color(0xFFE7F3FF) else Color(0xFFF0F2F5),
+                        border = androidx.compose.foundation.BorderStroke(
+                            1.dp,
+                            if (isSelected) Color(0xFF1877F2) else Color(0xFFE4E6EB)
+                        ),
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(20.dp))
+                            .clickable {
+                                if (isSelected) {
+                                    onHashtagRemoved(tag)
+                                } else {
+                                    onHashtagSelected(tag)
+                                }
+                            }
+                            .testTag("hashtag_chip_$tag")
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 7.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            if (isSelected) {
+                                Icon(
+                                    imageVector = Icons.Default.Check,
+                                    contentDescription = "Selected",
+                                    tint = Color(0xFF1877F2),
+                                    modifier = Modifier.size(15.dp)
+                                )
+                                Spacer(modifier = Modifier.width(4.dp))
+                            }
+                            Text(
+                                text = tag,
+                                fontSize = 13.sp,
+                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                                color = if (isSelected) Color(0xFF1877F2) else Color(0xFF050505)
+                            )
+                        }
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            Button(
+                onClick = onDismiss,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(46.dp)
+                    .testTag("hashtag_done_button"),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1877F2))
+            ) {
+                Text(
+                    text = "Done",
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }

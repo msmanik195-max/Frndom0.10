@@ -21,10 +21,32 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.util.UUID
 
+import android.net.Uri
+import com.example.data.service.MediaUploadService
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+
+data class PostUploadState(
+    val isUploading: Boolean = false,
+    val progress: Float = 0f,
+    val progressPercent: Int = 0,
+    val statusText: String = "",
+    val mediaType: String = "text",
+    val previewUri: Uri? = null,
+    val contentPreview: String = "",
+    val isCompleted: Boolean = false,
+    val isError: Boolean = false,
+    val errorMessage: String? = null
+)
+
 class PostRepository(private val context: Context) {
 
     private val prefs = context.getSharedPreferences("frndom_posts_prefs", Context.MODE_PRIVATE)
     private val notificationRepository = NotificationRepository(context)
+    private val uploadScope = CoroutineScope(Dispatchers.IO)
+
+    private val _postUploadState = MutableStateFlow(PostUploadState())
+    val postUploadState = _postUploadState.asStateFlow()
 
     private val dbRef: DatabaseReference? by lazy {
         try {
@@ -263,6 +285,151 @@ class PostRepository(private val context: Context) {
         }
     }
 
+    /**
+     * Non-blocking background post uploader with real-time progress state updates
+     */
+    fun uploadAndCreatePost(
+        postTemplate: PostItem,
+        mediaUris: List<Uri>,
+        videoUri: Uri?,
+        mediaUploadService: MediaUploadService
+    ) {
+        val mediaType = postTemplate.mediaType
+        val previewUri = mediaUris.firstOrNull() ?: videoUri
+
+        uploadScope.launch {
+            try {
+                _postUploadState.value = PostUploadState(
+                    isUploading = true,
+                    progress = 0.05f,
+                    progressPercent = 5,
+                    statusText = "Preparing upload...",
+                    mediaType = mediaType,
+                    previewUri = previewUri,
+                    contentPreview = postTemplate.content,
+                    isCompleted = false,
+                    isError = false
+                )
+
+                val uploadedUrls = mutableListOf<String>()
+
+                if (videoUri != null || mediaType == "reel" || mediaType == "video") {
+                    val uri = videoUri ?: previewUri
+                    if (uri != null) {
+                        _postUploadState.value = _postUploadState.value.copy(
+                            progress = 0.15f,
+                            progressPercent = 15,
+                            statusText = "Uploading video..."
+                        )
+
+                        // Simulate smooth progress ticks while uploading video in background
+                        val progressJob = launch {
+                            val milestones = listOf(
+                                0.25f to 25,
+                                0.40f to 40,
+                                0.58f to 58,
+                                0.72f to 72,
+                                0.85f to 85,
+                                0.90f to 90
+                            )
+                            for ((prog, pct) in milestones) {
+                                delay(600)
+                                if (_postUploadState.value.isUploading && !_postUploadState.value.isCompleted) {
+                                    _postUploadState.value = _postUploadState.value.copy(
+                                        progress = prog,
+                                        progressPercent = pct,
+                                        statusText = "Uploading video ($pct%)..."
+                                    )
+                                }
+                            }
+                        }
+
+                        val folder = if (mediaType == "reel") "reels" else "videos"
+                        val uploadRes = mediaUploadService.uploadVideoUri(uri, folder = folder)
+                        progressJob.cancel()
+
+                        val uploadedUrl = uploadRes.getOrDefault(uri.toString())
+                        uploadedUrls.add(uploadedUrl)
+                    }
+                } else if (mediaUris.isNotEmpty()) {
+                    val total = mediaUris.size
+                    for (index in mediaUris.indices) {
+                        val currentUri = mediaUris[index]
+                        val startProg = 0.10f + (index.toFloat() / total) * 0.80f
+                        val startPct = (startProg * 100).toInt()
+
+                        _postUploadState.value = _postUploadState.value.copy(
+                            progress = startProg,
+                            progressPercent = startPct,
+                            statusText = "Uploading photo ${index + 1} of $total ($startPct%)..."
+                        )
+
+                        val res = mediaUploadService.uploadImageUri(currentUri, folder = "posts")
+                        uploadedUrls.add(res.getOrDefault(currentUri.toString()))
+
+                        val endProg = 0.10f + ((index + 1).toFloat() / total) * 0.80f
+                        val endPct = (endProg * 100).toInt()
+                        _postUploadState.value = _postUploadState.value.copy(
+                            progress = endProg,
+                            progressPercent = endPct,
+                            statusText = "Photo ${index + 1} uploaded"
+                        )
+                        delay(200)
+                    }
+                } else {
+                    // Text only post
+                    _postUploadState.value = _postUploadState.value.copy(
+                        progress = 0.50f,
+                        progressPercent = 50,
+                        statusText = "Publishing post..."
+                    )
+                    delay(300)
+                }
+
+                _postUploadState.value = _postUploadState.value.copy(
+                    progress = 0.95f,
+                    progressPercent = 95,
+                    statusText = "Finalizing post..."
+                )
+                delay(300)
+
+                val finalMediaType = when {
+                    mediaType == "reel" -> "reel"
+                    mediaType == "video" -> "video"
+                    uploadedUrls.isNotEmpty() -> "photo"
+                    else -> "text"
+                }
+
+                val finalPost = postTemplate.copy(
+                    mediaUrl = uploadedUrls.firstOrNull() ?: "",
+                    mediaUrls = uploadedUrls,
+                    mediaType = finalMediaType
+                )
+
+                createPost(finalPost)
+
+                _postUploadState.value = _postUploadState.value.copy(
+                    progress = 1.0f,
+                    progressPercent = 100,
+                    isCompleted = true,
+                    statusText = "Post published successfully!"
+                )
+
+                // Keep completed card for 2.5 seconds so user sees 100% completion
+                delay(2500)
+                _postUploadState.value = PostUploadState(isUploading = false)
+            } catch (e: Exception) {
+                Log.e("PostRepository", "Background post upload error: ${e.message}", e)
+                _postUploadState.value = _postUploadState.value.copy(
+                    isError = true,
+                    statusText = "Upload failed. Please try again."
+                )
+                delay(3000)
+                _postUploadState.value = PostUploadState(isUploading = false)
+            }
+        }
+    }
+
     fun setReaction(postId: String, userId: String, reaction: ReactionType?) {
         val current = _postsFlow.value.toMutableList()
         val index = current.indexOfFirst { it.id == postId }
@@ -299,32 +466,42 @@ class PostRepository(private val context: Context) {
             _postsFlow.value = current
             saveLocalPosts(current)
 
-            // Trigger notification if reaction added
-            if (reaction != null && post.authorId.isNotBlank()) {
-                val userRepo = UserRepository(context)
-                val senderProfile: UserProfile? = userRepo.getLocalUserProfile(userId)
-                val senderName = if (senderProfile != null && senderProfile.fullName.isNotBlank()) {
-                    senderProfile.fullName
-                } else if (senderProfile != null && (senderProfile.firstName.isNotBlank() || senderProfile.lastName.isNotBlank())) {
-                    "${senderProfile.firstName} ${senderProfile.lastName}".trim()
-                } else {
-                    "Someone"
-                }
-                val senderAvatar = senderProfile?.profilePictureUrl ?: ""
-                val postType = if (post.mediaType == "reel" || post.mediaType == "video") "reel" else "post"
+            // Trigger or remove notification for reaction
+            if (post.authorId.isNotBlank()) {
+                if (reaction != null) {
+                    val userRepo = UserRepository(context)
+                    val senderProfile: UserProfile? = userRepo.getLocalUserProfile(userId)
+                    val senderName = if (senderProfile != null && senderProfile.fullName.isNotBlank()) {
+                        senderProfile.fullName
+                    } else if (senderProfile != null && (senderProfile.firstName.isNotBlank() || senderProfile.lastName.isNotBlank())) {
+                        "${senderProfile.firstName} ${senderProfile.lastName}".trim()
+                    } else {
+                        "Someone"
+                    }
+                    val senderAvatar = senderProfile?.profilePictureUrl ?: ""
+                    val postType = if (post.mediaType == "reel" || post.mediaType == "video") "reel" else "post"
 
-                notificationRepository.addNotification(
-                    com.example.data.model.NotificationItem(
+                    notificationRepository.addNotification(
+                        com.example.data.model.NotificationItem(
+                            recipientId = post.authorId,
+                            senderId = userId,
+                            senderName = senderName,
+                            senderAvatarUrl = senderAvatar,
+                            postId = post.id,
+                            type = "like",
+                            content = "liked your $postType.",
+                            timestamp = System.currentTimeMillis()
+                        )
+                    )
+                } else {
+                    // Removed like/reaction: remove notification
+                    notificationRepository.removeNotification(
                         recipientId = post.authorId,
-                        senderId = userId,
-                        senderName = senderName,
-                        senderAvatarUrl = senderAvatar,
                         postId = post.id,
                         type = "like",
-                        content = "liked your $postType.",
-                        timestamp = System.currentTimeMillis()
+                        senderId = userId
                     )
-                )
+                }
             }
 
             try {
@@ -580,6 +757,49 @@ class PostRepository(private val context: Context) {
 
         commentsRef.addValueEventListener(listener)
         awaitClose { commentsRef.removeEventListener(listener) }
+    }
+
+    fun deleteComment(postId: String, commentId: String) {
+        val post = _postsFlow.value.firstOrNull { it.id == postId }
+        val comments = getLocalComments(postId).toMutableList()
+        val targetComment = comments.firstOrNull { it.id == commentId }
+        if (targetComment != null) {
+            comments.remove(targetComment)
+            saveAllLocalComments(postId, comments)
+
+            // Remove notification for post author
+            if (post != null && post.authorId.isNotBlank()) {
+                notificationRepository.removeNotification(
+                    recipientId = post.authorId,
+                    postId = postId,
+                    type = "comment",
+                    senderId = targetComment.authorId
+                )
+            }
+
+            // Decrement comments count on the post
+            val postList = _postsFlow.value.toMutableList()
+            val postIndex = postList.indexOfFirst { it.id == postId }
+            if (postIndex >= 0) {
+                val p = postList[postIndex]
+                val newCount = (p.commentsCount - 1).coerceAtLeast(0)
+                postList[postIndex] = p.copy(commentsCount = newCount)
+                _postsFlow.value = postList
+                saveLocalPosts(postList)
+                try {
+                    dbRef?.child(postId)?.child("commentsCount")?.setValue(newCount)
+                } catch (e: Exception) {
+                    Log.e("PostRepository", "Firebase update commentsCount error: ${e.message}")
+                }
+            }
+
+            try {
+                FirebaseDatabase.getInstance().getReference("post_comments")
+                    .child(postId).child(commentId).removeValue()
+            } catch (e: Exception) {
+                Log.e("PostRepository", "Firebase deleteComment error: ${e.message}")
+            }
+        }
     }
 
     // ==========================================

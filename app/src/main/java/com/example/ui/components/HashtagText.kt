@@ -30,8 +30,84 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+import androidx.compose.ui.text.input.OffsetMapping
+import androidx.compose.ui.text.input.TransformedText
+import androidx.compose.ui.text.input.VisualTransformation
+
 // Regex to capture English, digits, underscore, and Bengali Unicode range (\u0980-\u09FF)
-private val HASHTAG_REGEX = Regex("(#[a-zA-Z0-9_\u0980-\u09FF]+)")
+val HASHTAG_REGEX = Regex("(#[a-zA-Z0-9_\u0980-\u09FF]+)")
+
+val DEFAULT_POPULAR_HASHTAGS = listOf(
+    "#trending",
+    "#viral",
+    "#bangladesh",
+    "#love",
+    "#photography",
+    "#nature",
+    "#explore",
+    "#reels",
+    "#friends",
+    "#life",
+    "#fashion",
+    "#music",
+    "#travel",
+    "#technology",
+    "#food",
+    "#fitness",
+    "#motivation",
+    "#art",
+    "#daily",
+    "#beautiful",
+    "#fun",
+    "#foryou",
+    "#style",
+    "#peace"
+)
+
+/**
+ * VisualTransformation that dynamically highlights words starting with #
+ * in bright link color while typing in TextField.
+ */
+class HashtagVisualTransformation(
+    private val hashtagColor: Color = Color(0xFF1877F2)
+) : VisualTransformation {
+    override fun filter(text: AnnotatedString): TransformedText {
+        val rawText = text.text
+        val builder = AnnotatedString.Builder()
+        var lastIndex = 0
+
+        HASHTAG_REGEX.findAll(rawText).forEach { matchResult ->
+            val start = matchResult.range.first
+            val end = matchResult.range.last + 1
+
+            if (start > lastIndex) {
+                builder.append(rawText.substring(lastIndex, start))
+            }
+
+            val tag = matchResult.value
+            val tagStart = builder.length
+            builder.append(tag)
+            val tagEnd = builder.length
+
+            builder.addStyle(
+                SpanStyle(
+                    color = hashtagColor,
+                    fontWeight = FontWeight.Bold
+                ),
+                tagStart,
+                tagEnd
+            )
+
+            lastIndex = end
+        }
+
+        if (lastIndex < rawText.length) {
+            builder.append(rawText.substring(lastIndex))
+        }
+
+        return TransformedText(builder.toAnnotatedString(), OffsetMapping.Identity)
+    }
+}
 
 @Composable
 fun HashtagText(

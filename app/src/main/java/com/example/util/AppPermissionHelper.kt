@@ -44,6 +44,17 @@ object AppPermissionHelper {
         return permissions.toTypedArray()
     }
 
+    fun getMissingEssentialPermissions(context: Context): Array<String> {
+        val all = getAllEssentialPermissions()
+        return all.filter { perm ->
+            ContextCompat.checkSelfPermission(context, perm) != PackageManager.PERMISSION_GRANTED
+        }.toTypedArray()
+    }
+
+    fun hasAllEssentialPermissions(context: Context): Boolean {
+        return getMissingEssentialPermissions(context).isEmpty()
+    }
+
     fun hasMicrophonePermission(context: Context): Boolean {
         return ContextCompat.checkSelfPermission(
             context,
