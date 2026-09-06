@@ -571,6 +571,11 @@ fun PostCardItem(
     if (postRepository != null && currentUserId.isNotBlank()) {
         androidx.compose.runtime.LaunchedEffect(post.id, currentUserId) {
             postRepository.recordPostView(post.id, currentUserId)
+            com.example.data.repository.WatchHistoryRepository.getInstance(context).recordHistory(post, currentUserId)
+        }
+    } else {
+        androidx.compose.runtime.LaunchedEffect(post.id) {
+            com.example.data.repository.WatchHistoryRepository.getInstance(context).recordHistory(post, currentUserId)
         }
     }
 

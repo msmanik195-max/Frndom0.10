@@ -169,15 +169,20 @@ fun ReelsScreen(
                 modifier = Modifier.fillMaxSize()
             ) { page ->
                 val reel = reels[page]
-                androidx.compose.runtime.LaunchedEffect(reel.id, userId) {
-                    if (userId.isNotBlank()) {
-                        postRepository.recordPostView(reel.id, userId)
+                val isCurrentPage = (page == pagerState.currentPage)
+                androidx.compose.runtime.LaunchedEffect(reel.id, userId, isCurrentPage) {
+                    if (isCurrentPage) {
+                        if (userId.isNotBlank()) {
+                            postRepository.recordPostView(reel.id, userId)
+                        }
+                        com.example.data.repository.WatchHistoryRepository.getInstance(context).recordHistory(reel, userId)
                     }
                 }
                 ReelVideoItem(
                     reel = reel,
                     currentUserId = userId,
                     currentUserProfile = userProfile,
+                    isActive = isCurrentPage,
                     onDoubleTapLike = {
                         postRepository.setReaction(reel.id, userId, ReactionType.LOVE)
                     },
@@ -276,6 +281,7 @@ private fun ReelVideoItem(
     reel: PostItem,
     currentUserId: String,
     currentUserProfile: UserProfile? = null,
+    isActive: Boolean = true,
     onDoubleTapLike: () -> Unit,
     onLikeClick: () -> Unit,
     onCommentClick: () -> Unit,
@@ -347,7 +353,7 @@ private fun ReelVideoItem(
                 FrndomVideoPlayer(
                     videoUrl = reel.mediaUrl,
                     modifier = Modifier.fillMaxSize(),
-                    autoPlay = true,
+                    autoPlay = isActive,
                     isLooping = true,
                     onDoubleTap = { triggerHeartAnimation() }
                 )

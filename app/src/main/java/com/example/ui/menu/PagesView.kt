@@ -32,6 +32,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
+import androidx.compose.material3.TabRowDefaults
+import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -59,6 +61,7 @@ import com.example.data.repository.GroupPageRepository
 import com.example.data.repository.PostRepository
 import com.example.data.repository.StorageRepository
 import com.example.data.service.MediaUploadService
+import com.example.ui.theme.LocalIsDarkMode
 
 @Composable
 fun PagesView(
@@ -72,6 +75,16 @@ fun PagesView(
 ) {
     val context = LocalContext.current
     val effectiveMediaUploadService = mediaUploadService ?: remember { MediaUploadService(context, StorageRepository(context)) }
+
+    val isDarkMode = LocalIsDarkMode.current
+    val bgScreen = if (isDarkMode) Color(0xFF18191A) else Color(0xFFF0F2F5)
+    val bgCard = if (isDarkMode) Color(0xFF242526) else Color.White
+    val textPrimary = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505)
+    val textSecondary = if (isDarkMode) Color(0xFFB0B3B8) else Color(0xFF65676B)
+    val dividerColor = if (isDarkMode) Color(0xFF3A3B3C) else Color(0xFFE4E6EB)
+    val buttonSecondaryBg = if (isDarkMode) Color(0xFF3A3B3C) else Color(0xFFEBF5FF)
+    val buttonSecondaryText = if (isDarkMode) Color(0xFF4599FF) else Color(0xFF1877F2)
+    val circleBg = if (isDarkMode) Color(0xFF263951) else Color(0xFFEBF5FF)
 
     val pages by groupPageRepository.pagesFlow.collectAsState()
     val likedPages = remember { mutableStateMapOf<String, Boolean>() }
@@ -117,7 +130,7 @@ fun PagesView(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(Color(0xFFF0F2F5))
+            .background(bgScreen)
             .testTag("pages_view")
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
@@ -125,21 +138,21 @@ fun PagesView(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Color.White)
+                    .background(bgCard)
                     .padding(horizontal = 8.dp, vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     IconButton(onClick = onBack) {
-                        Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back", tint = textPrimary)
                     }
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
                         text = "Pages",
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF050505)
+                        color = textPrimary
                     )
                 }
 
@@ -149,17 +162,24 @@ fun PagesView(
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1877F2)),
                     modifier = Modifier.height(36.dp)
                 ) {
-                    Icon(imageVector = Icons.Default.Add, contentDescription = null, modifier = Modifier.size(16.dp))
+                    Icon(imageVector = Icons.Default.Add, contentDescription = null, modifier = Modifier.size(16.dp), tint = Color.White)
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text(text = "Create", fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                    Text(text = "Create", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Color.White)
                 }
             }
 
             // Tabs
             TabRow(
                 selectedTabIndex = selectedTab,
-                containerColor = Color.White,
-                contentColor = Color(0xFF1877F2)
+                containerColor = bgCard,
+                contentColor = Color(0xFF1877F2),
+                indicator = { tabPositions ->
+                    TabRowDefaults.Indicator(
+                        Modifier.tabIndicatorOffset(tabPositions[selectedTab]),
+                        color = Color(0xFF1877F2),
+                        height = 3.dp
+                    )
+                }
             ) {
                 tabs.forEachIndexed { index, title ->
                     Tab(
@@ -169,14 +189,15 @@ fun PagesView(
                             Text(
                                 text = title,
                                 fontWeight = if (selectedTab == index) FontWeight.Bold else FontWeight.Normal,
-                                fontSize = 14.sp
+                                fontSize = 14.sp,
+                                color = if (selectedTab == index) (if (isDarkMode) Color(0xFF4599FF) else Color(0xFF1877F2)) else textSecondary
                             )
                         }
                     )
                 }
             }
 
-            Divider(thickness = 0.5.dp, color = Color(0xFFE4E6EB))
+            Divider(thickness = 0.5.dp, color = dividerColor)
 
             if (displayedPages.isEmpty()) {
                 Column(
@@ -188,7 +209,7 @@ fun PagesView(
                 ) {
                     Surface(
                         shape = CircleShape,
-                        color = Color(0xFFEBF5FF),
+                        color = circleBg,
                         modifier = Modifier.size(80.dp)
                     ) {
                         Box(contentAlignment = Alignment.Center) {
@@ -207,7 +228,7 @@ fun PagesView(
                         text = if (selectedTab == 1) "No Pages Created or Liked" else "No Pages Available",
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF050505)
+                        color = textPrimary
                     )
 
                     Spacer(modifier = Modifier.height(6.dp))
@@ -218,7 +239,7 @@ fun PagesView(
                         else
                             "Create a page to share your passion, business, or brand with followers on Frndom.",
                         fontSize = 14.sp,
-                        color = Color(0xFF65676B),
+                        color = textSecondary,
                         textAlign = androidx.compose.ui.text.style.TextAlign.Center
                     )
 
@@ -229,9 +250,9 @@ fun PagesView(
                         shape = RoundedCornerShape(8.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1877F2))
                     ) {
-                        Icon(imageVector = Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp))
+                        Icon(imageVector = Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp), tint = Color.White)
                         Spacer(modifier = Modifier.width(6.dp))
-                        Text(text = "Create a Page", fontWeight = FontWeight.Bold)
+                        Text(text = "Create a Page", fontWeight = FontWeight.Bold, color = Color.White)
                     }
                 }
             } else {
@@ -249,7 +270,7 @@ fun PagesView(
                                 .fillMaxWidth()
                                 .clickable { selectedPageForDetail = page },
                             shape = RoundedCornerShape(12.dp),
-                            colors = CardDefaults.cardColors(containerColor = Color.White),
+                            colors = CardDefaults.cardColors(containerColor = bgCard),
                             elevation = CardDefaults.cardElevation(1.dp)
                         ) {
                             Column(modifier = Modifier.fillMaxWidth()) {
@@ -293,7 +314,7 @@ fun PagesView(
                                                 .size(44.dp)
                                                 .clip(CircleShape),
                                             shape = CircleShape,
-                                            color = Color(0xFFEBF5FF)
+                                            color = circleBg
                                         ) {
                                             if (page.avatarUrl.isNotBlank()) {
                                                 AsyncImage(
@@ -321,12 +342,12 @@ fun PagesView(
                                                 text = page.name,
                                                 fontSize = 16.sp,
                                                 fontWeight = FontWeight.Bold,
-                                                color = Color(0xFF050505)
+                                                color = textPrimary
                                             )
                                             Text(
                                                 text = "${page.category} • ${page.likesCount} likes",
                                                 fontSize = 12.sp,
-                                                color = Color(0xFF65676B)
+                                                color = textSecondary
                                             )
                                         }
                                     }
@@ -336,7 +357,7 @@ fun PagesView(
                                         Text(
                                             text = page.description,
                                             fontSize = 13.sp,
-                                            color = Color(0xFF65676B),
+                                            color = textSecondary,
                                             maxLines = 2
                                         )
                                     }
@@ -349,7 +370,7 @@ fun PagesView(
                                     ) {
                                         Button(
                                             onClick = { selectedPageForDetail = page },
-                                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFEBF5FF), contentColor = Color(0xFF1877F2)),
+                                            colors = ButtonDefaults.buttonColors(containerColor = buttonSecondaryBg, contentColor = buttonSecondaryText),
                                             shape = RoundedCornerShape(8.dp),
                                             modifier = Modifier.weight(1f)
                                         ) {
@@ -363,9 +384,9 @@ fun PagesView(
                                                 shape = RoundedCornerShape(8.dp),
                                                 modifier = Modifier.weight(1f)
                                             ) {
-                                                Icon(imageVector = Icons.Default.SwapHoriz, contentDescription = null, modifier = Modifier.size(16.dp))
+                                                Icon(imageVector = Icons.Default.SwapHoriz, contentDescription = null, modifier = Modifier.size(16.dp), tint = Color.White)
                                                 Spacer(modifier = Modifier.width(4.dp))
-                                                Text("Switch", fontWeight = FontWeight.Bold)
+                                                Text("Switch", fontWeight = FontWeight.Bold, color = Color.White)
                                             }
                                         }
                                     }

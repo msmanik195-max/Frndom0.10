@@ -33,6 +33,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
+import androidx.compose.material3.TabRowDefaults
+import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -59,6 +61,7 @@ import com.example.data.repository.GroupPageRepository
 import com.example.data.repository.PostRepository
 import com.example.data.repository.StorageRepository
 import com.example.data.service.MediaUploadService
+import com.example.ui.theme.LocalIsDarkMode
 
 @Composable
 fun GroupsView(
@@ -71,6 +74,16 @@ fun GroupsView(
 ) {
     val context = LocalContext.current
     val effectiveMediaUploadService = mediaUploadService ?: remember { MediaUploadService(context, StorageRepository(context)) }
+
+    val isDarkMode = LocalIsDarkMode.current
+    val bgScreen = if (isDarkMode) Color(0xFF18191A) else Color(0xFFF0F2F5)
+    val bgCard = if (isDarkMode) Color(0xFF242526) else Color.White
+    val textPrimary = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505)
+    val textSecondary = if (isDarkMode) Color(0xFFB0B3B8) else Color(0xFF65676B)
+    val dividerColor = if (isDarkMode) Color(0xFF3A3B3C) else Color(0xFFE4E6EB)
+    val buttonSecondaryBg = if (isDarkMode) Color(0xFF3A3B3C) else Color(0xFFEBF5FF)
+    val buttonSecondaryText = if (isDarkMode) Color(0xFF4599FF) else Color(0xFF1877F2)
+    val circleBg = if (isDarkMode) Color(0xFF1E392A) else Color(0xFFE8F5E9)
 
     val groups by groupPageRepository.groupsFlow.collectAsState()
     val joinedGroups = remember { mutableStateMapOf<String, Boolean>() }
@@ -115,7 +128,7 @@ fun GroupsView(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(Color(0xFFF0F2F5))
+            .background(bgScreen)
             .testTag("groups_view")
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
@@ -123,21 +136,21 @@ fun GroupsView(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Color.White)
+                    .background(bgCard)
                     .padding(horizontal = 8.dp, vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     IconButton(onClick = onBack) {
-                        Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back", tint = textPrimary)
                     }
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
                         text = "Groups",
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF050505)
+                        color = textPrimary
                     )
                 }
 
@@ -147,17 +160,24 @@ fun GroupsView(
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1877F2)),
                     modifier = Modifier.height(36.dp)
                 ) {
-                    Icon(imageVector = Icons.Default.Add, contentDescription = null, modifier = Modifier.size(16.dp))
+                    Icon(imageVector = Icons.Default.Add, contentDescription = null, modifier = Modifier.size(16.dp), tint = Color.White)
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text(text = "Create", fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                    Text(text = "Create", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Color.White)
                 }
             }
 
             // Tab Row
             TabRow(
                 selectedTabIndex = selectedTab,
-                containerColor = Color.White,
-                contentColor = Color(0xFF1877F2)
+                containerColor = bgCard,
+                contentColor = Color(0xFF1877F2),
+                indicator = { tabPositions ->
+                    TabRowDefaults.Indicator(
+                        Modifier.tabIndicatorOffset(tabPositions[selectedTab]),
+                        color = Color(0xFF1877F2),
+                        height = 3.dp
+                    )
+                }
             ) {
                 tabs.forEachIndexed { index, title ->
                     Tab(
@@ -167,14 +187,15 @@ fun GroupsView(
                             Text(
                                 text = title,
                                 fontWeight = if (selectedTab == index) FontWeight.Bold else FontWeight.Normal,
-                                fontSize = 14.sp
+                                fontSize = 14.sp,
+                                color = if (selectedTab == index) (if (isDarkMode) Color(0xFF4599FF) else Color(0xFF1877F2)) else textSecondary
                             )
                         }
                     )
                 }
             }
 
-            Divider(thickness = 0.5.dp, color = Color(0xFFE4E6EB))
+            Divider(thickness = 0.5.dp, color = dividerColor)
 
             if (displayedGroups.isEmpty()) {
                 Column(
@@ -186,7 +207,7 @@ fun GroupsView(
                 ) {
                     Surface(
                         shape = CircleShape,
-                        color = Color(0xFFE8F5E9),
+                        color = circleBg,
                         modifier = Modifier.size(80.dp)
                     ) {
                         Box(contentAlignment = Alignment.Center) {
@@ -205,7 +226,7 @@ fun GroupsView(
                         text = if (selectedTab == 1) "No Groups Joined Yet" else "No Groups Available",
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF050505)
+                        color = textPrimary
                     )
 
                     Spacer(modifier = Modifier.height(6.dp))
@@ -216,7 +237,7 @@ fun GroupsView(
                         else
                             "Connect with people who share your interests by creating the first community group.",
                         fontSize = 14.sp,
-                        color = Color(0xFF65676B),
+                        color = textSecondary,
                         textAlign = androidx.compose.ui.text.style.TextAlign.Center
                     )
 
@@ -227,9 +248,9 @@ fun GroupsView(
                         shape = RoundedCornerShape(8.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1877F2))
                     ) {
-                        Icon(imageVector = Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp))
+                        Icon(imageVector = Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp), tint = Color.White)
                         Spacer(modifier = Modifier.width(6.dp))
-                        Text(text = "Create a Group", fontWeight = FontWeight.Bold)
+                        Text(text = "Create a Group", fontWeight = FontWeight.Bold, color = Color.White)
                     }
                 }
             } else {
@@ -247,7 +268,7 @@ fun GroupsView(
                                 .fillMaxWidth()
                                 .clickable { selectedGroupForDetail = group },
                             shape = RoundedCornerShape(12.dp),
-                            colors = CardDefaults.cardColors(containerColor = Color.White),
+                            colors = CardDefaults.cardColors(containerColor = bgCard),
                             elevation = CardDefaults.cardElevation(1.dp)
                         ) {
                             Column(modifier = Modifier.fillMaxWidth()) {
@@ -286,7 +307,7 @@ fun GroupsView(
                                         text = group.name,
                                         fontSize = 16.sp,
                                         fontWeight = FontWeight.Bold,
-                                        color = Color(0xFF050505)
+                                        color = textPrimary
                                     )
 
                                     Spacer(modifier = Modifier.height(4.dp))
@@ -295,14 +316,14 @@ fun GroupsView(
                                         Icon(
                                             imageVector = if (isPrivate) Icons.Default.Lock else Icons.Default.Public,
                                             contentDescription = null,
-                                            tint = Color(0xFF65676B),
+                                            tint = textSecondary,
                                             modifier = Modifier.size(14.dp)
                                         )
                                         Spacer(modifier = Modifier.width(4.dp))
                                         Text(
                                             text = "${group.privacy} Group • ${group.membersCount} member${if (group.membersCount > 1) "s" else ""}",
                                             fontSize = 12.sp,
-                                            color = Color(0xFF65676B)
+                                            color = textSecondary
                                         )
                                     }
 
@@ -311,7 +332,7 @@ fun GroupsView(
                                         Text(
                                             text = group.description,
                                             fontSize = 13.sp,
-                                            color = Color(0xFF65676B),
+                                            color = textSecondary,
                                             maxLines = 2
                                         )
                                     }
@@ -322,8 +343,8 @@ fun GroupsView(
                                         onClick = { selectedGroupForDetail = group },
                                         shape = RoundedCornerShape(8.dp),
                                         colors = ButtonDefaults.buttonColors(
-                                            containerColor = Color(0xFFEBF5FF),
-                                            contentColor = Color(0xFF1877F2)
+                                            containerColor = buttonSecondaryBg,
+                                            contentColor = buttonSecondaryText
                                         ),
                                         modifier = Modifier.fillMaxWidth()
                                     ) {

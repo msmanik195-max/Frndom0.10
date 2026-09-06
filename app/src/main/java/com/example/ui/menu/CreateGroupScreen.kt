@@ -64,6 +64,7 @@ import com.example.data.model.GroupItem
 import com.example.data.model.UserProfile
 import com.example.data.repository.GroupPageRepository
 import com.example.data.service.MediaUploadService
+import com.example.ui.theme.LocalIsDarkMode
 import kotlinx.coroutines.launch
 import java.util.UUID
 
@@ -79,6 +80,14 @@ fun CreateGroupScreen(
 ) {
     val isEditMode = groupToEdit != null
     val scope = rememberCoroutineScope()
+
+    val isDarkMode = LocalIsDarkMode.current
+    val bgScreen = if (isDarkMode) Color(0xFF18191A) else Color(0xFFF0F2F5)
+    val bgCard = if (isDarkMode) Color(0xFF242526) else Color.White
+    val textPrimary = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505)
+    val textSecondary = if (isDarkMode) Color(0xFFB0B3B8) else Color(0xFF65676B)
+    val dividerColor = if (isDarkMode) Color(0xFF3A3B3C) else Color(0xFFE4E6EB)
+    val bannerEmptyBg = if (isDarkMode) Color(0xFF2A2B2D) else Color(0xFFE4E6EB)
 
     var groupName by remember { mutableStateOf(groupToEdit?.name.orEmpty()) }
     var groupDescription by remember { mutableStateOf(groupToEdit?.description.orEmpty()) }
@@ -102,14 +111,14 @@ fun CreateGroupScreen(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(Color(0xFFF0F2F5))
+            .background(bgScreen)
             .testTag("create_group_screen")
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
             // Header
             Surface(
                 modifier = Modifier.fillMaxWidth(),
-                color = Color.White,
+                color = bgCard,
                 shadowElevation = 1.dp
             ) {
                 Row(
@@ -124,7 +133,7 @@ fun CreateGroupScreen(
                             Icon(
                                 imageVector = Icons.Default.ArrowBack,
                                 contentDescription = "Back",
-                                tint = Color(0xFF050505)
+                                tint = textPrimary
                             )
                         }
                         Spacer(modifier = Modifier.width(4.dp))
@@ -132,7 +141,7 @@ fun CreateGroupScreen(
                             text = if (isEditMode) "Edit Group" else "Create a Group",
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF050505)
+                            color = textPrimary
                         )
                     }
 
@@ -210,11 +219,11 @@ fun CreateGroupScreen(
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                // Section 1: Group Cover Banner (Facebook standard: Groups only have cover banners)
+                // Section 1: Group Cover Banner
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    colors = CardDefaults.cardColors(containerColor = bgCard),
                     elevation = CardDefaults.cardElevation(1.dp)
                 ) {
                     Column(modifier = Modifier.fillMaxWidth()) {
@@ -230,23 +239,23 @@ fun CreateGroupScreen(
                                     text = "Group Cover Photo",
                                     fontSize = 16.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = Color(0xFF050505)
+                                    color = textPrimary
                                 )
                                 Text(
                                     text = "Groups feature a wide cover banner header",
                                     fontSize = 12.sp,
-                                    color = Color(0xFF65676B)
+                                    color = textSecondary
                                 )
                             }
                         }
 
-                        Divider(thickness = 0.5.dp, color = Color(0xFFE4E6EB))
+                        Divider(thickness = 0.5.dp, color = dividerColor)
 
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(160.dp)
-                                .background(Color(0xFFE4E6EB))
+                                .background(bannerEmptyBg)
                                 .clickable {
                                     coverPickerLauncher.launch(
                                         PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
@@ -304,14 +313,14 @@ fun CreateGroupScreen(
                                     .padding(10.dp)
                                     .size(36.dp),
                                 shape = CircleShape,
-                                color = Color.White.copy(alpha = 0.9f),
+                                color = bgCard.copy(alpha = 0.9f),
                                 shadowElevation = 2.dp
                             ) {
                                 Box(contentAlignment = Alignment.Center) {
                                     Icon(
                                         imageVector = Icons.Default.CameraAlt,
                                         contentDescription = "Change Cover",
-                                        tint = Color(0xFF050505),
+                                        tint = textPrimary,
                                         modifier = Modifier.size(18.dp)
                                     )
                                 }
@@ -324,7 +333,7 @@ fun CreateGroupScreen(
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    colors = CardDefaults.cardColors(containerColor = bgCard),
                     elevation = CardDefaults.cardElevation(1.dp)
                 ) {
                     Column(
@@ -337,23 +346,27 @@ fun CreateGroupScreen(
                             text = "Group Information",
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF050505)
+                            color = textPrimary
                         )
 
                         // Name
                         OutlinedTextField(
                             value = groupName,
                             onValueChange = { groupName = it },
-                            label = { Text("Group Name *") },
-                            placeholder = { Text("e.g. Kotlin & Android Developers") },
+                            label = { Text("Group Name *", color = textSecondary) },
+                            placeholder = { Text("e.g. Kotlin & Android Developers", color = textSecondary) },
                             singleLine = true,
                             shape = RoundedCornerShape(8.dp),
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .testTag("group_name_input"),
                             colors = OutlinedTextFieldDefaults.colors(
+                                focusedTextColor = textPrimary,
+                                unfocusedTextColor = textPrimary,
                                 focusedBorderColor = Color(0xFF1877F2),
-                                focusedLabelColor = Color(0xFF1877F2)
+                                unfocusedBorderColor = dividerColor,
+                                focusedLabelColor = Color(0xFF1877F2),
+                                unfocusedLabelColor = textSecondary
                             )
                         )
 
@@ -361,8 +374,8 @@ fun CreateGroupScreen(
                         OutlinedTextField(
                             value = groupDescription,
                             onValueChange = { groupDescription = it },
-                            label = { Text("About This Group") },
-                            placeholder = { Text("Describe what members can discuss, share, and learn...") },
+                            label = { Text("About This Group", color = textSecondary) },
+                            placeholder = { Text("Describe what members can discuss, share, and learn...", color = textSecondary) },
                             shape = RoundedCornerShape(8.dp),
                             minLines = 3,
                             maxLines = 5,
@@ -370,8 +383,12 @@ fun CreateGroupScreen(
                                 .fillMaxWidth()
                                 .testTag("group_desc_input"),
                             colors = OutlinedTextFieldDefaults.colors(
+                                focusedTextColor = textPrimary,
+                                unfocusedTextColor = textPrimary,
                                 focusedBorderColor = Color(0xFF1877F2),
-                                focusedLabelColor = Color(0xFF1877F2)
+                                unfocusedBorderColor = dividerColor,
+                                focusedLabelColor = Color(0xFF1877F2),
+                                unfocusedLabelColor = textSecondary
                             )
                         )
                     }
@@ -381,7 +398,7 @@ fun CreateGroupScreen(
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    colors = CardDefaults.cardColors(containerColor = bgCard),
                     elevation = CardDefaults.cardElevation(1.dp)
                 ) {
                     Column(
@@ -393,7 +410,7 @@ fun CreateGroupScreen(
                             text = "Choose Privacy",
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF050505)
+                            color = textPrimary
                         )
 
                         Spacer(modifier = Modifier.height(10.dp))
@@ -415,8 +432,8 @@ fun CreateGroupScreen(
                             Icon(imageVector = Icons.Default.Public, contentDescription = null, tint = Color(0xFF1877F2), modifier = Modifier.size(20.dp))
                             Spacer(modifier = Modifier.width(8.dp))
                             Column {
-                                Text("Public Group", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = Color(0xFF050505))
-                                Text("Anyone can see who's in the group and what they post", fontSize = 12.sp, color = Color(0xFF65676B))
+                                Text("Public Group", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = textPrimary)
+                                Text("Anyone can see who's in the group and what they post", fontSize = 12.sp, color = textSecondary)
                             }
                         }
 
@@ -434,11 +451,11 @@ fun CreateGroupScreen(
                                 colors = RadioButtonDefaults.colors(selectedColor = Color(0xFF1877F2))
                             )
                             Spacer(modifier = Modifier.width(8.dp))
-                            Icon(imageVector = Icons.Default.Lock, contentDescription = null, tint = Color(0xFF65676B), modifier = Modifier.size(20.dp))
+                            Icon(imageVector = Icons.Default.Lock, contentDescription = null, tint = textSecondary, modifier = Modifier.size(20.dp))
                             Spacer(modifier = Modifier.width(8.dp))
                             Column {
-                                Text("Private Group", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = Color(0xFF050505))
-                                Text("Only members can see who's in the group and what they post", fontSize = 12.sp, color = Color(0xFF65676B))
+                                Text("Private Group", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = textPrimary)
+                                Text("Only members can see who's in the group and what they post", fontSize = 12.sp, color = textSecondary)
                             }
                         }
                     }

@@ -44,6 +44,16 @@ object AppPermissionHelper {
         return permissions.toTypedArray()
     }
 
+    fun getMissingStartupPermissions(context: Context): Array<String> {
+        val permissions = mutableListOf<String>()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                permissions.add(Manifest.permission.POST_NOTIFICATIONS)
+            }
+        }
+        return permissions.toTypedArray()
+    }
+
     fun getMissingEssentialPermissions(context: Context): Array<String> {
         val all = getAllEssentialPermissions()
         return all.filter { perm ->

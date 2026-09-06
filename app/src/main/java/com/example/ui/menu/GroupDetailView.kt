@@ -97,6 +97,7 @@ import com.example.data.repository.PostRepository
 import com.example.data.service.MediaUploadService
 import com.example.ui.components.CommentsBottomSheet
 import com.example.ui.home.PostCardItem
+import com.example.ui.theme.LocalIsDarkMode
 import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -193,17 +194,28 @@ fun GroupDetailView(
         return
     }
 
+    val isDarkMode = LocalIsDarkMode.current
+    val bgScreen = if (isDarkMode) Color(0xFF18191A) else Color(0xFFF0F2F5)
+    val bgCard = if (isDarkMode) Color(0xFF242526) else Color.White
+    val textPrimary = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505)
+    val textSecondary = if (isDarkMode) Color(0xFFB0B3B8) else Color(0xFF65676B)
+    val dividerColor = if (isDarkMode) Color(0xFF3A3B3C) else Color(0xFFE4E6EB)
+    val buttonSecondaryBg = if (isDarkMode) Color(0xFF3A3B3C) else Color(0xFFE4E6EB)
+    val buttonSecondaryText = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505)
+    val inputBg = if (isDarkMode) Color(0xFF3A3B3C) else Color(0xFFF0F2F5)
+    val badgeBg = if (isDarkMode) Color(0xFF263951) else Color(0xFFEBF5FF)
+
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(Color(0xFFF0F2F5))
+            .background(bgScreen)
             .testTag("group_detail_view")
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
             // Top App Bar
             Surface(
                 modifier = Modifier.fillMaxWidth(),
-                color = Color.White,
+                color = bgCard,
                 shadowElevation = 1.dp
             ) {
                 Row(
@@ -221,7 +233,7 @@ fun GroupDetailView(
                             Icon(
                                 imageVector = Icons.Default.ArrowBack,
                                 contentDescription = "Back",
-                                tint = Color(0xFF050505)
+                                tint = textPrimary
                             )
                         }
                         Spacer(modifier = Modifier.width(4.dp))
@@ -229,7 +241,7 @@ fun GroupDetailView(
                             text = currentGroup.name,
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF050505),
+                            color = textPrimary,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
@@ -244,7 +256,7 @@ fun GroupDetailView(
                             Icon(
                                 imageVector = Icons.Default.Share,
                                 contentDescription = "Share",
-                                tint = Color(0xFF050505)
+                                tint = textPrimary
                             )
                         }
 
@@ -254,20 +266,21 @@ fun GroupDetailView(
                                     Icon(
                                         imageVector = Icons.Default.MoreVert,
                                         contentDescription = "Options",
-                                        tint = Color(0xFF050505)
+                                        tint = textPrimary
                                     )
                                 }
 
                                 DropdownMenu(
                                     expanded = showMenuDropdown,
-                                    onDismissRequest = { showMenuDropdown = false }
+                                    onDismissRequest = { showMenuDropdown = false },
+                                    modifier = Modifier.background(bgCard)
                                 ) {
                                     DropdownMenuItem(
                                         text = {
                                             Row(verticalAlignment = Alignment.CenterVertically) {
                                                 Icon(Icons.Default.Edit, contentDescription = null, tint = Color(0xFF1877F2), modifier = Modifier.size(18.dp))
                                                 Spacer(modifier = Modifier.width(8.dp))
-                                                Text("Edit Group")
+                                                Text("Edit Group", color = textPrimary)
                                             }
                                         },
                                         onClick = {
@@ -276,7 +289,7 @@ fun GroupDetailView(
                                         }
                                     )
 
-                                    Divider(thickness = 0.5.dp, color = Color(0xFFE4E6EB))
+                                    Divider(thickness = 0.5.dp, color = dividerColor)
 
                                     DropdownMenuItem(
                                         text = {
@@ -298,7 +311,7 @@ fun GroupDetailView(
                                 Icon(
                                     imageVector = Icons.Default.MoreHoriz,
                                     contentDescription = "More Options",
-                                    tint = Color(0xFF050505)
+                                    tint = textPrimary
                                 )
                             }
                         }
@@ -316,7 +329,7 @@ fun GroupDetailView(
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(Color.White)
+                            .background(bgCard)
                     ) {
                         Box(
                             modifier = Modifier
@@ -361,7 +374,7 @@ fun GroupDetailView(
                                 text = currentGroup.name,
                                 fontSize = 22.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = Color(0xFF050505)
+                                color = textPrimary
                             )
 
                             Spacer(modifier = Modifier.height(4.dp))
@@ -373,14 +386,14 @@ fun GroupDetailView(
                                 Icon(
                                     imageVector = if (isPrivate) Icons.Default.Lock else Icons.Default.Public,
                                     contentDescription = currentGroup.privacy,
-                                    tint = Color(0xFF65676B),
+                                    tint = textSecondary,
                                     modifier = Modifier.size(15.dp)
                                 )
                                 Text(
                                     text = "${if (isPrivate) "Private" else "Public"} group • $memberCount member${if (memberCount > 1) "s" else ""}",
                                     fontSize = 13.sp,
                                     fontWeight = FontWeight.Medium,
-                                    color = Color(0xFF65676B)
+                                    color = textSecondary
                                 )
                             }
 
@@ -389,7 +402,7 @@ fun GroupDetailView(
                                 Text(
                                     text = currentGroup.description,
                                     fontSize = 14.sp,
-                                    color = Color(0xFF1C1E21),
+                                    color = textPrimary,
                                     lineHeight = 19.sp
                                 )
                             }
@@ -430,8 +443,8 @@ fun GroupDetailView(
                                         onClick = { showEditScreen = true },
                                         shape = RoundedCornerShape(8.dp),
                                         colors = ButtonDefaults.buttonColors(
-                                            containerColor = Color(0xFFE4E6EB),
-                                            contentColor = Color(0xFF050505)
+                                            containerColor = buttonSecondaryBg,
+                                            contentColor = buttonSecondaryText
                                         ),
                                         modifier = Modifier
                                             .weight(1f)
@@ -464,8 +477,8 @@ fun GroupDetailView(
                                         },
                                         shape = RoundedCornerShape(8.dp),
                                         colors = ButtonDefaults.buttonColors(
-                                            containerColor = if (isJoined) Color(0xFFE4E6EB) else Color(0xFF1877F2),
-                                            contentColor = if (isJoined) Color(0xFF050505) else Color.White
+                                            containerColor = if (isJoined) buttonSecondaryBg else Color(0xFF1877F2),
+                                            contentColor = if (isJoined) buttonSecondaryText else Color.White
                                         ),
                                         modifier = Modifier
                                             .weight(1f)
@@ -493,8 +506,8 @@ fun GroupDetailView(
                                         },
                                         shape = RoundedCornerShape(8.dp),
                                         colors = ButtonDefaults.buttonColors(
-                                            containerColor = Color(0xFFE4E6EB),
-                                            contentColor = Color(0xFF050505)
+                                            containerColor = buttonSecondaryBg,
+                                            contentColor = buttonSecondaryText
                                         ),
                                         modifier = Modifier
                                             .weight(1f)
@@ -519,7 +532,7 @@ fun GroupDetailView(
                         // Tab navigation
                         TabRow(
                             selectedTabIndex = selectedTab,
-                            containerColor = Color.White,
+                            containerColor = bgCard,
                             contentColor = Color(0xFF1877F2)
                         ) {
                             tabs.forEachIndexed { index, title ->
@@ -530,7 +543,8 @@ fun GroupDetailView(
                                         Text(
                                             text = title,
                                             fontWeight = if (selectedTab == index) FontWeight.Bold else FontWeight.Normal,
-                                            fontSize = 14.sp
+                                            fontSize = 14.sp,
+                                            color = if (selectedTab == index) (if (isDarkMode) Color(0xFF4599FF) else Color(0xFF1877F2)) else textSecondary
                                         )
                                     }
                                 )
@@ -549,7 +563,7 @@ fun GroupDetailView(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .padding(top = 10.dp),
-                                    color = Color.White,
+                                    color = bgCard,
                                     shadowElevation = 0.5.dp
                                 ) {
                                     Row(
@@ -590,7 +604,7 @@ fun GroupDetailView(
                                             modifier = Modifier
                                                 .weight(1f)
                                                 .clip(RoundedCornerShape(20.dp))
-                                                .background(Color(0xFFF0F2F5))
+                                                .background(inputBg)
                                                 .clickable {
                                                     if (isJoined || isCreator) {
                                                         showCreatePostSheet = true
@@ -602,7 +616,7 @@ fun GroupDetailView(
                                         ) {
                                             Text(
                                                 text = "Write something in ${currentGroup.name}...",
-                                                color = Color(0xFF65676B),
+                                                color = textSecondary,
                                                 fontSize = 14.sp
                                             )
                                         }
@@ -634,7 +648,7 @@ fun GroupDetailView(
                                             .fillMaxWidth()
                                             .padding(16.dp),
                                         shape = RoundedCornerShape(12.dp),
-                                        colors = CardDefaults.cardColors(containerColor = Color.White)
+                                        colors = CardDefaults.cardColors(containerColor = bgCard)
                                     ) {
                                         Column(
                                             modifier = Modifier
@@ -644,7 +658,7 @@ fun GroupDetailView(
                                         ) {
                                             Surface(
                                                 shape = CircleShape,
-                                                color = Color(0xFFEBF5FF),
+                                                color = badgeBg,
                                                 modifier = Modifier.size(64.dp)
                                             ) {
                                                 Box(contentAlignment = Alignment.Center) {
@@ -661,13 +675,13 @@ fun GroupDetailView(
                                                 text = "No Posts Yet",
                                                 fontSize = 16.sp,
                                                 fontWeight = FontWeight.Bold,
-                                                color = Color(0xFF050505)
+                                                color = textPrimary
                                             )
                                             Spacer(modifier = Modifier.height(4.dp))
                                             Text(
                                                 text = "Be the first member to start a discussion in this group!",
                                                 fontSize = 13.sp,
-                                                color = Color(0xFF65676B),
+                                                color = textSecondary,
                                                 textAlign = TextAlign.Center
                                             )
                                             Spacer(modifier = Modifier.height(16.dp))
@@ -718,7 +732,7 @@ fun GroupDetailView(
                                         .fillMaxWidth()
                                         .padding(16.dp),
                                     shape = RoundedCornerShape(12.dp),
-                                    colors = CardDefaults.cardColors(containerColor = Color.White)
+                                    colors = CardDefaults.cardColors(containerColor = bgCard)
                                 ) {
                                     Column(
                                         modifier = Modifier
@@ -728,7 +742,7 @@ fun GroupDetailView(
                                     ) {
                                         Surface(
                                             shape = CircleShape,
-                                            color = Color(0xFFFFEBEE),
+                                            color = if (isDarkMode) Color(0xFF3B1E22) else Color(0xFFFFEBEE),
                                             modifier = Modifier.size(64.dp)
                                         ) {
                                             Box(contentAlignment = Alignment.Center) {
@@ -745,13 +759,13 @@ fun GroupDetailView(
                                             text = "This Group is Private",
                                             fontSize = 17.sp,
                                             fontWeight = FontWeight.Bold,
-                                            color = Color(0xFF050505)
+                                            color = textPrimary
                                         )
                                         Spacer(modifier = Modifier.height(6.dp))
                                         Text(
                                             text = "Join this group to view posts, participate in discussions, and connect with members.",
                                             fontSize = 13.sp,
-                                            color = Color(0xFF65676B),
+                                            color = textSecondary,
                                             textAlign = TextAlign.Center
                                         )
                                         Spacer(modifier = Modifier.height(18.dp))
@@ -781,7 +795,7 @@ fun GroupDetailView(
                                     .fillMaxWidth()
                                     .padding(14.dp),
                                 shape = RoundedCornerShape(12.dp),
-                                colors = CardDefaults.cardColors(containerColor = Color.White)
+                                colors = CardDefaults.cardColors(containerColor = bgCard)
                             ) {
                                 Column(
                                     modifier = Modifier
@@ -793,17 +807,17 @@ fun GroupDetailView(
                                         text = "About this group",
                                         fontSize = 17.sp,
                                         fontWeight = FontWeight.Bold,
-                                        color = Color(0xFF050505)
+                                        color = textPrimary
                                     )
 
                                     if (currentGroup.description.isNotBlank()) {
                                         Text(
                                             text = currentGroup.description,
                                             fontSize = 14.sp,
-                                            color = Color(0xFF1C1E21),
+                                            color = textPrimary,
                                             lineHeight = 20.sp
                                         )
-                                        Divider(thickness = 0.5.dp, color = Color(0xFFE4E6EB))
+                                        Divider(thickness = 0.5.dp, color = dividerColor)
                                     }
 
                                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -815,11 +829,11 @@ fun GroupDetailView(
                                         )
                                         Spacer(modifier = Modifier.width(10.dp))
                                         Column {
-                                            Text(text = "${currentGroup.privacy} Group", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF050505))
+                                            Text(text = "${currentGroup.privacy} Group", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = textPrimary)
                                             Text(
                                                 text = if (isPrivate) "Only members can see who's in the group and what they post." else "Anyone can see who's in the group and what they post.",
                                                 fontSize = 12.sp,
-                                                color = Color(0xFF65676B)
+                                                color = textSecondary
                                             )
                                         }
                                     }
@@ -828,13 +842,13 @@ fun GroupDetailView(
                                         Icon(Icons.Default.Group, contentDescription = null, tint = Color(0xFF1877F2), modifier = Modifier.size(20.dp))
                                         Spacer(modifier = Modifier.width(10.dp))
                                         Column {
-                                            Text(text = "$memberCount Members", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF050505))
-                                            Text(text = "Active community discussions", fontSize = 12.sp, color = Color(0xFF65676B))
+                                            Text(text = "$memberCount Members", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = textPrimary)
+                                            Text(text = "Active community discussions", fontSize = 12.sp, color = textSecondary)
                                         }
                                     }
 
                                     if (isCreator) {
-                                        Divider(thickness = 0.5.dp, color = Color(0xFFE4E6EB))
+                                        Divider(thickness = 0.5.dp, color = dividerColor)
 
                                         Row(
                                             modifier = Modifier.fillMaxWidth(),
@@ -853,7 +867,10 @@ fun GroupDetailView(
 
                                             Button(
                                                 onClick = { showDeleteConfirmDialog = true },
-                                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFEBEE), contentColor = Color(0xFFD32F2F)),
+                                                colors = ButtonDefaults.buttonColors(
+                                                    containerColor = if (isDarkMode) Color(0xFF3B1E22) else Color(0xFFFFEBEE),
+                                                    contentColor = Color(0xFFD32F2F)
+                                                ),
                                                 shape = RoundedCornerShape(8.dp),
                                                 modifier = Modifier.weight(1f)
                                             ) {
@@ -875,7 +892,7 @@ fun GroupDetailView(
                                     .fillMaxWidth()
                                     .padding(14.dp),
                                 shape = RoundedCornerShape(12.dp),
-                                colors = CardDefaults.cardColors(containerColor = Color.White)
+                                colors = CardDefaults.cardColors(containerColor = bgCard)
                             ) {
                                 Column(
                                     modifier = Modifier
@@ -886,7 +903,7 @@ fun GroupDetailView(
                                         text = "Group Admin & Members ($memberCount)",
                                         fontSize = 16.sp,
                                         fontWeight = FontWeight.Bold,
-                                        color = Color(0xFF050505)
+                                        color = textPrimary
                                     )
 
                                     Spacer(modifier = Modifier.height(12.dp))
@@ -926,12 +943,12 @@ fun GroupDetailView(
                                                 text = displayName,
                                                 fontWeight = FontWeight.Bold,
                                                 fontSize = 14.sp,
-                                                color = Color(0xFF050505)
+                                                color = textPrimary
                                             )
                                             Text(
                                                 text = if (isCreator) "Admin & Creator" else "Member",
                                                 fontSize = 12.sp,
-                                                color = if (isCreator) Color(0xFF1877F2) else Color(0xFF65676B),
+                                                color = if (isCreator) Color(0xFF1877F2) else textSecondary,
                                                 fontWeight = if (isCreator) FontWeight.SemiBold else FontWeight.Normal
                                             )
                                         }
@@ -949,9 +966,13 @@ fun GroupDetailView(
     if (showDeleteConfirmDialog) {
         AlertDialog(
             onDismissRequest = { showDeleteConfirmDialog = false },
-            title = { Text("Delete Group", fontWeight = FontWeight.Bold) },
+            containerColor = bgCard,
+            title = { Text("Delete Group", fontWeight = FontWeight.Bold, color = textPrimary) },
             text = {
-                Text("Are you sure you want to delete '${currentGroup.name}'? This action cannot be undone and will permanently remove this group.")
+                Text(
+                    text = "Are you sure you want to delete '${currentGroup.name}'? This action cannot be undone and will permanently remove this group.",
+                    color = textSecondary
+                )
             },
             confirmButton = {
                 Button(
@@ -968,7 +989,7 @@ fun GroupDetailView(
             },
             dismissButton = {
                 TextButton(onClick = { showDeleteConfirmDialog = false }) {
-                    Text("Cancel")
+                    Text("Cancel", color = textSecondary)
                 }
             }
         )
@@ -979,7 +1000,7 @@ fun GroupDetailView(
         ModalBottomSheet(
             onDismissRequest = { showCreatePostSheet = false },
             sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-            containerColor = Color.White
+            containerColor = bgCard
         ) {
             Column(
                 modifier = Modifier
@@ -995,7 +1016,7 @@ fun GroupDetailView(
                         text = "Create Post in Group",
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF050505)
+                        color = textPrimary
                     )
 
                     Button(
@@ -1041,7 +1062,7 @@ fun GroupDetailView(
                     }
                 }
 
-                Divider(modifier = Modifier.padding(vertical = 12.dp), thickness = 0.5.dp, color = Color(0xFFE4E6EB))
+                Divider(modifier = Modifier.padding(vertical = 12.dp), thickness = 0.5.dp, color = dividerColor)
 
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Surface(
@@ -1068,12 +1089,12 @@ fun GroupDetailView(
                             text = displayName,
                             fontWeight = FontWeight.Bold,
                             fontSize = 14.sp,
-                            color = Color(0xFF050505)
+                            color = textPrimary
                         )
                         Text(
                             text = "Posting to: ${currentGroup.name}",
                             fontSize = 12.sp,
-                            color = Color(0xFF65676B)
+                            color = textSecondary
                         )
                     }
                 }
@@ -1083,7 +1104,7 @@ fun GroupDetailView(
                 OutlinedTextField(
                     value = postText,
                     onValueChange = { postText = it },
-                    placeholder = { Text("What's on your mind?") },
+                    placeholder = { Text("What's on your mind?", color = textSecondary) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(120.dp),
@@ -1091,8 +1112,10 @@ fun GroupDetailView(
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = Color.Transparent,
                         unfocusedBorderColor = Color.Transparent,
-                        focusedContainerColor = Color(0xFFF0F2F5),
-                        unfocusedContainerColor = Color(0xFFF0F2F5)
+                        focusedContainerColor = inputBg,
+                        unfocusedContainerColor = inputBg,
+                        focusedTextColor = textPrimary,
+                        unfocusedTextColor = textPrimary
                     )
                 )
 
@@ -1101,7 +1124,7 @@ fun GroupDetailView(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(Color(0xFFEBF5FF), RoundedCornerShape(8.dp))
+                            .background(badgeBg, RoundedCornerShape(8.dp))
                             .padding(10.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -1164,7 +1187,7 @@ fun GroupDetailView(
                         },
                         shape = RoundedCornerShape(8.dp),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFFE7F3FF),
+                            containerColor = badgeBg,
                             contentColor = Color(0xFF1877F2)
                         ),
                         modifier = Modifier.weight(1f)
@@ -1187,8 +1210,8 @@ fun GroupDetailView(
                         onClick = { showMediaUrlDialog = true },
                         shape = RoundedCornerShape(8.dp),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFFF0F2F5),
-                            contentColor = Color(0xFF050505)
+                            containerColor = buttonSecondaryBg,
+                            contentColor = buttonSecondaryText
                         ),
                         modifier = Modifier.weight(1f)
                     ) {
@@ -1216,14 +1239,21 @@ fun GroupDetailView(
         var tempUrl by remember { mutableStateOf(mediaUrlInput) }
         AlertDialog(
             onDismissRequest = { showMediaUrlDialog = false },
-            title = { Text("Attach Photo URL", fontWeight = FontWeight.Bold) },
+            containerColor = bgCard,
+            title = { Text("Attach Photo URL", fontWeight = FontWeight.Bold, color = textPrimary) },
             text = {
                 OutlinedTextField(
                     value = tempUrl,
                     onValueChange = { tempUrl = it },
                     label = { Text("Image URL") },
                     placeholder = { Text("https://example.com/photo.jpg") },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = textPrimary,
+                        unfocusedTextColor = textPrimary,
+                        focusedContainerColor = inputBg,
+                        unfocusedContainerColor = inputBg
+                    )
                 )
             },
             confirmButton = {
@@ -1240,7 +1270,7 @@ fun GroupDetailView(
             },
             dismissButton = {
                 TextButton(onClick = { showMediaUrlDialog = false }) {
-                    Text("Cancel")
+                    Text("Cancel", color = textSecondary)
                 }
             }
         )
@@ -1251,7 +1281,7 @@ fun GroupDetailView(
         ModalBottomSheet(
             onDismissRequest = { showGroupOptionsSheet = false },
             sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-            containerColor = Color.White
+            containerColor = bgCard
         ) {
             Column(
                 modifier = Modifier
@@ -1263,15 +1293,15 @@ fun GroupDetailView(
                     text = currentGroup.name,
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF050505)
+                    color = textPrimary
                 )
                 Text(
                     text = "${currentGroup.privacy} Group • $memberCount members",
                     fontSize = 13.sp,
-                    color = Color(0xFF65676B)
+                    color = textSecondary
                 )
 
-                Divider(thickness = 0.5.dp, color = Color(0xFFE4E6EB), modifier = Modifier.padding(vertical = 4.dp))
+                Divider(thickness = 0.5.dp, color = dividerColor, modifier = Modifier.padding(vertical = 4.dp))
 
                 Row(
                     modifier = Modifier
@@ -1289,7 +1319,7 @@ fun GroupDetailView(
                     Icon(
                         imageVector = Icons.Default.ContentCopy,
                         contentDescription = "Copy Link",
-                        tint = Color(0xFF050505),
+                        tint = textPrimary,
                         modifier = Modifier.size(22.dp)
                     )
                     Spacer(modifier = Modifier.width(14.dp))
@@ -1297,7 +1327,7 @@ fun GroupDetailView(
                         text = "Copy Link to Group",
                         fontSize = 15.sp,
                         fontWeight = FontWeight.Medium,
-                        color = Color(0xFF050505)
+                        color = textPrimary
                     )
                 }
 

@@ -521,6 +521,7 @@ fun FullScreenStoryViewer(
                     viewedAt = System.currentTimeMillis()
                 )
             )
+            com.example.data.repository.WatchHistoryRepository.getInstance(context).recordStoryView(activeStory, currentUserId)
         }
     }
 

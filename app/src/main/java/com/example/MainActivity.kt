@@ -155,10 +155,10 @@ fun FrndomApp(
         AppPermissionHelper.setInitialPermissionsRequested(context, true)
     }
 
-    // Trigger system permission dialogs ONLY once if essential permissions are missing
+    // Trigger system permission dialogs ONLY once if startup permissions (like notifications) are missing
     LaunchedEffect(Unit) {
         if (!AppPermissionHelper.hasInitialPermissionsBeenRequested(context)) {
-            val missingPermissions = AppPermissionHelper.getMissingEssentialPermissions(context)
+            val missingPermissions = AppPermissionHelper.getMissingStartupPermissions(context)
             if (missingPermissions.isNotEmpty()) {
                 permissionLauncher.launch(missingPermissions)
             } else {

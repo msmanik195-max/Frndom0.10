@@ -95,6 +95,7 @@ import com.example.data.repository.PostRepository
 import com.example.data.service.MediaUploadService
 import com.example.ui.components.CommentsBottomSheet
 import com.example.ui.home.PostCardItem
+import com.example.ui.theme.LocalIsDarkMode
 import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -186,17 +187,28 @@ fun PageDetailView(
         return
     }
 
+    val isDarkMode = LocalIsDarkMode.current
+    val bgScreen = if (isDarkMode) Color(0xFF18191A) else Color(0xFFF0F2F5)
+    val bgCard = if (isDarkMode) Color(0xFF242526) else Color.White
+    val textPrimary = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505)
+    val textSecondary = if (isDarkMode) Color(0xFFB0B3B8) else Color(0xFF65676B)
+    val dividerColor = if (isDarkMode) Color(0xFF3A3B3C) else Color(0xFFE4E6EB)
+    val buttonSecondaryBg = if (isDarkMode) Color(0xFF3A3B3C) else Color(0xFFE4E6EB)
+    val buttonSecondaryText = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505)
+    val inputBg = if (isDarkMode) Color(0xFF3A3B3C) else Color(0xFFF0F2F5)
+    val badgeBg = if (isDarkMode) Color(0xFF263951) else Color(0xFFEBF5FF)
+
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(Color(0xFFF0F2F5))
+            .background(bgScreen)
             .testTag("page_detail_view")
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
             // Top App Bar
             Surface(
                 modifier = Modifier.fillMaxWidth(),
-                color = Color.White,
+                color = bgCard,
                 shadowElevation = 1.dp
             ) {
                 Row(
@@ -214,7 +226,7 @@ fun PageDetailView(
                             Icon(
                                 imageVector = Icons.Default.ArrowBack,
                                 contentDescription = "Back",
-                                tint = Color(0xFF050505)
+                                tint = textPrimary
                             )
                         }
                         Spacer(modifier = Modifier.width(4.dp))
@@ -222,7 +234,7 @@ fun PageDetailView(
                             text = currentPage.name,
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF050505),
+                            color = textPrimary,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
@@ -237,7 +249,7 @@ fun PageDetailView(
                             Icon(
                                 imageVector = Icons.Default.Share,
                                 contentDescription = "Share",
-                                tint = Color(0xFF050505)
+                                tint = textPrimary
                             )
                         }
 
@@ -248,20 +260,21 @@ fun PageDetailView(
                                     Icon(
                                         imageVector = Icons.Default.MoreVert,
                                         contentDescription = "Options",
-                                        tint = Color(0xFF050505)
+                                        tint = textPrimary
                                     )
                                 }
 
                                 DropdownMenu(
                                     expanded = showMenuDropdown,
-                                    onDismissRequest = { showMenuDropdown = false }
+                                    onDismissRequest = { showMenuDropdown = false },
+                                    modifier = Modifier.background(bgCard)
                                 ) {
                                     DropdownMenuItem(
                                         text = {
                                             Row(verticalAlignment = Alignment.CenterVertically) {
                                                 Icon(Icons.Default.Edit, contentDescription = null, tint = Color(0xFF1877F2), modifier = Modifier.size(18.dp))
                                                 Spacer(modifier = Modifier.width(8.dp))
-                                                Text("Edit Page")
+                                                Text("Edit Page", color = textPrimary)
                                             }
                                         },
                                         onClick = {
@@ -275,7 +288,7 @@ fun PageDetailView(
                                             Row(verticalAlignment = Alignment.CenterVertically) {
                                                 Icon(Icons.Default.SwapHoriz, contentDescription = null, tint = Color(0xFF1877F2), modifier = Modifier.size(18.dp))
                                                 Spacer(modifier = Modifier.width(8.dp))
-                                                Text("Switch to this Page")
+                                                Text("Switch to this Page", color = textPrimary)
                                             }
                                         },
                                         onClick = {
@@ -288,7 +301,7 @@ fun PageDetailView(
                                         }
                                     )
 
-                                    Divider(thickness = 0.5.dp, color = Color(0xFFE4E6EB))
+                                    Divider(thickness = 0.5.dp, color = dividerColor)
 
                                     DropdownMenuItem(
                                         text = {
@@ -320,7 +333,7 @@ fun PageDetailView(
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(Color.White)
+                            .background(bgCard)
                     ) {
                         // Cover photo
                         Box(
@@ -369,7 +382,7 @@ fun PageDetailView(
                                     .size(76.dp)
                                     .clip(CircleShape),
                                 shape = CircleShape,
-                                color = Color.White,
+                                color = bgCard,
                                 shadowElevation = 3.dp
                             ) {
                                 Box(
@@ -377,7 +390,7 @@ fun PageDetailView(
                                         .fillMaxSize()
                                         .padding(3.dp)
                                         .clip(CircleShape)
-                                        .background(Color(0xFFEBF5FF)),
+                                        .background(badgeBg),
                                     contentAlignment = Alignment.Center
                                 ) {
                                     if (currentPage.avatarUrl.isNotBlank()) {
@@ -404,14 +417,14 @@ fun PageDetailView(
                                     text = currentPage.name,
                                     fontSize = 22.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = Color(0xFF050505)
+                                    color = textPrimary
                                 )
 
                                 Spacer(modifier = Modifier.height(2.dp))
 
                                 Surface(
                                     shape = RoundedCornerShape(6.dp),
-                                    color = Color(0xFFEBF5FF)
+                                    color = badgeBg
                                 ) {
                                     Text(
                                         text = currentPage.category,
@@ -427,7 +440,7 @@ fun PageDetailView(
                                 Text(
                                     text = "$likesCount likes • $followersCount followers",
                                     fontSize = 13.sp,
-                                    color = Color(0xFF65676B),
+                                    color = textSecondary,
                                     fontWeight = FontWeight.Medium
                                 )
 
@@ -436,7 +449,7 @@ fun PageDetailView(
                                     Text(
                                         text = currentPage.description,
                                         fontSize = 14.sp,
-                                        color = Color(0xFF1C1E21),
+                                        color = textPrimary,
                                         lineHeight = 19.sp
                                     )
                                 }
@@ -484,8 +497,8 @@ fun PageDetailView(
                                             onClick = { showEditScreen = true },
                                             shape = RoundedCornerShape(8.dp),
                                             colors = ButtonDefaults.buttonColors(
-                                                containerColor = Color(0xFFE4E6EB),
-                                                contentColor = Color(0xFF050505)
+                                                containerColor = buttonSecondaryBg,
+                                                contentColor = buttonSecondaryText
                                             ),
                                             modifier = Modifier
                                                 .weight(1f)
@@ -520,8 +533,8 @@ fun PageDetailView(
                                             },
                                             shape = RoundedCornerShape(8.dp),
                                             colors = ButtonDefaults.buttonColors(
-                                                containerColor = if (isLiked) Color(0xFFE4E6EB) else Color(0xFF1877F2),
-                                                contentColor = if (isLiked) Color(0xFF050505) else Color.White
+                                                containerColor = if (isLiked) buttonSecondaryBg else Color(0xFF1877F2),
+                                                contentColor = if (isLiked) buttonSecondaryText else Color.White
                                             ),
                                             modifier = Modifier
                                                 .weight(1f)
@@ -546,8 +559,8 @@ fun PageDetailView(
                                             },
                                             shape = RoundedCornerShape(8.dp),
                                             colors = ButtonDefaults.buttonColors(
-                                                containerColor = Color(0xFFE4E6EB),
-                                                contentColor = Color(0xFF050505)
+                                                containerColor = buttonSecondaryBg,
+                                                contentColor = buttonSecondaryText
                                             ),
                                             modifier = Modifier
                                                 .weight(1f)
@@ -573,7 +586,7 @@ fun PageDetailView(
                         // Tab navigation
                         TabRow(
                             selectedTabIndex = selectedTab,
-                            containerColor = Color.White,
+                            containerColor = bgCard,
                             contentColor = Color(0xFF1877F2)
                         ) {
                             tabs.forEachIndexed { index, title ->
@@ -584,7 +597,8 @@ fun PageDetailView(
                                         Text(
                                             text = title,
                                             fontWeight = if (selectedTab == index) FontWeight.Bold else FontWeight.Normal,
-                                            fontSize = 14.sp
+                                            fontSize = 14.sp,
+                                            color = if (selectedTab == index) (if (isDarkMode) Color(0xFF4599FF) else Color(0xFF1877F2)) else textSecondary
                                         )
                                     }
                                 )
@@ -602,7 +616,7 @@ fun PageDetailView(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(top = 10.dp),
-                                color = Color.White,
+                                color = bgCard,
                                 shadowElevation = 0.5.dp
                             ) {
                                 Row(
@@ -616,7 +630,7 @@ fun PageDetailView(
                                             .size(40.dp)
                                             .clip(CircleShape),
                                         shape = CircleShape,
-                                        color = Color(0xFFE4E6EB)
+                                        color = buttonSecondaryBg
                                     ) {
                                         if (currentPage.avatarUrl.isNotBlank()) {
                                             AsyncImage(
@@ -638,7 +652,7 @@ fun PageDetailView(
                                         modifier = Modifier
                                             .weight(1f)
                                             .clip(RoundedCornerShape(20.dp))
-                                            .background(Color(0xFFF0F2F5))
+                                            .background(inputBg)
                                             .clickable {
                                                 if (isSwitchedToThisPage) {
                                                     showCreatePostSheet = true
@@ -665,7 +679,7 @@ fun PageDetailView(
                                                 "Switch to ${currentPage.name} to post..."
                                             else
                                                 "Only ${currentPage.name} can post here",
-                                            color = Color(0xFF65676B),
+                                            color = textSecondary,
                                             fontSize = 14.sp
                                         )
                                     }
@@ -701,7 +715,7 @@ fun PageDetailView(
                                         .fillMaxWidth()
                                         .padding(16.dp),
                                     shape = RoundedCornerShape(12.dp),
-                                    colors = CardDefaults.cardColors(containerColor = Color.White)
+                                    colors = CardDefaults.cardColors(containerColor = bgCard)
                                 ) {
                                     Column(
                                         modifier = Modifier
@@ -711,7 +725,7 @@ fun PageDetailView(
                                     ) {
                                         Surface(
                                             shape = CircleShape,
-                                            color = Color(0xFFEBF5FF),
+                                            color = badgeBg,
                                             modifier = Modifier.size(64.dp)
                                         ) {
                                             Box(contentAlignment = Alignment.Center) {
@@ -728,13 +742,13 @@ fun PageDetailView(
                                             text = "No Posts on this Page Yet",
                                             fontSize = 16.sp,
                                             fontWeight = FontWeight.Bold,
-                                            color = Color(0xFF050505)
+                                            color = textPrimary
                                         )
                                         Spacer(modifier = Modifier.height(4.dp))
                                         Text(
                                             text = "Switch into this page from Account Switcher to post updates and media for your audience!",
                                             fontSize = 13.sp,
-                                            color = Color(0xFF65676B),
+                                            color = textSecondary,
                                             textAlign = TextAlign.Center
                                         )
                                         Spacer(modifier = Modifier.height(16.dp))
@@ -795,7 +809,7 @@ fun PageDetailView(
                                     .fillMaxWidth()
                                     .padding(14.dp),
                                 shape = RoundedCornerShape(12.dp),
-                                colors = CardDefaults.cardColors(containerColor = Color.White)
+                                colors = CardDefaults.cardColors(containerColor = bgCard)
                             ) {
                                 Column(
                                     modifier = Modifier
@@ -807,25 +821,25 @@ fun PageDetailView(
                                         text = "About ${currentPage.name}",
                                         fontSize = 17.sp,
                                         fontWeight = FontWeight.Bold,
-                                        color = Color(0xFF050505)
+                                        color = textPrimary
                                     )
 
                                     if (currentPage.description.isNotBlank()) {
                                         Text(
                                             text = currentPage.description,
                                             fontSize = 14.sp,
-                                            color = Color(0xFF1C1E21),
+                                            color = textPrimary,
                                             lineHeight = 20.sp
                                         )
-                                        Divider(thickness = 0.5.dp, color = Color(0xFFE4E6EB))
+                                        Divider(thickness = 0.5.dp, color = dividerColor)
                                     }
 
                                     Row(verticalAlignment = Alignment.CenterVertically) {
                                         Icon(Icons.Default.Info, contentDescription = null, tint = Color(0xFF1877F2), modifier = Modifier.size(20.dp))
                                         Spacer(modifier = Modifier.width(10.dp))
                                         Column {
-                                            Text(text = "Category", fontSize = 12.sp, color = Color(0xFF65676B))
-                                            Text(text = currentPage.category, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF050505))
+                                            Text(text = "Category", fontSize = 12.sp, color = textSecondary)
+                                            Text(text = currentPage.category, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = textPrimary)
                                         }
                                     }
 
@@ -833,13 +847,13 @@ fun PageDetailView(
                                         Icon(Icons.Default.ThumbUp, contentDescription = null, tint = Color(0xFF1877F2), modifier = Modifier.size(20.dp))
                                         Spacer(modifier = Modifier.width(10.dp))
                                         Column {
-                                            Text(text = "Engagement", fontSize = 12.sp, color = Color(0xFF65676B))
-                                            Text(text = "$likesCount Likes • $followersCount Followers", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF050505))
+                                            Text(text = "Engagement", fontSize = 12.sp, color = textSecondary)
+                                            Text(text = "$likesCount Likes • $followersCount Followers", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = textPrimary)
                                         }
                                     }
 
                                     if (isCreator) {
-                                        Divider(thickness = 0.5.dp, color = Color(0xFFE4E6EB))
+                                        Divider(thickness = 0.5.dp, color = dividerColor)
 
                                         Row(
                                             modifier = Modifier.fillMaxWidth(),
@@ -858,7 +872,10 @@ fun PageDetailView(
 
                                             Button(
                                                 onClick = { showDeleteConfirmDialog = true },
-                                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFEBEE), contentColor = Color(0xFFD32F2F)),
+                                                colors = ButtonDefaults.buttonColors(
+                                                    containerColor = if (isDarkMode) Color(0xFF3B1E22) else Color(0xFFFFEBEE),
+                                                    contentColor = Color(0xFFD32F2F)
+                                                ),
                                                 shape = RoundedCornerShape(8.dp),
                                                 modifier = Modifier.weight(1f)
                                             ) {
@@ -881,9 +898,13 @@ fun PageDetailView(
     if (showDeleteConfirmDialog) {
         AlertDialog(
             onDismissRequest = { showDeleteConfirmDialog = false },
-            title = { Text("Delete Page", fontWeight = FontWeight.Bold) },
+            containerColor = bgCard,
+            title = { Text("Delete Page", fontWeight = FontWeight.Bold, color = textPrimary) },
             text = {
-                Text("Are you sure you want to delete '${currentPage.name}'? This action cannot be undone and will permanently remove this page.")
+                Text(
+                    text = "Are you sure you want to delete '${currentPage.name}'? This action cannot be undone and will permanently remove this page.",
+                    color = textSecondary
+                )
             },
             confirmButton = {
                 Button(
@@ -900,7 +921,7 @@ fun PageDetailView(
             },
             dismissButton = {
                 TextButton(onClick = { showDeleteConfirmDialog = false }) {
-                    Text("Cancel")
+                    Text("Cancel", color = textSecondary)
                 }
             }
         )
@@ -911,7 +932,7 @@ fun PageDetailView(
         ModalBottomSheet(
             onDismissRequest = { showCreatePostSheet = false },
             sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-            containerColor = Color.White
+            containerColor = bgCard
         ) {
             Column(
                 modifier = Modifier
@@ -927,7 +948,7 @@ fun PageDetailView(
                         text = "Create Post as Page",
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF050505)
+                        color = textPrimary
                     )
 
                     Button(
@@ -973,13 +994,13 @@ fun PageDetailView(
                     }
                 }
 
-                Divider(modifier = Modifier.padding(vertical = 12.dp), thickness = 0.5.dp, color = Color(0xFFE4E6EB))
+                Divider(modifier = Modifier.padding(vertical = 12.dp), thickness = 0.5.dp, color = dividerColor)
 
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Surface(
                         modifier = Modifier.size(40.dp),
                         shape = CircleShape,
-                        color = Color(0xFFEBF5FF)
+                        color = badgeBg
                     ) {
                         if (currentPage.avatarUrl.isNotBlank()) {
                             AsyncImage(
@@ -1000,7 +1021,7 @@ fun PageDetailView(
                             text = currentPage.name,
                             fontWeight = FontWeight.Bold,
                             fontSize = 14.sp,
-                            color = Color(0xFF050505)
+                            color = textPrimary
                         )
                         Text(
                             text = "Publishing as Page Admin",
@@ -1016,7 +1037,7 @@ fun PageDetailView(
                 OutlinedTextField(
                     value = postText,
                     onValueChange = { postText = it },
-                    placeholder = { Text("What's new with ${currentPage.name}?") },
+                    placeholder = { Text("What's new with ${currentPage.name}?", color = textSecondary) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(120.dp),
@@ -1024,8 +1045,10 @@ fun PageDetailView(
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = Color.Transparent,
                         unfocusedBorderColor = Color.Transparent,
-                        focusedContainerColor = Color(0xFFF0F2F5),
-                        unfocusedContainerColor = Color(0xFFF0F2F5)
+                        focusedContainerColor = inputBg,
+                        unfocusedContainerColor = inputBg,
+                        focusedTextColor = textPrimary,
+                        unfocusedTextColor = textPrimary
                     )
                 )
 
@@ -1034,7 +1057,7 @@ fun PageDetailView(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(Color(0xFFEBF5FF), RoundedCornerShape(8.dp))
+                            .background(badgeBg, RoundedCornerShape(8.dp))
                             .padding(10.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -1097,7 +1120,7 @@ fun PageDetailView(
                         },
                         shape = RoundedCornerShape(8.dp),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFFE7F3FF),
+                            containerColor = badgeBg,
                             contentColor = Color(0xFF1877F2)
                         ),
                         modifier = Modifier.weight(1f)
@@ -1120,8 +1143,8 @@ fun PageDetailView(
                         onClick = { showMediaDialog = true },
                         shape = RoundedCornerShape(8.dp),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFFF0F2F5),
-                            contentColor = Color(0xFF050505)
+                            containerColor = buttonSecondaryBg,
+                            contentColor = buttonSecondaryText
                         ),
                         modifier = Modifier.weight(1f)
                     ) {
@@ -1149,14 +1172,21 @@ fun PageDetailView(
         var tempUrl by remember { mutableStateOf(mediaUrlInput) }
         AlertDialog(
             onDismissRequest = { showMediaDialog = false },
-            title = { Text("Attach Photo URL", fontWeight = FontWeight.Bold) },
+            containerColor = bgCard,
+            title = { Text("Attach Photo URL", fontWeight = FontWeight.Bold, color = textPrimary) },
             text = {
                 OutlinedTextField(
                     value = tempUrl,
                     onValueChange = { tempUrl = it },
                     label = { Text("Image URL") },
                     placeholder = { Text("https://example.com/photo.jpg") },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = textPrimary,
+                        unfocusedTextColor = textPrimary,
+                        focusedContainerColor = inputBg,
+                        unfocusedContainerColor = inputBg
+                    )
                 )
             },
             confirmButton = {
@@ -1173,7 +1203,7 @@ fun PageDetailView(
             },
             dismissButton = {
                 TextButton(onClick = { showMediaDialog = false }) {
-                    Text("Cancel")
+                    Text("Cancel", color = textSecondary)
                 }
             }
         )

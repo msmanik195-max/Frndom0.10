@@ -72,6 +72,7 @@ import com.example.data.model.PageItem
 import com.example.data.model.UserProfile
 import com.example.data.repository.GroupPageRepository
 import com.example.data.service.MediaUploadService
+import com.example.ui.theme.LocalIsDarkMode
 import kotlinx.coroutines.launch
 import java.util.UUID
 
@@ -88,6 +89,16 @@ fun CreatePageScreen(
     val isEditMode = pageToEdit != null
     val scope = rememberCoroutineScope()
 
+    val isDarkMode = LocalIsDarkMode.current
+    val bgScreen = if (isDarkMode) Color(0xFF18191A) else Color(0xFFF0F2F5)
+    val bgCard = if (isDarkMode) Color(0xFF242526) else Color.White
+    val textPrimary = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505)
+    val textSecondary = if (isDarkMode) Color(0xFFB0B3B8) else Color(0xFF65676B)
+    val dividerColor = if (isDarkMode) Color(0xFF3A3B3C) else Color(0xFFE4E6EB)
+    val inputContainerColor = if (isDarkMode) Color(0xFF3A3B3C) else Color(0xFFF0F2F5)
+    val circleBg = if (isDarkMode) Color(0xFF263951) else Color(0xFFEBF5FF)
+    val bannerEmptyBg = if (isDarkMode) Color(0xFF2A2B2D) else Color(0xFFE4E6EB)
+
     var pageName by remember { mutableStateOf(pageToEdit?.name.orEmpty()) }
     var pageCategory by remember { mutableStateOf(pageToEdit?.category ?: "Digital Creator") }
     var pageDescription by remember { mutableStateOf(pageToEdit?.description.orEmpty()) }
@@ -99,24 +110,22 @@ fun CreatePageScreen(
     var currentAvatarUrl by remember { mutableStateOf(pageToEdit?.avatarUrl.orEmpty()) }
     var currentCoverUrl by remember { mutableStateOf(pageToEdit?.coverUrl.orEmpty()) }
 
+    var rawAvatarUriToCrop by remember { mutableStateOf<Uri?>(null) }
+    var rawCoverUriToCrop by remember { mutableStateOf<Uri?>(null) }
+
     var isSubmitting by remember { mutableStateOf(false) }
 
     val categories = listOf(
         "Digital Creator",
-        "Community & Social",
         "Business & Brand",
-        "Entertainment",
+        "Community & Club",
+        "Gaming & Esports",
+        "Education & Learning",
+        "Entertainment & Art",
         "News & Media",
-        "Tech & Gaming",
-        "Education & Science",
-        "Art & Design",
         "Health & Fitness"
     )
 
-    var rawAvatarUriToCrop by remember { mutableStateOf<Uri?>(null) }
-    var rawCoverUriToCrop by remember { mutableStateOf<Uri?>(null) }
-
-    // Avatar Picker Launcher
     val avatarPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia()
     ) { uri ->
@@ -125,7 +134,6 @@ fun CreatePageScreen(
         }
     }
 
-    // Cover Banner Picker Launcher
     val coverPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia()
     ) { uri ->
@@ -139,14 +147,14 @@ fun CreatePageScreen(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(Color(0xFFF0F2F5))
+            .background(bgScreen)
             .testTag("create_page_screen")
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
             // Header
             Surface(
                 modifier = Modifier.fillMaxWidth(),
-                color = Color.White,
+                color = bgCard,
                 shadowElevation = 1.dp
             ) {
                 Row(
@@ -161,7 +169,7 @@ fun CreatePageScreen(
                             Icon(
                                 imageVector = Icons.Default.ArrowBack,
                                 contentDescription = "Back",
-                                tint = Color(0xFF050505)
+                                tint = textPrimary
                             )
                         }
                         Spacer(modifier = Modifier.width(4.dp))
@@ -169,7 +177,7 @@ fun CreatePageScreen(
                             text = if (isEditMode) "Edit Page" else "Create a Page",
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF050505)
+                            color = textPrimary
                         )
                     }
 
@@ -260,7 +268,7 @@ fun CreatePageScreen(
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    colors = CardDefaults.cardColors(containerColor = bgCard),
                     elevation = CardDefaults.cardElevation(1.dp)
                 ) {
                     Column(modifier = Modifier.fillMaxWidth()) {
@@ -268,18 +276,18 @@ fun CreatePageScreen(
                             text = "Page Branding",
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF050505),
+                            color = textPrimary,
                             modifier = Modifier.padding(14.dp)
                         )
 
-                        Divider(thickness = 0.5.dp, color = Color(0xFFE4E6EB))
+                        Divider(thickness = 0.5.dp, color = dividerColor)
 
                         // Cover Photo Picker Area
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(150.dp)
-                                .background(Color(0xFFE4E6EB))
+                                .background(bannerEmptyBg)
                                 .clickable {
                                     coverPickerLauncher.launch(
                                         PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
@@ -306,7 +314,7 @@ fun CreatePageScreen(
                                     Icon(
                                         imageVector = Icons.Default.AddPhotoAlternate,
                                         contentDescription = null,
-                                        tint = Color(0xFF65676B),
+                                        tint = textSecondary,
                                         modifier = Modifier.size(32.dp)
                                     )
                                     Spacer(modifier = Modifier.height(4.dp))
@@ -314,7 +322,7 @@ fun CreatePageScreen(
                                         text = "Add Page Cover Banner",
                                         fontSize = 13.sp,
                                         fontWeight = FontWeight.Medium,
-                                        color = Color(0xFF65676B)
+                                        color = textSecondary
                                     )
                                 }
                             }
@@ -326,14 +334,14 @@ fun CreatePageScreen(
                                     .padding(8.dp)
                                     .size(36.dp),
                                 shape = CircleShape,
-                                color = Color.White.copy(alpha = 0.9f),
+                                color = bgCard.copy(alpha = 0.9f),
                                 shadowElevation = 2.dp
                             ) {
                                 Box(contentAlignment = Alignment.Center) {
                                     Icon(
                                         imageVector = Icons.Default.CameraAlt,
                                         contentDescription = "Change Cover",
-                                        tint = Color(0xFF050505),
+                                        tint = textPrimary,
                                         modifier = Modifier.size(18.dp)
                                     )
                                 }
@@ -376,7 +384,7 @@ fun CreatePageScreen(
                                 } else {
                                     Surface(
                                         modifier = Modifier.fillMaxSize(),
-                                        color = Color(0xFFEBF5FF)
+                                        color = circleBg
                                     ) {
                                         Box(contentAlignment = Alignment.Center) {
                                             Icon(
@@ -414,12 +422,12 @@ fun CreatePageScreen(
                                     text = "Page Profile Picture",
                                     fontSize = 15.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = Color(0xFF050505)
+                                    color = textPrimary
                                 )
                                 Text(
                                     text = "Tap circle to choose an icon or photo",
                                     fontSize = 12.sp,
-                                    color = Color(0xFF65676B)
+                                    color = textSecondary
                                 )
                             }
                         }
@@ -430,7 +438,7 @@ fun CreatePageScreen(
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    colors = CardDefaults.cardColors(containerColor = bgCard),
                     elevation = CardDefaults.cardElevation(1.dp)
                 ) {
                     Column(
@@ -443,23 +451,27 @@ fun CreatePageScreen(
                             text = "Page Details",
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF050505)
+                            color = textPrimary
                         )
 
                         // Page Name
                         OutlinedTextField(
                             value = pageName,
                             onValueChange = { pageName = it },
-                            label = { Text("Page Name *") },
-                            placeholder = { Text("e.g. Awesome Tech Creators") },
+                            label = { Text("Page Name *", color = textSecondary) },
+                            placeholder = { Text("e.g. Awesome Tech Creators", color = textSecondary) },
                             singleLine = true,
                             shape = RoundedCornerShape(8.dp),
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .testTag("page_name_input"),
                             colors = OutlinedTextFieldDefaults.colors(
+                                focusedTextColor = textPrimary,
+                                unfocusedTextColor = textPrimary,
                                 focusedBorderColor = Color(0xFF1877F2),
-                                focusedLabelColor = Color(0xFF1877F2)
+                                unfocusedBorderColor = dividerColor,
+                                focusedLabelColor = Color(0xFF1877F2),
+                                unfocusedLabelColor = textSecondary
                             )
                         )
 
@@ -467,8 +479,8 @@ fun CreatePageScreen(
                         OutlinedTextField(
                             value = pageDescription,
                             onValueChange = { pageDescription = it },
-                            label = { Text("Description & Bio") },
-                            placeholder = { Text("Tell people what your Page is about...") },
+                            label = { Text("Description & Bio", color = textSecondary) },
+                            placeholder = { Text("Tell people what your Page is about...", color = textSecondary) },
                             shape = RoundedCornerShape(8.dp),
                             minLines = 3,
                             maxLines = 5,
@@ -476,8 +488,12 @@ fun CreatePageScreen(
                                 .fillMaxWidth()
                                 .testTag("page_desc_input"),
                             colors = OutlinedTextFieldDefaults.colors(
+                                focusedTextColor = textPrimary,
+                                unfocusedTextColor = textPrimary,
                                 focusedBorderColor = Color(0xFF1877F2),
-                                focusedLabelColor = Color(0xFF1877F2)
+                                unfocusedBorderColor = dividerColor,
+                                focusedLabelColor = Color(0xFF1877F2),
+                                unfocusedLabelColor = textSecondary
                             )
                         )
                     }
@@ -487,7 +503,7 @@ fun CreatePageScreen(
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    colors = CardDefaults.cardColors(containerColor = bgCard),
                     elevation = CardDefaults.cardElevation(1.dp)
                 ) {
                     Column(
@@ -499,13 +515,13 @@ fun CreatePageScreen(
                             text = "Select Category",
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF050505)
+                            color = textPrimary
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
                             text = "A category helps people discover your page easily",
                             fontSize = 12.sp,
-                            color = Color(0xFF65676B)
+                            color = textSecondary
                         )
 
                         Spacer(modifier = Modifier.height(10.dp))
@@ -525,15 +541,17 @@ fun CreatePageScreen(
                                                 Text(
                                                     text = cat,
                                                     fontSize = 12.sp,
-                                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                                                    color = if (isSelected) (if (isDarkMode) Color(0xFF4599FF) else Color(0xFF1877F2)) else textPrimary
                                                 )
                                             },
                                             leadingIcon = if (isSelected) {
-                                                { Icon(imageVector = Icons.Default.Check, contentDescription = null, modifier = Modifier.size(14.dp)) }
+                                                { Icon(imageVector = Icons.Default.Check, contentDescription = null, modifier = Modifier.size(14.dp), tint = if (isDarkMode) Color(0xFF4599FF) else Color(0xFF1877F2)) }
                                             } else null,
                                             colors = FilterChipDefaults.filterChipColors(
-                                                selectedContainerColor = Color(0xFFEBF5FF),
-                                                selectedLabelColor = Color(0xFF1877F2)
+                                                selectedContainerColor = circleBg,
+                                                selectedLabelColor = Color(0xFF1877F2),
+                                                containerColor = bgCard
                                             ),
                                             modifier = Modifier.weight(1f)
                                         )
@@ -551,7 +569,7 @@ fun CreatePageScreen(
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    colors = CardDefaults.cardColors(containerColor = bgCard),
                     elevation = CardDefaults.cardElevation(1.dp)
                 ) {
                     Column(
@@ -563,7 +581,7 @@ fun CreatePageScreen(
                             text = "Page Visibility",
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF050505)
+                            color = textPrimary
                         )
 
                         Spacer(modifier = Modifier.height(10.dp))
@@ -585,8 +603,8 @@ fun CreatePageScreen(
                             Icon(imageVector = Icons.Default.Public, contentDescription = null, tint = Color(0xFF1877F2), modifier = Modifier.size(20.dp))
                             Spacer(modifier = Modifier.width(8.dp))
                             Column {
-                                Text("Public Page", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = Color(0xFF050505))
-                                Text("Anyone on or off Frndom can see your page and posts", fontSize = 12.sp, color = Color(0xFF65676B))
+                                Text("Public Page", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = textPrimary)
+                                Text("Anyone on or off Frndom can see your page and posts", fontSize = 12.sp, color = textSecondary)
                             }
                         }
 
@@ -604,11 +622,11 @@ fun CreatePageScreen(
                                 colors = RadioButtonDefaults.colors(selectedColor = Color(0xFF1877F2))
                             )
                             Spacer(modifier = Modifier.width(8.dp))
-                            Icon(imageVector = Icons.Default.Lock, contentDescription = null, tint = Color(0xFF65676B), modifier = Modifier.size(20.dp))
+                            Icon(imageVector = Icons.Default.Lock, contentDescription = null, tint = textSecondary, modifier = Modifier.size(20.dp))
                             Spacer(modifier = Modifier.width(8.dp))
                             Column {
-                                Text("Private Page", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = Color(0xFF050505))
-                                Text("Only approved followers can see what you post", fontSize = 12.sp, color = Color(0xFF65676B))
+                                Text("Private Page", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = textPrimary)
+                                Text("Only approved followers can see what you post", fontSize = 12.sp, color = textSecondary)
                             }
                         }
                     }
