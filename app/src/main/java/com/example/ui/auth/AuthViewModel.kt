@@ -120,6 +120,21 @@ class AuthViewModel(
     }
 
     fun navigateTo(screen: AuthScreen) {
+        val currentIdent = _uiState.value.loginIdentifier.trim()
+        if (screen == AuthScreen.REGISTER && currentIdent.isNotBlank()) {
+            val isEmail = currentIdent.contains("@")
+            _uiState.update {
+                it.copy(
+                    currentScreen = screen,
+                    regIdentifierType = if (isEmail) "email" else "phone",
+                    regEmail = if (isEmail && it.regEmail.isBlank()) currentIdent else it.regEmail,
+                    regPhone = if (!isEmail && it.regPhone.isBlank()) currentIdent else it.regPhone,
+                    errorMessage = null,
+                    successMessage = null
+                )
+            }
+            return
+        }
         _uiState.update {
             it.copy(
                 currentScreen = screen,

@@ -173,7 +173,7 @@ fun FacebookStoriesTray(
         modifier = modifier
             .fillMaxWidth()
             .testTag("facebook_stories_tray"),
-        color = Color.White,
+        color = MaterialTheme.colorScheme.surface,
         shadowElevation = 0.5.dp
     ) {
         LazyRow(
@@ -193,7 +193,7 @@ fun FacebookStoriesTray(
                         .clickable(onClick = onCreateStoryClick)
                         .testTag("create_story_card"),
                     shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFFF0F2F5)),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
                     elevation = CardDefaults.cardElevation(1.dp)
                 ) {
                     Box(modifier = Modifier.fillMaxSize()) {
@@ -203,7 +203,7 @@ fun FacebookStoriesTray(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .weight(0.68f)
-                                    .background(Color(0xFFE4E6EB)),
+                                    .background(MaterialTheme.colorScheme.surfaceVariant),
                                 contentAlignment = Alignment.Center
                             ) {
                                 if (currentUserAvatar.isNotBlank()) {
@@ -217,7 +217,7 @@ fun FacebookStoriesTray(
                                     Surface(
                                         modifier = Modifier.size(54.dp),
                                         shape = CircleShape,
-                                        color = Color(0xFFD8DADF)
+                                        color = MaterialTheme.colorScheme.surfaceVariant
                                     ) {
                                         Box(contentAlignment = Alignment.Center) {
                                             Text(
@@ -231,19 +231,19 @@ fun FacebookStoriesTray(
                                 }
                             }
 
-                            // Bottom White Area with Label (32%)
+                            // Bottom Area with Label (32%)
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .weight(0.32f)
-                                    .background(Color.White),
+                                    .background(MaterialTheme.colorScheme.surface),
                                 contentAlignment = Alignment.BottomCenter
                             ) {
                                 Text(
                                     text = "Create story",
                                     fontSize = 12.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = Color(0xFF050505),
+                                    color = MaterialTheme.colorScheme.onSurface,
                                     textAlign = TextAlign.Center,
                                     modifier = Modifier.padding(bottom = 8.dp)
                                 )
@@ -254,7 +254,7 @@ fun FacebookStoriesTray(
                         Surface(
                             shape = CircleShape,
                             color = Color(0xFF1877F2),
-                            border = androidx.compose.foundation.BorderStroke(3.dp, Color.White),
+                            border = androidx.compose.foundation.BorderStroke(3.dp, MaterialTheme.colorScheme.surface),
                             modifier = Modifier
                                 .align(Alignment.Center)
                                 .padding(top = 40.dp)

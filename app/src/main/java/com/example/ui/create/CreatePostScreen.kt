@@ -94,6 +94,7 @@ import com.example.data.model.UserProfile
 import com.example.data.repository.UserRepository
 import com.example.data.service.MediaUploadService
 import com.example.ui.components.VerificationBadge
+import com.example.ui.theme.LocalIsDarkMode
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
@@ -179,10 +180,18 @@ fun CreatePostScreen(
     val hasBackground = selectedBackground != PostBackgroundStyle.NONE && selectedBackground != PostBackgroundStyle.WHITE
     val canPost = (postText.isNotBlank() || selectedMediaUris.isNotEmpty() || selectedVideoUri != null) && !isUploading
 
+    val isDarkMode = LocalIsDarkMode.current
+    val bgColor = if (isDarkMode) Color(0xFF18191A) else Color.White
+    val surfaceColor = if (isDarkMode) Color(0xFF242526) else Color(0xFFF9FAFB)
+    val textPrimary = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505)
+    val textSecondary = if (isDarkMode) Color(0xFFB0B3B8) else Color(0xFF65676B)
+    val inputBg = if (isDarkMode) Color(0xFF3A3B3C) else Color(0xFFF0F2F5)
+    val dividerColor = if (isDarkMode) Color(0xFF3A3B3C) else Color(0xFFE4E6EB)
+
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(Color.White)
+            .background(bgColor)
             .testTag("create_post_screen")
     ) {
         Column(
@@ -205,7 +214,7 @@ fun CreatePostScreen(
                     Icon(
                         imageVector = Icons.Default.Close,
                         contentDescription = "Close",
-                        tint = Color(0xFF050505),
+                        tint = textPrimary,
                         modifier = Modifier.size(24.dp)
                     )
                 }
@@ -214,7 +223,7 @@ fun CreatePostScreen(
                     text = if (mediaTypeState == "reel") "Create Reel" else "Create Post",
                     fontSize = 19.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF050505)
+                    color = textPrimary
                 )
 
                 Button(
@@ -309,7 +318,7 @@ fun CreatePostScreen(
                 }
             }
 
-            Divider(thickness = 0.5.dp, color = Color(0xFFE4E6EB))
+            Divider(thickness = 0.5.dp, color = dividerColor)
 
             // 2. User Row & Audience Button
             Row(
@@ -323,7 +332,7 @@ fun CreatePostScreen(
                         .size(46.dp)
                         .clip(CircleShape),
                     shape = CircleShape,
-                    color = Color(0xFFD8DADF)
+                    color = if (isDarkMode) Color(0xFF3A3B3C) else Color(0xFFD8DADF)
                 ) {
                     if (!userProfile?.profilePictureUrl.isNullOrBlank()) {
                         AsyncImage(
@@ -352,7 +361,7 @@ fun CreatePostScreen(
                             text = displayName,
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF050505)
+                            color = textPrimary
                         )
                         if (userProfile?.isVerificationActive() == true) {
                             Spacer(modifier = Modifier.width(4.dp))
@@ -364,7 +373,7 @@ fun CreatePostScreen(
 
                     Surface(
                         shape = RoundedCornerShape(14.dp),
-                        color = Color(0xFFEBF3FE),
+                        color = if (isDarkMode) Color(0xFF263951) else Color(0xFFEBF3FE),
                         modifier = Modifier
                             .clip(RoundedCornerShape(14.dp))
                             .clickable { showAudienceSheet = true }
@@ -410,7 +419,7 @@ fun CreatePostScreen(
                                 Modifier.background(selectedBackground.singleColor)
                             }
                         } else {
-                            Modifier.background(Color.White)
+                            Modifier.background(bgColor)
                         }
                     ),
                 contentAlignment = if (hasBackground) Alignment.Center else Alignment.TopStart
@@ -422,14 +431,14 @@ fun CreatePostScreen(
                         Text(
                             text = if (hasBackground) "Write something beautiful..." else if (mediaTypeState == "reel") "Write a caption for your reel..." else "What's on your mind?",
                             fontSize = if (hasBackground) fontSize.sp else 18.sp,
-                            color = if (hasBackground) selectedBackground.textColor.copy(alpha = 0.65f) else Color(0xFF8A8D91),
+                            color = if (hasBackground) selectedBackground.textColor.copy(alpha = 0.65f) else textSecondary,
                             textAlign = if (hasBackground) TextAlign.Center else textAlignState,
                             modifier = Modifier.fillMaxWidth()
                         )
                     },
                     textStyle = TextStyle(
                         fontSize = if (hasBackground) fontSize.sp else 18.sp,
-                        color = if (hasBackground) selectedBackground.textColor else Color(0xFF050505),
+                        color = if (hasBackground) selectedBackground.textColor else textPrimary,
                         fontWeight = if (hasBackground) FontWeight.Bold else FontWeight.Normal,
                         textAlign = if (hasBackground) TextAlign.Center else textAlignState
                     ),
@@ -646,7 +655,7 @@ fun CreatePostScreen(
                 // Font Size Button "Tт 24"
                 Surface(
                     shape = RoundedCornerShape(18.dp),
-                    color = Color(0xFFF0F2F5),
+                    color = inputBg,
                     modifier = Modifier
                         .height(36.dp)
                         .clip(RoundedCornerShape(18.dp))
@@ -667,7 +676,7 @@ fun CreatePostScreen(
                             text = "Tт $fontSize",
                             fontWeight = FontWeight.Bold,
                             fontSize = 13.sp,
-                            color = Color(0xFF050505)
+                            color = textPrimary
                         )
                     }
                 }
@@ -675,7 +684,7 @@ fun CreatePostScreen(
                 // Text Alignment Button
                 Surface(
                     shape = RoundedCornerShape(18.dp),
-                    color = Color(0xFFF0F2F5),
+                    color = inputBg,
                     modifier = Modifier
                         .size(36.dp)
                         .clip(RoundedCornerShape(18.dp))
@@ -695,7 +704,7 @@ fun CreatePostScreen(
                                 else -> Icons.Default.FormatAlignCenter
                             },
                             contentDescription = "Alignment",
-                            tint = Color(0xFF050505),
+                            tint = textPrimary,
                             modifier = Modifier.size(18.dp)
                         )
                     }
@@ -704,7 +713,7 @@ fun CreatePostScreen(
                 // Style Toggle Button
                 Surface(
                     shape = RoundedCornerShape(18.dp),
-                    color = if (showStylePanel) Color(0xFFEBF3FE) else Color(0xFFF0F2F5),
+                    color = if (showStylePanel) (if (isDarkMode) Color(0xFF263951) else Color(0xFFEBF3FE)) else inputBg,
                     modifier = Modifier
                         .height(36.dp)
                         .clip(RoundedCornerShape(18.dp))
@@ -717,7 +726,7 @@ fun CreatePostScreen(
                         Icon(
                             imageVector = Icons.Default.Palette,
                             contentDescription = "Style",
-                            tint = if (showStylePanel) Color(0xFF1877F2) else Color(0xFF050505),
+                            tint = if (showStylePanel) Color(0xFF1877F2) else textPrimary,
                             modifier = Modifier.size(16.dp)
                         )
                         Spacer(modifier = Modifier.width(6.dp))
@@ -725,7 +734,7 @@ fun CreatePostScreen(
                             text = "Style",
                             fontWeight = FontWeight.Bold,
                             fontSize = 13.sp,
-                            color = if (showStylePanel) Color(0xFF1877F2) else Color(0xFF050505)
+                            color = if (showStylePanel) Color(0xFF1877F2) else textPrimary
                         )
                     }
                 }
@@ -771,7 +780,7 @@ fun CreatePostScreen(
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp, vertical = 6.dp),
                     shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFFF9FAFB)),
+                    colors = CardDefaults.cardColors(containerColor = surfaceColor),
                     elevation = CardDefaults.cardElevation(1.dp)
                 ) {
                     Column(
@@ -784,7 +793,7 @@ fun CreatePostScreen(
                             text = "Background Style",
                             fontSize = 15.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF050505)
+                            color = textPrimary
                         )
 
                         // Colors Section
@@ -793,7 +802,7 @@ fun CreatePostScreen(
                                 text = "Colors",
                                 fontSize = 13.sp,
                                 fontWeight = FontWeight.SemiBold,
-                                color = Color(0xFF65676B)
+                                color = textSecondary
                             )
                             Spacer(modifier = Modifier.height(8.dp))
                             LazyRow(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -813,7 +822,7 @@ fun CreatePostScreen(
                                             .size(46.dp)
                                             .border(
                                                 width = if (isSelected) 3.dp else 1.dp,
-                                                color = if (isSelected) Color(0xFF1877F2) else Color(0xFFCED0D4),
+                                                color = if (isSelected) Color(0xFF1877F2) else (if (isDarkMode) Color(0xFF4E4F50) else Color(0xFFCED0D4)),
                                                 shape = RoundedCornerShape(12.dp)
                                             )
                                             .clip(RoundedCornerShape(12.dp))
@@ -822,14 +831,14 @@ fun CreatePostScreen(
                                                 selectedMediaUris.clear()
                                                 selectedVideoUri = null
                                             },
-                                        color = if (bg == PostBackgroundStyle.NONE) Color.White else bg.singleColor
+                                        color = if (bg == PostBackgroundStyle.NONE) (if (isDarkMode) Color(0xFF242526) else Color.White) else bg.singleColor
                                     ) {
                                         if (bg == PostBackgroundStyle.NONE) {
                                             Box(contentAlignment = Alignment.Center) {
                                                 Icon(
                                                     imageVector = Icons.Default.Close,
                                                     contentDescription = "None",
-                                                    tint = Color(0xFF65676B),
+                                                    tint = textSecondary,
                                                     modifier = Modifier.size(20.dp)
                                                 )
                                             }
@@ -845,7 +854,7 @@ fun CreatePostScreen(
                                 text = "Backgrounds",
                                 fontSize = 13.sp,
                                 fontWeight = FontWeight.SemiBold,
-                                color = Color(0xFF65676B)
+                                color = textSecondary
                             )
                             Spacer(modifier = Modifier.height(8.dp))
                             LazyRow(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -863,7 +872,7 @@ fun CreatePostScreen(
                                             .size(54.dp)
                                             .border(
                                                 width = if (isSelected) 3.dp else 1.dp,
-                                                color = if (isSelected) Color(0xFF1877F2) else Color(0xFFCED0D4),
+                                                color = if (isSelected) Color(0xFF1877F2) else (if (isDarkMode) Color(0xFF4E4F50) else Color(0xFFCED0D4)),
                                                 shape = RoundedCornerShape(12.dp)
                                             )
                                             .clip(RoundedCornerShape(12.dp))
@@ -889,7 +898,7 @@ fun CreatePostScreen(
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp, vertical = 8.dp),
                 shape = RoundedCornerShape(20.dp),
-                colors = CardDefaults.cardColors(containerColor = Color(0xFFF9FAFB)),
+                colors = CardDefaults.cardColors(containerColor = surfaceColor),
                 elevation = CardDefaults.cardElevation(1.dp)
             ) {
                 Row(
@@ -1070,7 +1079,7 @@ fun CreatePostScreen(
             ModalBottomSheet(
                 onDismissRequest = { showAudienceSheet = false },
                 sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-                containerColor = Color.White
+                containerColor = surfaceColor
             ) {
                 Column(
                     modifier = Modifier
@@ -1082,7 +1091,7 @@ fun CreatePostScreen(
                         text = "Who can see your post?",
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF050505),
+                        color = textPrimary,
                         textAlign = TextAlign.Center,
                         modifier = Modifier.fillMaxWidth()
                     )
@@ -1103,7 +1112,7 @@ fun CreatePostScreen(
                     ) {
                         Surface(
                             shape = CircleShape,
-                            color = Color(0xFFEBF3FE),
+                            color = if (isDarkMode) Color(0xFF263951) else Color(0xFFEBF3FE),
                             modifier = Modifier.size(42.dp)
                         ) {
                             Box(contentAlignment = Alignment.Center) {
@@ -1123,12 +1132,12 @@ fun CreatePostScreen(
                                 text = "Public",
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = Color(0xFF050505)
+                                color = textPrimary
                             )
                             Text(
                                 text = "Anyone on or off Frndom",
                                 fontSize = 13.sp,
-                                color = Color(0xFF65676B)
+                                color = textSecondary
                             )
                         }
 
@@ -1156,14 +1165,14 @@ fun CreatePostScreen(
                     ) {
                         Surface(
                             shape = CircleShape,
-                            color = Color(0xFFE8F5E9),
+                            color = if (isDarkMode) Color(0xFF1E3A24) else Color(0xFFE8F5E9),
                             modifier = Modifier.size(42.dp)
                         ) {
                             Box(contentAlignment = Alignment.Center) {
                                 Icon(
                                     imageVector = Icons.Default.Group,
                                     contentDescription = "Friends",
-                                    tint = Color(0xFF2E7D32),
+                                    tint = if (isDarkMode) Color(0xFF4CAF50) else Color(0xFF2E7D32),
                                     modifier = Modifier.size(22.dp)
                                 )
                             }
@@ -1176,12 +1185,12 @@ fun CreatePostScreen(
                                 text = "Friends",
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = Color(0xFF050505)
+                                color = textPrimary
                             )
                             Text(
                                 text = "Your friends on Frndom",
                                 fontSize = 13.sp,
-                                color = Color(0xFF65676B)
+                                color = textSecondary
                             )
                         }
 
@@ -1209,14 +1218,14 @@ fun CreatePostScreen(
                     ) {
                         Surface(
                             shape = CircleShape,
-                            color = Color(0xFFFFF3E0),
+                            color = if (isDarkMode) Color(0xFF3E2D1A) else Color(0xFFFFF3E0),
                             modifier = Modifier.size(42.dp)
                         ) {
                             Box(contentAlignment = Alignment.Center) {
                                 Icon(
                                     imageVector = Icons.Default.Lock,
                                     contentDescription = "Only Me",
-                                    tint = Color(0xFFEF6C00),
+                                    tint = if (isDarkMode) Color(0xFFFFB74D) else Color(0xFFEF6C00),
                                     modifier = Modifier.size(22.dp)
                                 )
                             }
@@ -1229,12 +1238,12 @@ fun CreatePostScreen(
                                 text = "Only Me",
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = Color(0xFF050505)
+                                color = textPrimary
                             )
                             Text(
                                 text = "Only you can see this post",
                                 fontSize = 13.sp,
-                                color = Color(0xFF65676B)
+                                color = textSecondary
                             )
                         }
 
@@ -1263,13 +1272,21 @@ fun HashtagPickerBottomSheet(
     onHashtagRemoved: (String) -> Unit,
     onDismiss: () -> Unit
 ) {
+    val isDarkMode = LocalIsDarkMode.current
+    val surfaceColor = if (isDarkMode) Color(0xFF242526) else Color.White
+    val textPrimary = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505)
+    val textSecondary = if (isDarkMode) Color(0xFFB0B3B8) else Color(0xFF65676B)
+    val inputBorder = if (isDarkMode) Color(0xFF4E4F50) else Color(0xFFCED0D4)
+    val chipBg = if (isDarkMode) Color(0xFF3A3B3C) else Color(0xFFF0F2F5)
+    val chipBorder = if (isDarkMode) Color(0xFF4E4F50) else Color(0xFFE4E6EB)
+
     var customTagInput by remember { mutableStateOf("") }
     val customTags = remember { mutableStateListOf<String>() }
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-        containerColor = Color.White
+        containerColor = surfaceColor
     ) {
         Column(
             modifier = Modifier
@@ -1286,13 +1303,13 @@ fun HashtagPickerBottomSheet(
                     text = "Add Hashtags & Tags",
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF050505)
+                    color = textPrimary
                 )
                 IconButton(onClick = onDismiss) {
                     Icon(
                         imageVector = Icons.Default.Close,
                         contentDescription = "Close",
-                        tint = Color(0xFF65676B)
+                        tint = textSecondary
                     )
                 }
             }
@@ -1310,7 +1327,7 @@ fun HashtagPickerBottomSheet(
                     placeholder = {
                         Text(
                             text = "Custom tag (e.g. viral, tour)",
-                            color = Color(0xFF8A8D91),
+                            color = textSecondary,
                             fontSize = 14.sp
                         )
                     },
@@ -1318,7 +1335,9 @@ fun HashtagPickerBottomSheet(
                     shape = RoundedCornerShape(12.dp),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = Color(0xFF1877F2),
-                        unfocusedBorderColor = Color(0xFFCED0D4)
+                        unfocusedBorderColor = inputBorder,
+                        focusedTextColor = textPrimary,
+                        unfocusedTextColor = textPrimary
                     ),
                     modifier = Modifier
                         .weight(1f)
@@ -1366,7 +1385,7 @@ fun HashtagPickerBottomSheet(
                 text = "Popular Hashtags (Tap to insert)",
                 fontSize = 14.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = Color(0xFF65676B)
+                color = textSecondary
             )
 
             Spacer(modifier = Modifier.height(10.dp))
@@ -1385,10 +1404,10 @@ fun HashtagPickerBottomSheet(
                     val isSelected = currentText.contains(tag, ignoreCase = true)
                     Surface(
                         shape = RoundedCornerShape(20.dp),
-                        color = if (isSelected) Color(0xFFE7F3FF) else Color(0xFFF0F2F5),
+                        color = if (isSelected) (if (isDarkMode) Color(0xFF263951) else Color(0xFFE7F3FF)) else chipBg,
                         border = androidx.compose.foundation.BorderStroke(
                             1.dp,
-                            if (isSelected) Color(0xFF1877F2) else Color(0xFFE4E6EB)
+                            if (isSelected) Color(0xFF1877F2) else chipBorder
                         ),
                         modifier = Modifier
                             .clip(RoundedCornerShape(20.dp))
@@ -1418,7 +1437,7 @@ fun HashtagPickerBottomSheet(
                                 text = tag,
                                 fontSize = 13.sp,
                                 fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                                color = if (isSelected) Color(0xFF1877F2) else Color(0xFF050505)
+                                color = if (isSelected) Color(0xFF1877F2) else textPrimary
                             )
                         }
                     }

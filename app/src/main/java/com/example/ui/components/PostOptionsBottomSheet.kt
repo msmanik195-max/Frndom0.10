@@ -34,6 +34,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.RadioButton
@@ -82,7 +83,7 @@ fun PostOptionsBottomSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = bottomSheetState,
-        containerColor = Color.White,
+        containerColor = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
         dragHandle = {
             Box(
@@ -91,7 +92,7 @@ fun PostOptionsBottomSheet(
                     .width(40.dp)
                     .height(4.dp)
                     .clip(RoundedCornerShape(2.dp))
-                    .background(Color(0xFFBCC0C4))
+                    .background(MaterialTheme.colorScheme.outlineVariant)
             )
         }
     ) {
@@ -106,8 +107,8 @@ fun PostOptionsBottomSheet(
                     icon = Icons.Default.Edit,
                     title = if (isVideoOrReel) "Edit Video Caption & Settings" else "Edit Post",
                     subtitle = if (isVideoOrReel) "Edit caption and audience (video cannot be replaced)" else "Modify text, change photos, and settings",
-                    iconTint = Color(0xFF050505),
-                    iconBg = Color(0xFFE4E6EB),
+                    iconTint = MaterialTheme.colorScheme.onSurface,
+                    iconBg = MaterialTheme.colorScheme.surfaceVariant,
                     onClick = {
                         onDismiss()
                         onEditClick(post)
@@ -121,8 +122,8 @@ fun PostOptionsBottomSheet(
                     icon = Icons.Default.Link,
                     title = "Copy Link",
                     subtitle = "Copy link to this ${if (isVideoOrReel) "video" else "post"} to clipboard",
-                    iconTint = Color(0xFF050505),
-                    iconBg = Color(0xFFE4E6EB),
+                    iconTint = MaterialTheme.colorScheme.onSurface,
+                    iconBg = MaterialTheme.colorScheme.surfaceVariant,
                     onClick = {
                         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                         val clip = ClipData.newPlainText("Post Link", "https://frndom.app/post/${post.id}")
@@ -152,8 +153,8 @@ fun PostOptionsBottomSheet(
                     icon = if (isSaved) Icons.Default.Bookmark else Icons.Default.BookmarkBorder,
                     title = if (isSaved) "Unsave $itemTypeLabel" else "Save $itemTypeLabel",
                     subtitle = if (isSaved) "Remove this from your Saved Items" else "Add this to your saved items",
-                    iconTint = if (isSaved) Color(0xFF1877F2) else Color(0xFF050505),
-                    iconBg = if (isSaved) Color(0xFFEBF5FF) else Color(0xFFE4E6EB),
+                    iconTint = if (isSaved) Color(0xFF1877F2) else MaterialTheme.colorScheme.onSurface,
+                    iconBg = if (isSaved) Color(0xFFEBF5FF) else MaterialTheme.colorScheme.surfaceVariant,
                     onClick = {
                         val nowSaved = postRepository.toggleSavePost(currentUserId, post.id)
                         isSaved = nowSaved
@@ -173,8 +174,8 @@ fun PostOptionsBottomSheet(
                     icon = Icons.Default.Link,
                     title = "Copy Link",
                     subtitle = "Copy link to this ${if (isVideoOrReel) "video" else "post"} to clipboard",
-                    iconTint = Color(0xFF050505),
-                    iconBg = Color(0xFFE4E6EB),
+                    iconTint = MaterialTheme.colorScheme.onSurface,
+                    iconBg = MaterialTheme.colorScheme.surfaceVariant,
                     onClick = {
                         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                         val clip = ClipData.newPlainText("Post Link", "https://frndom.app/post/${post.id}")
@@ -212,14 +213,14 @@ fun PostOptionsBottomSheet(
                     text = "Delete ${if (isVideoOrReel) "Video" else "Post"}?",
                     fontWeight = FontWeight.Bold,
                     fontSize = 18.sp,
-                    color = Color(0xFF050505)
+                    color = MaterialTheme.colorScheme.onSurface
                 )
             },
             text = {
                 Text(
                     text = "Are you sure you want to delete this ${if (isVideoOrReel) "video" else "post"}? This action cannot be undone.",
                     fontSize = 14.sp,
-                    color = Color(0xFF65676B)
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             },
             confirmButton = {
@@ -238,10 +239,10 @@ fun PostOptionsBottomSheet(
             },
             dismissButton = {
                 TextButton(onClick = { showDeleteConfirmDialog = false }) {
-                    Text("Cancel", color = Color(0xFF050505))
+                    Text("Cancel", color = MaterialTheme.colorScheme.onSurface)
                 }
             },
-            containerColor = Color.White,
+            containerColor = MaterialTheme.colorScheme.surface,
             shape = RoundedCornerShape(12.dp)
         )
     }
@@ -300,13 +301,13 @@ fun PostOptionRow(
                 text = title,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = if (iconTint == Color(0xFFE53935)) Color(0xFFE53935) else Color(0xFF050505)
+                color = if (iconTint == Color(0xFFE53935)) Color(0xFFE53935) else MaterialTheme.colorScheme.onSurface
             )
             if (subtitle.isNotBlank()) {
                 Text(
                     text = subtitle,
                     fontSize = 12.sp,
-                    color = Color(0xFF65676B)
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
@@ -345,7 +346,7 @@ fun ReportPostDialog(
                     text = "Report Post",
                     fontWeight = FontWeight.Bold,
                     fontSize = 18.sp,
-                    color = Color(0xFF050505)
+                    color = MaterialTheme.colorScheme.onSurface
                 )
             }
         },
@@ -354,7 +355,7 @@ fun ReportPostDialog(
                 Text(
                     text = "Why are you reporting this post?",
                     fontSize = 14.sp,
-                    color = Color(0xFF65676B),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(bottom = 12.dp)
                 )
 
@@ -376,7 +377,7 @@ fun ReportPostDialog(
                         Text(
                             text = reason,
                             fontSize = 14.sp,
-                            color = Color(0xFF050505)
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                     }
                 }
@@ -392,10 +393,10 @@ fun ReportPostDialog(
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel", color = Color(0xFF050505))
+                Text("Cancel", color = MaterialTheme.colorScheme.onSurface)
             }
         },
-        containerColor = Color.White,
+        containerColor = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(16.dp)
     )
 }

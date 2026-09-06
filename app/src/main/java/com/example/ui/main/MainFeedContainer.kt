@@ -101,6 +101,8 @@ fun MainFeedContainer(
             activeChatPeer = null
         } else if (visitedUserProfile != null) {
             visitedUserProfile = null
+        } else if (currentDestination == AppDestination.FRIENDS || currentDestination == AppDestination.NOTIFICATIONS) {
+            currentDestination = AppDestination.HOME
         } else if (currentDestination == AppDestination.SERVER_SETTINGS) {
             currentDestination = AppDestination.MENU
         } else if (isMenuSubScreenActive) {
@@ -115,6 +117,8 @@ fun MainFeedContainer(
             currentDestination == AppDestination.CREATE_POST ||
             currentDestination == AppDestination.SERVER_SETTINGS ||
             currentDestination == AppDestination.SEARCH ||
+            currentDestination == AppDestination.FRIENDS ||
+            currentDestination == AppDestination.NOTIFICATIONS ||
             (currentDestination == AppDestination.MENU && isMenuSubScreenActive)
 
     Scaffold(
@@ -327,7 +331,8 @@ fun MainFeedContainer(
                                 } else {
                                     visitedUserProfile = friendUser
                                 }
-                            }
+                            },
+                            onBackClick = { currentDestination = AppDestination.HOME }
                         )
                     }
 
@@ -342,7 +347,8 @@ fun MainFeedContainer(
                                 } else {
                                     visitedUserProfile = notifUser
                                 }
-                            }
+                            },
+                            onBackClick = { currentDestination = AppDestination.HOME }
                         )
                     }
 

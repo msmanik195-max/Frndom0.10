@@ -89,6 +89,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import com.example.ui.components.VerificationBadge
+import com.example.ui.theme.LocalIsDarkMode
 import com.example.data.repository.UserRepository
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -143,17 +144,25 @@ fun MarketplaceView(
         matchesCategory && matchesSearch && matchesMyListings
     }
 
+    val isDarkMode = LocalIsDarkMode.current
+    val bgColor = if (isDarkMode) Color(0xFF18191A) else Color(0xFFF0F2F5)
+    val surfaceColor = if (isDarkMode) Color(0xFF242526) else Color.White
+    val textPrimary = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505)
+    val textSecondary = if (isDarkMode) Color(0xFFB0B3B8) else Color(0xFF65676B)
+    val inputBg = if (isDarkMode) Color(0xFF3A3B3C) else Color(0xFFF0F2F5)
+    val chipBg = if (isDarkMode) Color(0xFF3A3B3C) else Color(0xFFE4E6EB)
+
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(Color(0xFFF0F2F5))
+            .background(bgColor)
             .testTag("marketplace_view")
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
             // Header
             Surface(
                 modifier = Modifier.fillMaxWidth(),
-                color = Color.White,
+                color = surfaceColor,
                 shadowElevation = 1.dp
             ) {
                 Column {
@@ -169,7 +178,7 @@ fun MarketplaceView(
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                                     contentDescription = "Back",
-                                    tint = Color(0xFF050505)
+                                    tint = textPrimary
                                 )
                             }
                             Spacer(modifier = Modifier.width(4.dp))
@@ -177,7 +186,7 @@ fun MarketplaceView(
                                 text = "Marketplace",
                                 fontSize = 22.sp,
                                 fontWeight = FontWeight.ExtraBold,
-                                color = Color(0xFF050505)
+                                color = textPrimary
                             )
                         }
 
@@ -189,7 +198,7 @@ fun MarketplaceView(
                                 Icon(
                                     imageVector = Icons.Default.Search,
                                     contentDescription = "Search",
-                                    tint = Color(0xFF050505)
+                                    tint = textPrimary
                                 )
                             }
 
@@ -230,28 +239,30 @@ fun MarketplaceView(
                         OutlinedTextField(
                             value = searchQuery,
                             onValueChange = { searchQuery = it },
-                            placeholder = { Text("Search Marketplace in Bangladesh...", fontSize = 14.sp) },
+                            placeholder = { Text("Search Marketplace in Bangladesh...", fontSize = 14.sp, color = textSecondary) },
                             leadingIcon = {
                                 Icon(
                                     imageVector = Icons.Default.Search,
                                     contentDescription = null,
-                                    tint = Color(0xFF65676B)
+                                    tint = textSecondary
                                 )
                             },
                             trailingIcon = {
                                 if (searchQuery.isNotBlank()) {
                                     IconButton(onClick = { searchQuery = "" }) {
-                                        Icon(imageVector = Icons.Default.Close, contentDescription = "Clear")
+                                        Icon(imageVector = Icons.Default.Close, contentDescription = "Clear", tint = textSecondary)
                                     }
                                 }
                             },
                             singleLine = true,
                             shape = RoundedCornerShape(24.dp),
                             colors = OutlinedTextFieldDefaults.colors(
-                                focusedContainerColor = Color(0xFFF0F2F5),
-                                unfocusedContainerColor = Color(0xFFF0F2F5),
+                                focusedContainerColor = inputBg,
+                                unfocusedContainerColor = inputBg,
                                 focusedBorderColor = Color.Transparent,
-                                unfocusedBorderColor = Color.Transparent
+                                unfocusedBorderColor = Color.Transparent,
+                                focusedTextColor = textPrimary,
+                                unfocusedTextColor = textPrimary
                             ),
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -269,7 +280,7 @@ fun MarketplaceView(
                     ) {
                         Surface(
                             shape = RoundedCornerShape(18.dp),
-                            color = if (showOnlyMyListings) Color(0xFFE8F1FD) else Color(0xFFF0F2F5),
+                            color = if (showOnlyMyListings) (if (isDarkMode) Color(0xFF263951) else Color(0xFFE8F1FD)) else inputBg,
                             modifier = Modifier
                                 .weight(1f)
                                 .clickable { showOnlyMyListings = !showOnlyMyListings }
@@ -282,7 +293,7 @@ fun MarketplaceView(
                                 Icon(
                                     imageVector = Icons.Default.Person,
                                     contentDescription = null,
-                                    tint = if (showOnlyMyListings) Color(0xFF1877F2) else Color(0xFF050505),
+                                    tint = if (showOnlyMyListings) Color(0xFF1877F2) else textPrimary,
                                     modifier = Modifier.size(16.dp)
                                 )
                                 Spacer(modifier = Modifier.width(6.dp))
@@ -290,14 +301,14 @@ fun MarketplaceView(
                                     text = if (showOnlyMyListings) "All Items" else "My Listings",
                                     fontSize = 12.sp,
                                     fontWeight = FontWeight.SemiBold,
-                                    color = if (showOnlyMyListings) Color(0xFF1877F2) else Color(0xFF050505)
+                                    color = if (showOnlyMyListings) Color(0xFF1877F2) else textPrimary
                                 )
                             }
                         }
 
                         Surface(
                             shape = RoundedCornerShape(18.dp),
-                            color = Color(0xFFF0F2F5),
+                            color = inputBg,
                             modifier = Modifier
                                 .weight(1f)
                                 .clickable { showSellModal = true }
@@ -336,14 +347,14 @@ fun MarketplaceView(
                             val isSelected = selectedCategory == cat
                             Surface(
                                 shape = RoundedCornerShape(16.dp),
-                                color = if (isSelected) Color(0xFF1877F2) else Color(0xFFE4E6EB),
+                                color = if (isSelected) Color(0xFF1877F2) else chipBg,
                                 modifier = Modifier.clickable { selectedCategory = cat }
                             ) {
                                 Text(
                                     text = cat,
                                     fontSize = 13.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = if (isSelected) Color.White else Color(0xFF050505),
+                                    color = if (isSelected) Color.White else textPrimary,
                                     modifier = Modifier.padding(horizontal = 14.dp, vertical = 6.dp)
                                 )
                             }
@@ -364,7 +375,7 @@ fun MarketplaceView(
                         Surface(
                             modifier = Modifier.size(72.dp),
                             shape = CircleShape,
-                            color = Color(0xFFE8F1FD)
+                            color = if (isDarkMode) Color(0xFF263951) else Color(0xFFE8F1FD)
                         ) {
                             Box(contentAlignment = Alignment.Center) {
                                 Icon(
@@ -380,13 +391,13 @@ fun MarketplaceView(
                             text = if (showOnlyMyListings) "You have no listings yet" else "No marketplace items found",
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF050505)
+                            color = textPrimary
                         )
                         Spacer(modifier = Modifier.height(6.dp))
                         Text(
                             text = "Tap 'Sell' to list your items in BDT for other users to buy!",
                             fontSize = 13.sp,
-                            color = Color(0xFF65676B),
+                            color = textSecondary,
                             modifier = Modifier.padding(horizontal = 24.dp)
                         )
                         Spacer(modifier = Modifier.height(16.dp))
@@ -482,6 +493,11 @@ private fun MarketplaceProductCard(
     onToggleSave: () -> Unit = {},
     onClick: () -> Unit
 ) {
+    val isDarkMode = LocalIsDarkMode.current
+    val cardBg = if (isDarkMode) Color(0xFF242526) else Color.White
+    val textPrimary = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505)
+    val textSecondary = if (isDarkMode) Color(0xFFB0B3B8) else Color(0xFF65676B)
+    val imageBg = if (isDarkMode) Color(0xFF3A3B3C) else Color(0xFFE4E6EB)
     val formattedPrice = "BDT " + NumberFormat.getNumberInstance(Locale.US).format(item.price.toLong())
 
     Card(
@@ -492,14 +508,14 @@ private fun MarketplaceProductCard(
             .shadow(1.dp, RoundedCornerShape(12.dp))
             .testTag("marketplace_item_${item.id}"),
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White)
+        colors = CardDefaults.cardColors(containerColor = cardBg)
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(160.dp)
-                    .background(Color(0xFFE4E6EB))
+                    .background(imageBg)
             ) {
                 if (item.coverImageUrl.isNotBlank()) {
                     AsyncImage(
@@ -513,7 +529,7 @@ private fun MarketplaceProductCard(
                         Icon(
                             imageVector = Icons.Default.Storefront,
                             contentDescription = null,
-                            tint = Color(0xFFB0B3B8),
+                            tint = textSecondary,
                             modifier = Modifier.size(48.dp)
                         )
                     }
@@ -580,7 +596,7 @@ private fun MarketplaceProductCard(
                     text = formattedPrice,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.ExtraBold,
-                    color = if (item.isSold) Color(0xFF65676B) else Color(0xFF050505),
+                    color = if (item.isSold) textSecondary else (if (isDarkMode) Color(0xFF4599FF) else Color(0xFF050505)),
                     textDecoration = if (item.isSold) TextDecoration.LineThrough else TextDecoration.None
                 )
 
@@ -591,7 +607,7 @@ private fun MarketplaceProductCard(
                     text = item.title,
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Medium,
-                    color = Color(0xFF050505),
+                    color = textPrimary,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
                     lineHeight = 16.sp
@@ -604,14 +620,14 @@ private fun MarketplaceProductCard(
                     Icon(
                         imageVector = Icons.Default.LocationOn,
                         contentDescription = null,
-                        tint = Color(0xFF8A8D91),
+                        tint = textSecondary,
                         modifier = Modifier.size(12.dp)
                     )
                     Spacer(modifier = Modifier.width(2.dp))
                     Text(
                         text = item.location,
                         fontSize = 11.sp,
-                        color = Color(0xFF65676B),
+                        color = textSecondary,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -650,6 +666,17 @@ fun ProductDetailBottomSheet(
     var prefilledMessage by remember { mutableStateOf("Hi ${item.sellerName}, is this item still available?") }
     var showDeleteConfirmDialog by remember { mutableStateOf(false) }
 
+    val isDarkMode = LocalIsDarkMode.current
+    val surfaceColor = if (isDarkMode) Color(0xFF242526) else Color.White
+    val textPrimary = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505)
+    val textSecondary = if (isDarkMode) Color(0xFFB0B3B8) else Color(0xFF65676B)
+    val cardBg = if (isDarkMode) Color(0xFF3A3B3C) else Color(0xFFF8F9FA)
+    val chipBg = if (isDarkMode) Color(0xFF3A3B3C) else Color(0xFFF0F2F5)
+    val dividerColor = if (isDarkMode) Color(0xFF3A3B3C) else Color(0xFFE4E6EB)
+    val imageBg = if (isDarkMode) Color(0xFF3A3B3C) else Color(0xFFE4E6EB)
+    val inputBg = if (isDarkMode) Color(0xFF3A3B3C) else Color.White
+    val inputBorder = if (isDarkMode) Color(0xFF4E4F50) else Color(0xFFCED0D4)
+
     val formattedPrice = "BDT " + NumberFormat.getNumberInstance(Locale.US).format(item.price.toLong())
     val dateFormat = SimpleDateFormat("MMM d, yyyy", Locale.getDefault())
     val formattedDate = dateFormat.format(Date(item.createdAt))
@@ -657,7 +684,7 @@ fun ProductDetailBottomSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        containerColor = Color.White,
+        containerColor = surfaceColor,
         modifier = Modifier.fillMaxHeight(0.95f)
     ) {
         Column(
@@ -674,7 +701,7 @@ fun ProductDetailBottomSheet(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(onClick = onDismiss) {
-                    Icon(imageVector = Icons.Default.Close, contentDescription = "Close")
+                    Icon(imageVector = Icons.Default.Close, contentDescription = "Close", tint = textPrimary)
                 }
 
                 Row {
@@ -682,7 +709,7 @@ fun ProductDetailBottomSheet(
                         Icon(
                             imageVector = if (isSaved) Icons.Default.Bookmark else Icons.Default.BookmarkBorder,
                             contentDescription = "Save",
-                            tint = if (isSaved) Color(0xFF1877F2) else Color(0xFF050505)
+                            tint = if (isSaved) Color(0xFF1877F2) else textPrimary
                         )
                     }
 
@@ -697,7 +724,7 @@ fun ProductDetailBottomSheet(
                         Icon(
                             imageVector = Icons.Default.Share,
                             contentDescription = "Share",
-                            tint = Color(0xFF050505)
+                            tint = textPrimary
                         )
                     }
                 }
@@ -708,7 +735,7 @@ fun ProductDetailBottomSheet(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(300.dp)
-                    .background(Color(0xFFE4E6EB))
+                    .background(imageBg)
             ) {
                 if (item.coverImageUrl.isNotBlank()) {
                     AsyncImage(
@@ -722,7 +749,7 @@ fun ProductDetailBottomSheet(
                         Icon(
                             imageVector = Icons.Default.Storefront,
                             contentDescription = null,
-                            tint = Color(0xFF8A8D91),
+                            tint = textSecondary,
                             modifier = Modifier.size(64.dp)
                         )
                     }
@@ -752,7 +779,7 @@ fun ProductDetailBottomSheet(
                     text = item.title,
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF050505)
+                    color = textPrimary
                 )
 
                 Spacer(modifier = Modifier.height(6.dp))
@@ -763,12 +790,12 @@ fun ProductDetailBottomSheet(
                         text = formattedPrice,
                         fontSize = 24.sp,
                         fontWeight = FontWeight.ExtraBold,
-                        color = Color(0xFF0866FF)
+                        color = if (isDarkMode) Color(0xFF4599FF) else Color(0xFF0866FF)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Surface(
                         shape = RoundedCornerShape(6.dp),
-                        color = Color(0xFFE8F1FD)
+                        color = if (isDarkMode) Color(0xFF263951) else Color(0xFFE8F1FD)
                     ) {
                         Text(
                             text = "BDT",
@@ -785,11 +812,11 @@ fun ProductDetailBottomSheet(
                 Text(
                     text = "Listed in ${item.location} • $formattedDate",
                     fontSize = 13.sp,
-                    color = Color(0xFF65676B)
+                    color = textSecondary
                 )
 
                 Spacer(modifier = Modifier.height(14.dp))
-                Divider(color = Color(0xFFE4E6EB), thickness = 0.5.dp)
+                Divider(color = dividerColor, thickness = 0.5.dp)
                 Spacer(modifier = Modifier.height(14.dp))
 
                 // Details Badges
@@ -799,23 +826,23 @@ fun ProductDetailBottomSheet(
                 ) {
                     Surface(
                         shape = RoundedCornerShape(8.dp),
-                        color = Color(0xFFF0F2F5),
+                        color = chipBg,
                         modifier = Modifier.weight(1f)
                     ) {
                         Column(modifier = Modifier.padding(10.dp)) {
-                            Text(text = "Condition", fontSize = 11.sp, color = Color(0xFF65676B))
-                            Text(text = item.condition, fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color(0xFF050505))
+                            Text(text = "Condition", fontSize = 11.sp, color = textSecondary)
+                            Text(text = item.condition, fontSize = 14.sp, fontWeight = FontWeight.Bold, color = textPrimary)
                         }
                     }
 
                     Surface(
                         shape = RoundedCornerShape(8.dp),
-                        color = Color(0xFFF0F2F5),
+                        color = chipBg,
                         modifier = Modifier.weight(1f)
                     ) {
                         Column(modifier = Modifier.padding(10.dp)) {
-                            Text(text = "Category", fontSize = 11.sp, color = Color(0xFF65676B))
-                            Text(text = item.category, fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color(0xFF050505))
+                            Text(text = "Category", fontSize = 11.sp, color = textSecondary)
+                            Text(text = item.category, fontSize = 14.sp, fontWeight = FontWeight.Bold, color = textPrimary)
                         }
                     }
                 }
@@ -827,18 +854,18 @@ fun ProductDetailBottomSheet(
                     text = "Description",
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF050505)
+                    color = textPrimary
                 )
                 Spacer(modifier = Modifier.height(6.dp))
                 Text(
                     text = item.description.ifBlank { "No detailed description provided by seller." },
                     fontSize = 14.sp,
-                    color = Color(0xFF333333),
+                    color = textSecondary,
                     lineHeight = 20.sp
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
-                Divider(color = Color(0xFFE4E6EB), thickness = 0.5.dp)
+                Divider(color = dividerColor, thickness = 0.5.dp)
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // Seller Information Card
@@ -846,7 +873,7 @@ fun ProductDetailBottomSheet(
                     text = "Seller Information",
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF050505)
+                    color = textPrimary
                 )
 
                 Spacer(modifier = Modifier.height(10.dp))
@@ -854,7 +881,7 @@ fun ProductDetailBottomSheet(
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFFF8F9FA))
+                    colors = CardDefaults.cardColors(containerColor = cardBg)
                 ) {
                     Row(
                         modifier = Modifier
@@ -865,7 +892,7 @@ fun ProductDetailBottomSheet(
                         Surface(
                             modifier = Modifier.size(50.dp),
                             shape = CircleShape,
-                            color = Color(0xFFE8F1FD)
+                            color = if (isDarkMode) Color(0xFF263951) else Color(0xFFE8F1FD)
                         ) {
                             if (item.sellerAvatarUrl.isNotBlank()) {
                                 AsyncImage(
@@ -894,7 +921,7 @@ fun ProductDetailBottomSheet(
                                     text = item.sellerName,
                                     fontSize = 16.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = Color(0xFF050505)
+                                    color = textPrimary
                                 )
                                 if (isSellerVerified) {
                                     Spacer(modifier = Modifier.width(6.dp))
@@ -904,7 +931,7 @@ fun ProductDetailBottomSheet(
                             Text(
                                 text = if (isSellerVerified) "Frndom Verified Marketplace Seller" else "Marketplace Seller",
                                 fontSize = 12.sp,
-                                color = if (isSellerVerified) Color(0xFF31A24C) else Color(0xFF65676B)
+                                color = if (isSellerVerified) Color(0xFF31A24C) else textSecondary
                             )
                         }
                     }
@@ -952,7 +979,7 @@ fun ProductDetailBottomSheet(
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(14.dp),
-                        colors = CardDefaults.cardColors(containerColor = Color(0xFFE8F1FD)),
+                        colors = CardDefaults.cardColors(containerColor = if (isDarkMode) Color(0xFF263951) else Color(0xFFE8F1FD)),
                         border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF1877F2).copy(alpha = 0.3f))
                     ) {
                         Column(modifier = Modifier.padding(14.dp)) {
@@ -968,7 +995,7 @@ fun ProductDetailBottomSheet(
                                     text = "Send seller a message",
                                     fontSize = 15.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = Color(0xFF0866FF)
+                                    color = if (isDarkMode) Color(0xFF4599FF) else Color(0xFF0866FF)
                                 )
                             }
 
@@ -979,10 +1006,12 @@ fun ProductDetailBottomSheet(
                                 onValueChange = { prefilledMessage = it },
                                 shape = RoundedCornerShape(12.dp),
                                 colors = OutlinedTextFieldDefaults.colors(
-                                    focusedContainerColor = Color.White,
-                                    unfocusedContainerColor = Color.White,
+                                    focusedContainerColor = inputBg,
+                                    unfocusedContainerColor = inputBg,
                                     focusedBorderColor = Color(0xFF1877F2),
-                                    unfocusedBorderColor = Color(0xFFCED0D4)
+                                    unfocusedBorderColor = inputBorder,
+                                    focusedTextColor = textPrimary,
+                                    unfocusedTextColor = textPrimary
                                 ),
                                 modifier = Modifier.fillMaxWidth(),
                                 maxLines = 3
@@ -1062,6 +1091,14 @@ private fun SellListingBottomSheet(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
+    val isDarkMode = LocalIsDarkMode.current
+    val surfaceColor = if (isDarkMode) Color(0xFF242526) else Color.White
+    val textPrimary = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505)
+    val textSecondary = if (isDarkMode) Color(0xFFB0B3B8) else Color(0xFF65676B)
+    val cardBg = if (isDarkMode) Color(0xFF3A3B3C) else Color(0xFFF0F2F5)
+    val inputBorder = if (isDarkMode) Color(0xFF4E4F50) else Color(0xFFCED0D4)
+    val unselectedChipBg = if (isDarkMode) Color(0xFF3A3B3C) else Color(0xFFF0F2F5)
+
     var title by remember { mutableStateOf("") }
     var priceText by remember { mutableStateOf("") }
     var category by remember { mutableStateOf("Electronics") }
@@ -1091,7 +1128,7 @@ private fun SellListingBottomSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        containerColor = Color.White,
+        containerColor = surfaceColor,
         modifier = Modifier.fillMaxHeight(0.95f)
     ) {
         Column(
@@ -1110,10 +1147,10 @@ private fun SellListingBottomSheet(
                     text = "Create Marketplace Listing",
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF050505)
+                    color = textPrimary
                 )
                 IconButton(onClick = onDismiss) {
-                    Icon(imageVector = Icons.Default.Close, contentDescription = "Close")
+                    Icon(imageVector = Icons.Default.Close, contentDescription = "Close", tint = textPrimary)
                 }
             }
 
@@ -1131,7 +1168,7 @@ private fun SellListingBottomSheet(
                         )
                     },
                 shape = RoundedCornerShape(12.dp),
-                colors = CardDefaults.cardColors(containerColor = Color(0xFFF0F2F5))
+                colors = CardDefaults.cardColors(containerColor = cardBg)
             ) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     if (photoUrl.isNotBlank()) {
@@ -1161,7 +1198,7 @@ private fun SellListingBottomSheet(
                             Text(
                                 text = "Photos help buyers see your item clearly",
                                 fontSize = 11.sp,
-                                color = Color(0xFF65676B)
+                                color = textSecondary
                             )
                         }
                     }
@@ -1177,13 +1214,15 @@ private fun SellListingBottomSheet(
                     title = it
                     errorMessage = null
                 },
-                label = { Text("Item Title") },
-                placeholder = { Text("e.g. iPhone 14 Pro Max 256GB Deep Purple") },
+                label = { Text("Item Title", color = textSecondary) },
+                placeholder = { Text("e.g. iPhone 14 Pro Max 256GB Deep Purple", color = textSecondary) },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(10.dp),
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = Color(0xFF1877F2),
-                    unfocusedBorderColor = Color(0xFFCED0D4)
+                    unfocusedBorderColor = inputBorder,
+                    focusedTextColor = textPrimary,
+                    unfocusedTextColor = textPrimary
                 )
             )
 
@@ -1196,35 +1235,37 @@ private fun SellListingBottomSheet(
                     priceText = it.filter { ch -> ch.isDigit() || ch == '.' }
                     errorMessage = null
                 },
-                label = { Text("Price in BDT") },
-                prefix = { Text("BDT ", fontWeight = FontWeight.Bold, color = Color(0xFF0866FF)) },
+                label = { Text("Price in BDT", color = textSecondary) },
+                prefix = { Text("BDT ", fontWeight = FontWeight.Bold, color = if (isDarkMode) Color(0xFF4599FF) else Color(0xFF0866FF)) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(10.dp),
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = Color(0xFF1877F2),
-                    unfocusedBorderColor = Color(0xFFCED0D4)
+                    unfocusedBorderColor = inputBorder,
+                    focusedTextColor = textPrimary,
+                    unfocusedTextColor = textPrimary
                 )
             )
 
             Spacer(modifier = Modifier.height(14.dp))
 
             // Category Selection
-            Text(text = "Category", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF65676B))
+            Text(text = "Category", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = textSecondary)
             Spacer(modifier = Modifier.height(6.dp))
             LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 items(categories) { cat ->
                     val isSelected = category == cat
                     Surface(
                         shape = RoundedCornerShape(16.dp),
-                        color = if (isSelected) Color(0xFF1877F2) else Color(0xFFF0F2F5),
+                        color = if (isSelected) Color(0xFF1877F2) else unselectedChipBg,
                         modifier = Modifier.clickable { category = cat }
                     ) {
                         Text(
                             text = cat,
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold,
-                            color = if (isSelected) Color.White else Color(0xFF050505),
+                            color = if (isSelected) Color.White else textPrimary,
                             modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
                         )
                     }
@@ -1234,14 +1275,14 @@ private fun SellListingBottomSheet(
             Spacer(modifier = Modifier.height(14.dp))
 
             // Condition Selection
-            Text(text = "Condition", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF65676B))
+            Text(text = "Condition", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = textSecondary)
             Spacer(modifier = Modifier.height(6.dp))
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                 conditions.forEach { cond ->
                     val isSelected = condition == cond
                     Surface(
                         shape = RoundedCornerShape(10.dp),
-                        color = if (isSelected) Color(0xFFE8F1FD) else Color(0xFFF0F2F5),
+                        color = if (isSelected) (if (isDarkMode) Color(0xFF263951) else Color(0xFFE8F1FD)) else unselectedChipBg,
                         border = if (isSelected) androidx.compose.foundation.BorderStroke(1.5.dp, Color(0xFF1877F2)) else null,
                         modifier = Modifier
                             .weight(1f)
@@ -1251,7 +1292,7 @@ private fun SellListingBottomSheet(
                             text = cond,
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Bold,
-                            color = if (isSelected) Color(0xFF1877F2) else Color(0xFF050505),
+                            color = if (isSelected) Color(0xFF1877F2) else textPrimary,
                             textAlign = androidx.compose.ui.text.style.TextAlign.Center,
                             modifier = Modifier.padding(vertical = 8.dp, horizontal = 2.dp)
                         )
@@ -1265,13 +1306,15 @@ private fun SellListingBottomSheet(
             OutlinedTextField(
                 value = location,
                 onValueChange = { location = it },
-                label = { Text("Location / City") },
-                placeholder = { Text("e.g. Dhanmondi, Dhaka") },
+                label = { Text("Location / City", color = textSecondary) },
+                placeholder = { Text("e.g. Dhanmondi, Dhaka", color = textSecondary) },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(10.dp),
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = Color(0xFF1877F2),
-                    unfocusedBorderColor = Color(0xFFCED0D4)
+                    unfocusedBorderColor = inputBorder,
+                    focusedTextColor = textPrimary,
+                    unfocusedTextColor = textPrimary
                 )
             )
 
@@ -1281,15 +1324,17 @@ private fun SellListingBottomSheet(
             OutlinedTextField(
                 value = description,
                 onValueChange = { description = it },
-                label = { Text("Description") },
-                placeholder = { Text("Describe condition, warranty, features, and reason for selling...") },
+                label = { Text("Description", color = textSecondary) },
+                placeholder = { Text("Describe condition, warranty, features, and reason for selling...", color = textSecondary) },
                 minLines = 3,
                 maxLines = 6,
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(10.dp),
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = Color(0xFF1877F2),
-                    unfocusedBorderColor = Color(0xFFCED0D4)
+                    unfocusedBorderColor = inputBorder,
+                    focusedTextColor = textPrimary,
+                    unfocusedTextColor = textPrimary
                 )
             )
 

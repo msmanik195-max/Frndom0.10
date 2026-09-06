@@ -178,7 +178,7 @@ fun HomeScreen(
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(Color(0xFFF0F2F5))
+                    .background(MaterialTheme.colorScheme.background)
                     .testTag("home_screen_feed")
             ) {
                 // 1. "What's on your mind?" Top Bar
@@ -187,7 +187,7 @@ fun HomeScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .testTag("compose_post_bar"),
-                        color = Color.White,
+                        color = MaterialTheme.colorScheme.surface,
                         shadowElevation = 0.5.dp
                     ) {
                         Row(
@@ -204,7 +204,7 @@ fun HomeScreen(
                                     .clickable(onClick = onProfileClick)
                                     .testTag("home_user_avatar"),
                                 shape = CircleShape,
-                                color = Color(0xFFE4E6EB)
+                                color = MaterialTheme.colorScheme.surfaceVariant
                             ) {
                                 if (!userProfile?.profilePictureUrl.isNullOrBlank()) {
                                     AsyncImage(
@@ -236,7 +236,7 @@ fun HomeScreen(
                                     .clickable(onClick = onCreatePostClick)
                                     .testTag("whats_on_your_mind_button"),
                                 shape = RoundedCornerShape(20.dp),
-                                color = Color(0xFFF0F2F5)
+                                color = MaterialTheme.colorScheme.surfaceVariant
                             ) {
                                 Box(
                                     contentAlignment = Alignment.CenterStart,
@@ -244,7 +244,7 @@ fun HomeScreen(
                                 ) {
                                     Text(
                                         text = "What's on your mind?",
-                                        color = Color(0xFF65676B),
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                                         fontSize = 14.sp
                                     )
                                 }
@@ -295,7 +295,7 @@ fun HomeScreen(
                                 .padding(horizontal = 12.dp, vertical = 4.dp)
                                 .testTag("upload_progress_card"),
                             shape = RoundedCornerShape(12.dp),
-                            color = Color.White,
+                            color = MaterialTheme.colorScheme.surface,
                             shadowElevation = 1.dp
                         ) {
                             Row(
@@ -309,7 +309,7 @@ fun HomeScreen(
                                     modifier = Modifier
                                         .size(46.dp)
                                         .clip(RoundedCornerShape(8.dp))
-                                        .background(Color(0xFFEBF3FE)),
+                                        .background(MaterialTheme.colorScheme.surfaceVariant),
                                     contentAlignment = Alignment.Center
                                 ) {
                                     val previewUri = uploadState.previewUri
@@ -342,7 +342,7 @@ fun HomeScreen(
                                             text = uploadState.statusText.ifBlank { "Uploading post..." },
                                             fontSize = 14.sp,
                                             fontWeight = FontWeight.SemiBold,
-                                            color = Color(0xFF050505),
+                                            color = MaterialTheme.colorScheme.onSurface,
                                             maxLines = 1,
                                             overflow = TextOverflow.Ellipsis,
                                             modifier = Modifier.weight(1f, fill = false)
@@ -365,7 +365,7 @@ fun HomeScreen(
                                             .height(6.dp)
                                             .clip(RoundedCornerShape(3.dp)),
                                         color = Color(0xFF1877F2),
-                                        trackColor = Color(0xFFE4E6EB)
+                                        trackColor = MaterialTheme.colorScheme.surfaceVariant
                                     )
                                 }
                             }
@@ -394,13 +394,13 @@ fun HomeScreen(
                                     text = "No posts yet",
                                     fontSize = 16.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = Color(0xFF65676B)
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Text(
                                     text = "Tap the '+' button or 'What's on your mind?' to share a post!",
                                     fontSize = 13.sp,
-                                    color = Color(0xFF8A8D91),
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     textAlign = TextAlign.Center,
                                     modifier = Modifier.padding(horizontal = 32.dp)
                                 )
@@ -595,7 +595,7 @@ fun PostCardItem(
         modifier = Modifier
             .fillMaxWidth()
             .testTag("post_card_${post.id}"),
-        color = Color.White,
+        color = MaterialTheme.colorScheme.surface,
         shadowElevation = 0.5.dp
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
@@ -617,7 +617,7 @@ fun PostCardItem(
                     Surface(
                         modifier = Modifier.size(40.dp),
                         shape = CircleShape,
-                        color = Color(0xFFD8DADF)
+                        color = MaterialTheme.colorScheme.surfaceVariant
                     ) {
                         if (effectiveAuthorAvatar.isNotBlank()) {
                             AsyncImage(
@@ -646,7 +646,7 @@ fun PostCardItem(
                                 text = post.groupName,
                                 fontSize = 15.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = Color(0xFF050505)
+                                color = MaterialTheme.colorScheme.onSurface
                             )
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Text(
@@ -661,7 +661,7 @@ fun PostCardItem(
                                 Text(
                                     text = " • Just now • ",
                                     fontSize = 12.sp,
-                                    color = Color(0xFF65676B)
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                                 Icon(
                                     imageVector = when (post.audience) {
@@ -669,7 +669,7 @@ fun PostCardItem(
                                         else -> Icons.Default.Public
                                     },
                                     contentDescription = post.audience,
-                                    tint = Color(0xFF65676B),
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                     modifier = Modifier.size(12.dp)
                                 )
                             }
@@ -679,7 +679,7 @@ fun PostCardItem(
                                     text = post.authorName,
                                     fontSize = 15.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = Color(0xFF050505)
+                                    color = MaterialTheme.colorScheme.onSurface
                                 )
                                 if (isVerifiedAuthor) {
                                     VerificationBadge(size = 16.dp, show = true)
@@ -689,12 +689,12 @@ fun PostCardItem(
                                 Text(
                                     text = "Just now",
                                     fontSize = 12.sp,
-                                    color = Color(0xFF65676B)
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                                 Text(
                                     text = " • ",
                                     fontSize = 12.sp,
-                                    color = Color(0xFF65676B)
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                                 Icon(
                                     imageVector = when (post.audience) {
@@ -703,7 +703,7 @@ fun PostCardItem(
                                         else -> Icons.Default.Public
                                     },
                                     contentDescription = post.audience,
-                                    tint = Color(0xFF65676B),
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                     modifier = Modifier.size(13.dp)
                                 )
                             }
@@ -715,7 +715,7 @@ fun PostCardItem(
                     Icon(
                         imageVector = Icons.Default.MoreHoriz,
                         contentDescription = "Options",
-                        tint = Color(0xFF65676B)
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }
@@ -757,7 +757,7 @@ fun PostCardItem(
                     ExpandableHashtagText(
                         text = post.content,
                         fontSize = 15.sp,
-                        color = Color(0xFF050505),
+                        color = MaterialTheme.colorScheme.onSurface,
                         hashtagColor = Color(0xFF1877F2),
                         lineHeight = 21.sp,
                         collapsedMaxLines = 3,
@@ -825,7 +825,7 @@ fun PostCardItem(
                         Text(
                             text = "${post.likesCount}",
                             fontSize = 13.sp,
-                            color = Color(0xFF65676B)
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }
@@ -835,21 +835,21 @@ fun PostCardItem(
                         Text(
                             text = "${post.viewsCount} ${if (post.viewsCount == 1) "view" else "views"}",
                             fontSize = 13.sp,
-                            color = Color(0xFF65676B)
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                     if (post.commentsCount > 0) {
                         Text(
                             text = "${post.commentsCount} comments",
                             fontSize = 13.sp,
-                            color = Color(0xFF65676B)
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                     if (post.sharesCount > 0) {
                         Text(
                             text = "${post.sharesCount} shares",
                             fontSize = 13.sp,
-                            color = Color(0xFF65676B)
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }
@@ -858,7 +858,7 @@ fun PostCardItem(
             Divider(
                 modifier = Modifier.padding(horizontal = 14.dp),
                 thickness = 0.5.dp,
-                color = Color(0xFFE4E6EB)
+                color = MaterialTheme.colorScheme.outlineVariant
             )
 
             // Action Buttons: Like, Comment, Share with Floating Reaction popup
@@ -913,7 +913,7 @@ fun PostCardItem(
                             Icon(
                                 imageVector = Icons.Outlined.ThumbUp,
                                 contentDescription = "Like",
-                                tint = Color(0xFF65676B),
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.size(18.dp)
                             )
                             Spacer(modifier = Modifier.width(6.dp))
@@ -921,7 +921,7 @@ fun PostCardItem(
                                 text = "Like",
                                 fontSize = 13.sp,
                                 fontWeight = FontWeight.Medium,
-                                color = Color(0xFF65676B)
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                     }
@@ -937,7 +937,7 @@ fun PostCardItem(
                         Icon(
                             imageVector = Icons.Default.ChatBubbleOutline,
                             contentDescription = "Comment",
-                            tint = Color(0xFF65676B),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.size(18.dp)
                         )
                         Spacer(modifier = Modifier.width(6.dp))
@@ -945,7 +945,7 @@ fun PostCardItem(
                             text = "Comment",
                             fontSize = 13.sp,
                             fontWeight = FontWeight.Medium,
-                            color = Color(0xFF65676B)
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
 
@@ -960,7 +960,7 @@ fun PostCardItem(
                         Icon(
                             imageVector = Icons.Default.Share,
                             contentDescription = "Share",
-                            tint = Color(0xFF65676B),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.size(18.dp)
                         )
                         Spacer(modifier = Modifier.width(6.dp))
@@ -968,7 +968,7 @@ fun PostCardItem(
                             text = "Share",
                             fontSize = 13.sp,
                             fontWeight = FontWeight.Medium,
-                            color = Color(0xFF65676B)
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }
@@ -1208,13 +1208,13 @@ fun ShimmerPostCard() {
         ),
         label = "shimmer_alpha"
     )
-    val shimmerColor = Color(0xFFE4E6EB).copy(alpha = alpha)
+    val shimmerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = alpha)
 
     Surface(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp),
-        color = Color.White
+        color = MaterialTheme.colorScheme.surface
     ) {
         Column(modifier = Modifier.padding(14.dp)) {
             // Header
@@ -1260,7 +1260,7 @@ fun SponsoredAdFeedCard(
     Card(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(0.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
@@ -1273,7 +1273,7 @@ fun SponsoredAdFeedCard(
             ) {
                 Surface(
                     shape = CircleShape,
-                    color = Color(0xFFE4E6EB),
+                    color = MaterialTheme.colorScheme.surfaceVariant,
                     modifier = Modifier.size(42.dp)
                 ) {
                     if (ad.userAvatar.isNotBlank()) {
@@ -1301,20 +1301,20 @@ fun SponsoredAdFeedCard(
                         text = ad.userName,
                         fontWeight = FontWeight.Bold,
                         fontSize = 15.sp,
-                        color = Color(0xFF050505)
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
                             text = "Sponsored",
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Medium,
-                            color = Color(0xFF65676B)
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
-                        Text(text = " • ", fontSize = 12.sp, color = Color(0xFF65676B))
+                        Text(text = " • ", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         Icon(
                             imageVector = Icons.Default.Public,
                             contentDescription = "Public",
-                            tint = Color(0xFF65676B),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.size(12.dp)
                         )
                     }
@@ -1327,7 +1327,7 @@ fun SponsoredAdFeedCard(
                     text = ad.headline,
                     fontSize = 15.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = Color(0xFF050505),
+                    color = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.padding(horizontal = 12.dp, vertical = 3.dp)
                 )
             }
@@ -1335,7 +1335,7 @@ fun SponsoredAdFeedCard(
                 Text(
                     text = ad.description,
                     fontSize = 14.sp,
-                    color = Color(0xFF1C1E21),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(horizontal = 12.dp, vertical = 2.dp)
                 )
             }
@@ -1348,7 +1348,7 @@ fun SponsoredAdFeedCard(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(230.dp)
-                        .background(Color(0xFFF0F2F5))
+                        .background(MaterialTheme.colorScheme.surfaceVariant)
                         .clickable {
                             onAdClick(ad)
                             try {
@@ -1370,7 +1370,7 @@ fun SponsoredAdFeedCard(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Color(0xFFF7F8FA))
+                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
                     .clickable {
                         onAdClick(ad)
                         try {
@@ -1392,14 +1392,14 @@ fun SponsoredAdFeedCard(
                     Text(
                         text = domain,
                         fontSize = 11.sp,
-                        color = Color(0xFF65676B),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         fontWeight = FontWeight.Medium
                     )
                     Text(
                         text = ad.campaignName,
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF050505),
+                        color = MaterialTheme.colorScheme.onSurface,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -1414,14 +1414,14 @@ fun SponsoredAdFeedCard(
                         } catch (_: Exception) {}
                     },
                     shape = RoundedCornerShape(6.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE4E6EB)),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
                     contentPadding = PaddingValues(horizontal = 14.dp, vertical = 6.dp)
                 ) {
                     Text(
                         text = ad.callToAction.ifBlank { "Learn More" },
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF050505)
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 }
             }

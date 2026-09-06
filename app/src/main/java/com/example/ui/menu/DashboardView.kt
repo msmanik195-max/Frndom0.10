@@ -82,6 +82,7 @@ import com.example.data.model.UserProfile
 import com.example.data.repository.AdminRequestRepository
 import com.example.data.repository.PostRepository
 import com.example.data.repository.UserRepository
+import com.example.ui.theme.LocalIsDarkMode
 import java.text.NumberFormat
 import java.util.Locale
 
@@ -191,17 +192,25 @@ fun DashboardView(
 
     val allCriteriaMet = completedCriteriaCount == 5
 
+    val isDarkMode = LocalIsDarkMode.current
+    val bgColor = if (isDarkMode) Color(0xFF18191A) else Color(0xFFF0F2F5)
+    val surfaceColor = if (isDarkMode) Color(0xFF242526) else Color.White
+    val textPrimary = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505)
+    val textSecondary = if (isDarkMode) Color(0xFFB0B3B8) else Color(0xFF65676B)
+    val cardBg = if (isDarkMode) Color(0xFF242526) else Color.White
+    val dividerColor = if (isDarkMode) Color(0xFF3A3B3C) else Color(0xFFE4E6EB)
+
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(Color(0xFFF0F2F5))
+            .background(bgColor)
             .testTag("professional_dashboard_view")
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
             // Header
             Surface(
                 modifier = Modifier.fillMaxWidth(),
-                color = Color.White,
+                color = surfaceColor,
                 shadowElevation = 0.5.dp
             ) {
                 Row(
@@ -217,7 +226,7 @@ fun DashboardView(
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
                             contentDescription = "Back",
-                            tint = Color(0xFF050505)
+                            tint = textPrimary
                         )
                     }
                     Spacer(modifier = Modifier.width(4.dp))
@@ -225,7 +234,7 @@ fun DashboardView(
                         text = "Professional Dashboard",
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF050505)
+                        color = textPrimary
                     )
                 }
             }
@@ -243,7 +252,7 @@ fun DashboardView(
                         .fillMaxWidth()
                         .testTag("dashboard_welcome_card"),
                     shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    colors = CardDefaults.cardColors(containerColor = cardBg),
                     elevation = CardDefaults.cardElevation(1.dp)
                 ) {
                     Box(
@@ -252,8 +261,8 @@ fun DashboardView(
                             .background(
                                 Brush.horizontalGradient(
                                     colors = listOf(
-                                        Color(0xFF1877F2).copy(alpha = 0.08f),
-                                        Color.White
+                                        Color(0xFF1877F2).copy(alpha = if (isDarkMode) 0.2f else 0.08f),
+                                        cardBg
                                     )
                                 )
                             )
@@ -270,7 +279,7 @@ fun DashboardView(
                                         text = "Welcome, $displayName",
                                         fontSize = 18.sp,
                                         fontWeight = FontWeight.Bold,
-                                        color = Color(0xFF050505)
+                                        color = textPrimary
                                     )
                                     if (userProfile?.isVerificationActive() == true) {
                                         Spacer(modifier = Modifier.width(4.dp))
@@ -281,7 +290,7 @@ fun DashboardView(
                                 Text(
                                     text = "Real-time analytics & monetization center",
                                     fontSize = 13.sp,
-                                    color = Color(0xFF65676B)
+                                    color = textSecondary
                                 )
                             }
                             Surface(
@@ -307,7 +316,7 @@ fun DashboardView(
                     text = "Performance",
                     fontSize = 17.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF050505)
+                    color = textPrimary
                 )
 
                 // Row 1: Total Reach & Total Engagement
@@ -381,18 +390,18 @@ fun DashboardView(
                         text = "Creator Fund",
                         fontSize = 17.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF050505)
+                        color = textPrimary
                     )
 
                     Surface(
                         shape = RoundedCornerShape(12.dp),
-                        color = if (allCriteriaMet) Color(0xFFE8F8F0) else Color(0xFFF0F2F5)
+                        color = if (allCriteriaMet) (if (isDarkMode) Color(0xFF1E3A2B) else Color(0xFFE8F8F0)) else (if (isDarkMode) Color(0xFF3A3B3C) else Color(0xFFF0F2F5))
                     ) {
                         Text(
                             text = "$completedCriteriaCount / 5 Completed",
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold,
-                            color = if (allCriteriaMet) Color(0xFF00A86B) else Color(0xFF65676B),
+                            color = if (allCriteriaMet) Color(0xFF00C853) else textSecondary,
                             modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
                         )
                     }
@@ -403,7 +412,7 @@ fun DashboardView(
                         .fillMaxWidth()
                         .testTag("creator_fund_card"),
                     shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    colors = CardDefaults.cardColors(containerColor = cardBg),
                     elevation = CardDefaults.cardElevation(1.dp)
                 ) {
                     Column(
@@ -438,18 +447,18 @@ fun DashboardView(
                                     text = "Creator Fund Program",
                                     fontSize = 16.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = Color(0xFF050505)
+                                    color = textPrimary
                                 )
                                 Text(
                                     text = "Earn monthly payouts from your views and reels",
                                     fontSize = 12.sp,
-                                    color = Color(0xFF65676B)
+                                    color = textSecondary
                                 )
                             }
                         }
 
                         Spacer(modifier = Modifier.height(14.dp))
-                        Divider(thickness = 0.5.dp, color = Color(0xFFE4E6EB))
+                        Divider(thickness = 0.5.dp, color = dividerColor)
                         Spacer(modifier = Modifier.height(14.dp))
 
                         // Criteria Progress Overview
@@ -457,12 +466,12 @@ fun DashboardView(
                             text = "Monetization Eligibility Criteria",
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF050505)
+                            color = textPrimary
                         )
                         Text(
                             text = "Complete all 5 requirements below to apply for Creator Fund",
                             fontSize = 12.sp,
-                            color = Color(0xFF65676B),
+                            color = textSecondary,
                             modifier = Modifier.padding(top = 2.dp, bottom = 14.dp)
                         )
 
@@ -536,7 +545,7 @@ fun DashboardView(
                             Surface(
                                 modifier = Modifier.fillMaxWidth(),
                                 shape = RoundedCornerShape(12.dp),
-                                color = Color(0xFFE8F8F0),
+                                color = if (isDarkMode) Color(0xFF1E3A2B) else Color(0xFFE8F8F0),
                                 border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF00A86B).copy(alpha = 0.4f))
                             ) {
                                 Row(
@@ -560,7 +569,7 @@ fun DashboardView(
                                         Text(
                                             text = "Congratulations! Your account is approved for Creator Fund earnings.",
                                             fontSize = 12.sp,
-                                            color = Color(0xFF050505)
+                                            color = textPrimary
                                         )
                                     }
                                 }
@@ -569,8 +578,8 @@ fun DashboardView(
                             Surface(
                                 modifier = Modifier.fillMaxWidth(),
                                 shape = RoundedCornerShape(12.dp),
-                                color = Color(0xFFE8F8F0),
-                                border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF00A86B).copy(alpha = 0.3f))
+                                color = if (isDarkMode) Color(0xFF1E3A2B) else Color(0xFFE8F8F0),
+                                border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF00A86B).copy(alpha = 0.4f))
                             ) {
                                 Row(
                                     modifier = Modifier.padding(14.dp),
@@ -593,7 +602,7 @@ fun DashboardView(
                                         Text(
                                             text = "Your Creator Fund application is active and under review by Admin.",
                                             fontSize = 12.sp,
-                                            color = Color(0xFF050505)
+                                            color = textPrimary
                                         )
                                     }
                                 }
@@ -622,9 +631,9 @@ fun DashboardView(
                                 shape = RoundedCornerShape(12.dp),
                                 colors = ButtonDefaults.buttonColors(
                                     containerColor = Color(0xFF1877F2),
-                                    disabledContainerColor = Color(0xFFE4E6EB),
+                                    disabledContainerColor = if (isDarkMode) Color(0xFF3A3B3C) else Color(0xFFE4E6EB),
                                     contentColor = Color.White,
-                                    disabledContentColor = Color(0xFF8A8D91)
+                                    disabledContentColor = if (isDarkMode) Color(0xFF8A8D91) else Color(0xFF8A8D91)
                                 ),
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -649,7 +658,7 @@ fun DashboardView(
                                     Icon(
                                         imageVector = Icons.Default.Lock,
                                         contentDescription = null,
-                                        tint = Color(0xFF8A8D91),
+                                        tint = if (isDarkMode) Color(0xFF8A8D91) else Color(0xFF8A8D91),
                                         modifier = Modifier.size(18.dp)
                                     )
                                     Spacer(modifier = Modifier.width(8.dp))
@@ -657,7 +666,7 @@ fun DashboardView(
                                         text = "Apply for Monetization (${5 - completedCriteriaCount} remaining)",
                                         fontSize = 14.sp,
                                         fontWeight = FontWeight.SemiBold,
-                                        color = Color(0xFF8A8D91)
+                                        color = if (isDarkMode) Color(0xFF8A8D91) else Color(0xFF8A8D91)
                                     )
                                 }
                             }
@@ -666,7 +675,7 @@ fun DashboardView(
                                 Text(
                                     text = "All 5 requirements must be met before you can apply.",
                                     fontSize = 11.sp,
-                                    color = Color(0xFF65676B),
+                                    color = textSecondary,
                                     textAlign = TextAlign.Center,
                                     modifier = Modifier
                                         .fillMaxWidth()
@@ -683,18 +692,18 @@ fun DashboardView(
                         text = "Monetization Wallet",
                         fontSize = 17.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF050505),
+                        color = textPrimary,
                         modifier = Modifier.padding(bottom = 12.dp)
                     )
                     
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp),
-                        colors = CardDefaults.cardColors(containerColor = Color.White),
+                        colors = CardDefaults.cardColors(containerColor = cardBg),
                         elevation = CardDefaults.cardElevation(2.dp)
                     ) {
                         Column(modifier = Modifier.padding(16.dp)) {
-                            Text("Current Earnings", color = Color.Gray, fontSize = 14.sp)
+                            Text("Current Earnings", color = textSecondary, fontSize = 14.sp)
                             Text(
                                 text = "BDT ${String.format(Locale.US, "%.2f", userProfile.monetizationBalance)}",
                                 fontSize = 32.sp,
@@ -730,14 +739,14 @@ fun DashboardView(
                     text = "Recent Posts Performance",
                     fontSize = 17.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF050505),
+                    color = textPrimary,
                     modifier = Modifier.padding(bottom = 12.dp)
                 )
 
                 if (userPosts.isEmpty()) {
                     Text(
                         text = "You haven't posted anything yet.",
-                        color = Color.Gray,
+                        color = textSecondary,
                         modifier = Modifier.padding(bottom = 24.dp)
                     )
                 } else {
@@ -747,14 +756,15 @@ fun DashboardView(
                                 .fillMaxWidth()
                                 .padding(bottom = 12.dp),
                             shape = RoundedCornerShape(8.dp),
-                            colors = CardDefaults.cardColors(containerColor = Color.White),
+                            colors = CardDefaults.cardColors(containerColor = cardBg),
                             elevation = CardDefaults.cardElevation(1.dp)
                         ) {
                             Column(modifier = Modifier.padding(12.dp)) {
                                 Text(
                                     text = post.content.take(50) + if (post.content.length > 50) "..." else "",
                                     fontWeight = FontWeight.SemiBold,
-                                    fontSize = 14.sp
+                                    fontSize = 14.sp,
+                                    color = textPrimary
                                 )
                                 Spacer(modifier = Modifier.height(8.dp))
                                 
@@ -767,19 +777,19 @@ fun DashboardView(
                                 ) {
                                     Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                                         Row(verticalAlignment = Alignment.CenterVertically) {
-                                            Icon(Icons.Default.RemoveRedEye, contentDescription = "Views", modifier = Modifier.size(14.dp), tint = Color.Gray)
+                                            Icon(Icons.Default.RemoveRedEye, contentDescription = "Views", modifier = Modifier.size(14.dp), tint = textSecondary)
                                             Spacer(modifier = Modifier.width(4.dp))
-                                            Text(actualViews.toString(), fontSize = 12.sp, color = Color.Gray)
+                                            Text(actualViews.toString(), fontSize = 12.sp, color = textSecondary)
                                         }
                                         Row(verticalAlignment = Alignment.CenterVertically) {
-                                            Icon(Icons.Default.ThumbUp, contentDescription = "Likes", modifier = Modifier.size(14.dp), tint = Color.Gray)
+                                            Icon(Icons.Default.ThumbUp, contentDescription = "Likes", modifier = Modifier.size(14.dp), tint = textSecondary)
                                             Spacer(modifier = Modifier.width(4.dp))
-                                            Text(post.likesCount.toString(), fontSize = 12.sp, color = Color.Gray)
+                                            Text(post.likesCount.toString(), fontSize = 12.sp, color = textSecondary)
                                         }
                                         Row(verticalAlignment = Alignment.CenterVertically) {
-                                            Icon(Icons.Default.Chat, contentDescription = "Comments", modifier = Modifier.size(14.dp), tint = Color.Gray)
+                                            Icon(Icons.Default.Chat, contentDescription = "Comments", modifier = Modifier.size(14.dp), tint = textSecondary)
                                             Spacer(modifier = Modifier.width(4.dp))
-                                            Text(post.commentsCount.toString(), fontSize = 12.sp, color = Color.Gray)
+                                            Text(post.commentsCount.toString(), fontSize = 12.sp, color = textSecondary)
                                         }
                                     }
                                     
@@ -807,8 +817,11 @@ fun DashboardView(
         if (showTransferConfirmDialog) {
             AlertDialog(
                 onDismissRequest = { showTransferConfirmDialog = false },
-                title = { Text("Transfer Funds", fontWeight = FontWeight.Bold) },
-                text = { Text("Are you sure you want to transfer BDT ${String.format(Locale.US, "%.2f", userProfile?.monetizationBalance ?: 0.0)} to your main wallet?") },
+                containerColor = surfaceColor,
+                titleContentColor = textPrimary,
+                textContentColor = textSecondary,
+                title = { Text("Transfer Funds", fontWeight = FontWeight.Bold, color = textPrimary) },
+                text = { Text("Are you sure you want to transfer BDT ${String.format(Locale.US, "%.2f", userProfile?.monetizationBalance ?: 0.0)} to your main wallet?", color = textSecondary) },
                 confirmButton = {
                     Button(
                         onClick = {
@@ -835,8 +848,11 @@ fun DashboardView(
         if (transferMessage != null) {
             AlertDialog(
                 onDismissRequest = { transferMessage = null },
-                title = { Text("Wallet", fontWeight = FontWeight.Bold) },
-                text = { Text(transferMessage!!) },
+                containerColor = surfaceColor,
+                titleContentColor = textPrimary,
+                textContentColor = textSecondary,
+                title = { Text("Wallet", fontWeight = FontWeight.Bold, color = textPrimary) },
+                text = { Text(transferMessage!!, color = textSecondary) },
                 confirmButton = {
                     Button(onClick = { transferMessage = null }) { Text("OK") }
                 }
@@ -859,7 +875,8 @@ fun DashboardView(
                         Text(
                             text = "Application Submitted!",
                             fontWeight = FontWeight.Bold,
-                            fontSize = 18.sp
+                            fontSize = 18.sp,
+                            color = textPrimary
                         )
                     }
                 },
@@ -867,7 +884,7 @@ fun DashboardView(
                     Text(
                         text = "Congratulations! You have fulfilled all 5 criteria for the Frndom Creator Fund. Your application has been submitted and earnings will start reflecting in your Wallet.",
                         fontSize = 14.sp,
-                        color = Color(0xFF050505),
+                        color = textSecondary,
                         lineHeight = 20.sp
                     )
                 },
@@ -879,7 +896,7 @@ fun DashboardView(
                         Text("Awesome!", fontWeight = FontWeight.Bold)
                     }
                 },
-                containerColor = Color.White,
+                containerColor = surfaceColor,
                 shape = RoundedCornerShape(16.dp)
             )
         }
@@ -896,6 +913,9 @@ private fun CriteriaItem(
     icon: ImageVector,
     testTag: String
 ) {
+    val isDarkMode = LocalIsDarkMode.current
+    val textPrimary = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505)
+    val textSecondary = if (isDarkMode) Color(0xFFB0B3B8) else Color(0xFF65676B)
     val progress = (currentVal.toFloat() / targetVal.toFloat()).coerceIn(0f, 1f)
 
     Column(
@@ -914,14 +934,14 @@ private fun CriteriaItem(
             ) {
                 Surface(
                     shape = CircleShape,
-                    color = if (isMet) Color(0xFFE8F8F0) else Color(0xFFF0F2F5),
+                    color = if (isMet) (if (isDarkMode) Color(0xFF1E3A2B) else Color(0xFFE8F8F0)) else (if (isDarkMode) Color(0xFF3A3B3C) else Color(0xFFF0F2F5)),
                     modifier = Modifier.size(28.dp)
                 ) {
                     Box(contentAlignment = Alignment.Center) {
                         Icon(
                             imageVector = icon,
                             contentDescription = null,
-                            tint = if (isMet) Color(0xFF00A86B) else Color(0xFF65676B),
+                            tint = if (isMet) Color(0xFF00A86B) else textSecondary,
                             modifier = Modifier.size(16.dp)
                         )
                     }
@@ -933,7 +953,7 @@ private fun CriteriaItem(
                     text = title,
                     fontSize = 13.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = Color(0xFF050505)
+                    color = textPrimary
                 )
             }
 
@@ -942,7 +962,7 @@ private fun CriteriaItem(
                     text = "$currentVal / $targetVal $unit",
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Bold,
-                    color = if (isMet) Color(0xFF00A86B) else Color(0xFF65676B)
+                    color = if (isMet) Color(0xFF00A86B) else textSecondary
                 )
 
                 Spacer(modifier = Modifier.width(8.dp))
@@ -965,7 +985,7 @@ private fun CriteriaItem(
                 } else {
                     Surface(
                         shape = CircleShape,
-                        color = Color(0xFFCED0D4),
+                        color = if (isDarkMode) Color(0xFF3A3B3C) else Color(0xFFCED0D4),
                         modifier = Modifier.size(20.dp)
                     ) {
                         Box(contentAlignment = Alignment.Center) {
@@ -973,7 +993,7 @@ private fun CriteriaItem(
                                 modifier = Modifier
                                     .size(8.dp)
                                     .clip(CircleShape)
-                                    .background(Color.White)
+                                    .background(if (isDarkMode) Color(0xFF8A8D91) else Color.White)
                             )
                         }
                     }
@@ -990,7 +1010,7 @@ private fun CriteriaItem(
                 .height(6.dp)
                 .clip(RoundedCornerShape(3.dp)),
             color = if (isMet) Color(0xFF00A86B) else Color(0xFF1877F2),
-            trackColor = Color(0xFFE4E6EB),
+            trackColor = if (isDarkMode) Color(0xFF3A3B3C) else Color(0xFFE4E6EB),
             strokeCap = StrokeCap.Round
         )
     }
@@ -1008,10 +1028,15 @@ private fun StatCard(
     modifier: Modifier = Modifier,
     testTag: String
 ) {
+    val isDarkMode = LocalIsDarkMode.current
+    val cardBg = if (isDarkMode) Color(0xFF242526) else Color.White
+    val textPrimary = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505)
+    val textSecondary = if (isDarkMode) Color(0xFFB0B3B8) else Color(0xFF65676B)
+
     Card(
         modifier = modifier.testTag(testTag),
         shape = RoundedCornerShape(14.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = cardBg),
         elevation = CardDefaults.cardElevation(1.dp)
     ) {
         Column(modifier = Modifier.padding(14.dp)) {
@@ -1022,7 +1047,7 @@ private fun StatCard(
             ) {
                 Surface(
                     shape = CircleShape,
-                    color = iconBgColor,
+                    color = if (isDarkMode) iconColor.copy(alpha = 0.2f) else iconBgColor,
                     modifier = Modifier.size(34.dp)
                 ) {
                     Box(contentAlignment = Alignment.Center) {
@@ -1037,7 +1062,7 @@ private fun StatCard(
 
                 Surface(
                     shape = RoundedCornerShape(10.dp),
-                    color = Color(0xFFE8F8F0)
+                    color = if (isDarkMode) Color(0xFF1E3A2B) else Color(0xFFE8F8F0)
                 ) {
                     Text(
                         text = change,
@@ -1055,7 +1080,7 @@ private fun StatCard(
                 text = value,
                 fontSize = 22.sp,
                 fontWeight = FontWeight.ExtraBold,
-                color = Color(0xFF050505)
+                color = textPrimary
             )
 
             Spacer(modifier = Modifier.height(2.dp))
@@ -1064,13 +1089,13 @@ private fun StatCard(
                 text = title,
                 fontSize = 13.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFF050505)
+                color = textPrimary
             )
 
             Text(
                 text = subtitle,
                 fontSize = 11.sp,
-                color = Color(0xFF65676B)
+                color = textSecondary
             )
         }
     }

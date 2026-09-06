@@ -50,6 +50,7 @@ import coil.compose.AsyncImage
 import com.example.data.model.PageItem
 import com.example.data.model.UserProfile
 import com.example.data.repository.GroupPageRepository
+import com.example.ui.theme.LocalIsDarkMode
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -62,6 +63,7 @@ fun AccountSwitcherSheet(
     onAddNewAccount: () -> Unit,
     onDismiss: () -> Unit
 ) {
+    val isDarkMode = LocalIsDarkMode.current
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val pages by groupPageRepository?.pagesFlow?.collectAsState() ?: androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(emptyList<PageItem>()) }
 
@@ -69,10 +71,19 @@ fun AccountSwitcherSheet(
     val currentUid = currentProfile?.uid ?: ""
     val userPages = pages.filter { it.creatorId == currentUid || it.creatorId.isBlank() }
 
+    val sheetBg = if (isDarkMode) Color(0xFF242526) else Color.White
+    val textPrimary = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505)
+    val textSecondary = if (isDarkMode) Color(0xFFB0B3B8) else Color(0xFF65676B)
+    val cardActiveBg = if (isDarkMode) Color(0xFF1E3A5F) else Color(0xFFEBF5FF)
+    val cardInactiveBg = if (isDarkMode) Color(0xFF3A3B3C) else Color(0xFFF7F8FA)
+    val cardActionBg = if (isDarkMode) Color(0xFF3A3B3C) else Color(0xFFF0F2F5)
+    val iconActionBg = if (isDarkMode) Color(0xFF4E4F50) else Color(0xFFE4E6EB)
+    val dividerColor = if (isDarkMode) Color(0xFF3E4042) else Color(0xFFE4E6EB)
+
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        containerColor = Color.White,
+        containerColor = sheetBg,
         shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
         dragHandle = null
     ) {
@@ -102,15 +113,19 @@ fun AccountSwitcherSheet(
                         text = "Switch Profiles & Pages",
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF050505)
+                        color = textPrimary
                     )
                 }
                 IconButton(onClick = onDismiss) {
-                    Icon(imageVector = Icons.Default.Close, contentDescription = "Close")
+                    Icon(
+                        imageVector = Icons.Default.Close,
+                        contentDescription = "Close",
+                        tint = textPrimary
+                    )
                 }
             }
 
-            Divider(thickness = 0.5.dp, color = Color(0xFFE4E6EB))
+            Divider(thickness = 0.5.dp, color = dividerColor)
 
             val allAccounts = if (savedAccounts.none { it.uid == currentProfile?.uid } && currentProfile != null) {
                 listOf(currentProfile) + savedAccounts
@@ -130,7 +145,7 @@ fun AccountSwitcherSheet(
                         text = "Personal Accounts",
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF65676B),
+                        color = textSecondary,
                         modifier = Modifier.padding(top = 10.dp, bottom = 4.dp)
                     )
                 }
@@ -148,7 +163,7 @@ fun AccountSwitcherSheet(
                             },
                         shape = RoundedCornerShape(12.dp),
                         colors = CardDefaults.cardColors(
-                            containerColor = if (isCurrent) Color(0xFFEBF5FF) else Color(0xFFF7F8FA)
+                            containerColor = if (isCurrent) cardActiveBg else cardInactiveBg
                         ),
                         elevation = CardDefaults.cardElevation(0.dp)
                     ) {
@@ -192,7 +207,7 @@ fun AccountSwitcherSheet(
                                         text = name,
                                         fontSize = 15.sp,
                                         fontWeight = FontWeight.Bold,
-                                        color = Color(0xFF050505)
+                                        color = textPrimary
                                     )
                                     if (profile.isVerificationActive()) {
                                         Spacer(modifier = Modifier.width(4.dp))
@@ -202,7 +217,7 @@ fun AccountSwitcherSheet(
                                 Text(
                                     text = if (isCurrent) "Active Personal Profile" else profile.email.ifBlank { "Personal Profile" },
                                     fontSize = 12.sp,
-                                    color = if (isCurrent) Color(0xFF1877F2) else Color(0xFF65676B),
+                                    color = if (isCurrent) Color(0xFF1877F2) else textSecondary,
                                     fontWeight = if (isCurrent) FontWeight.SemiBold else FontWeight.Normal
                                 )
                             }
@@ -226,7 +241,7 @@ fun AccountSwitcherSheet(
                             text = "Your Pages (Switch to post as Page)",
                             fontSize = 13.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF65676B),
+                            color = textSecondary,
                             modifier = Modifier.padding(top = 12.dp, bottom = 4.dp)
                         )
                     }
@@ -258,14 +273,14 @@ fun AccountSwitcherSheet(
                                 },
                             shape = RoundedCornerShape(12.dp),
                             colors = CardDefaults.cardColors(
-                                containerColor = if (isPageActive) Color(0xFFEBF5FF) else Color(0xFFF7F8FA)
+                                containerColor = if (isPageActive) cardActiveBg else cardInactiveBg
                             ),
                             elevation = CardDefaults.cardElevation(0.dp)
                         ) {
                             Row(
                                 modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(12.dp),
+                                .fillMaxWidth()
+                                .padding(12.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 if (page.avatarUrl.isNotBlank()) {
@@ -301,12 +316,12 @@ fun AccountSwitcherSheet(
                                         text = page.name,
                                         fontSize = 15.sp,
                                         fontWeight = FontWeight.Bold,
-                                        color = Color(0xFF050505)
+                                        color = textPrimary
                                     )
                                     Text(
                                         text = if (isPageActive) "Active Page Profile" else "Page • ${page.category}",
                                         fontSize = 12.sp,
-                                        color = if (isPageActive) Color(0xFF1877F2) else Color(0xFF65676B),
+                                        color = if (isPageActive) Color(0xFF1877F2) else textSecondary,
                                         fontWeight = if (isPageActive) FontWeight.SemiBold else FontWeight.Normal
                                     )
                                 }
@@ -335,7 +350,7 @@ fun AccountSwitcherSheet(
                                 onDismiss()
                             },
                         shape = RoundedCornerShape(12.dp),
-                        colors = CardDefaults.cardColors(containerColor = Color(0xFFF0F2F5)),
+                        colors = CardDefaults.cardColors(containerColor = cardActionBg),
                         elevation = CardDefaults.cardElevation(0.dp)
                     ) {
                         Row(
@@ -347,13 +362,13 @@ fun AccountSwitcherSheet(
                             Surface(
                                 modifier = Modifier.size(44.dp),
                                 shape = CircleShape,
-                                color = Color(0xFFE4E6EB)
+                                color = iconActionBg
                             ) {
                                 Box(contentAlignment = Alignment.Center) {
                                     Icon(
                                         imageVector = Icons.Default.Add,
                                         contentDescription = "Add account",
-                                        tint = Color(0xFF050505),
+                                        tint = textPrimary,
                                         modifier = Modifier.size(24.dp)
                                     )
                                 }
@@ -366,12 +381,12 @@ fun AccountSwitcherSheet(
                                     text = "Log into another personal account",
                                     fontSize = 15.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = Color(0xFF050505)
+                                    color = textPrimary
                                 )
                                 Text(
                                     text = "Switch or add a new personal profile",
                                     fontSize = 12.sp,
-                                    color = Color(0xFF65676B)
+                                    color = textSecondary
                                 )
                             }
                         }

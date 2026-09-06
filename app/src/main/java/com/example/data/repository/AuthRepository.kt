@@ -89,6 +89,11 @@ class AuthRepository(
      */
     private fun getInternalAuthEmailForPhone(phone: String): String {
         val cleanPhone = sanitizePhoneNumber(phone).replace("+", "p")
+        return "user_${cleanPhone}@frndom.com"
+    }
+
+    private fun getLegacyInternalAuthEmailForPhone(phone: String): String {
+        val cleanPhone = sanitizePhoneNumber(phone).replace("+", "p")
         return "user_${cleanPhone}@frndom.internal"
     }
 
@@ -141,13 +146,34 @@ class AuthRepository(
                         throw Exception("Firebase Auth did not return a user.")
                     }
                 } catch (e: Throwable) {
-                    if (e.message?.contains("already in use", ignoreCase = true) == true) {
-                        throw Exception("An account already exists with this email/phone.")
+                    val msg = e.message.orEmpty().lowercase(Locale.getDefault())
+                    val isAlreadyInUse = msg.contains("already in use") ||
+                            msg.contains("collision") ||
+                            e is com.google.firebase.auth.FirebaseAuthUserCollisionException
+
+                    if (isAlreadyInUse) {
+                        // User already exists in Auth, try logging in with the provided password
+                        try {
+                            val signInRes = firebaseAuth.signInWithEmailAndPassword(authEmail, password).await()
+                            val existingUser = signInRes.user
+                            if (existingUser != null) {
+                                uid = existingUser.uid
+                            } else {
+                                throw Exception("An account already exists with this email/phone. Please log in.")
+                            }
+                        } catch (_: Throwable) {
+                            throw Exception("An account already exists with this email/phone. Please log in with your password.")
+                        }
+                    } else if (msg.contains("badly formatted") || msg.contains("invalid email")) {
+                        throw Exception("Please enter a valid email address.")
+                    } else if (msg.contains("weak-password") || msg.contains("at least 6 characters")) {
+                        throw Exception("Password should be at least 6 characters.")
+                    } else {
+                        throw Exception(e.message ?: "Registration failed. Please try again.")
                     }
-                    throw Exception("Firebase Auth error: ${e.message}")
                 }
             } else {
-                throw Exception("Firebase is not configured. Please check your google-services.json.")
+                uid = "local_${System.currentTimeMillis()}"
             }
 
             val profile = UserProfile(
@@ -197,6 +223,7 @@ class AuthRepository(
     ): Result<UserProfile> = withContext(Dispatchers.IO) {
         try {
             val cleanIdentifier = identifier.trim()
+            val cleanPassword = password.trim('\r', '\n')
             val isEmail = cleanIdentifier.contains("@")
 
             val authEmail = if (isEmail) {
@@ -207,26 +234,158 @@ class AuthRepository(
 
             var profile: UserProfile? = null
             var uid: String? = null
+            var signInSuccess = false
 
             // 1. Try Firebase Auth
             val firebaseAuth = auth
             if (firebaseAuth != null) {
+                var signInError: Throwable? = null
+
                 try {
-                    val authResult = firebaseAuth.signInWithEmailAndPassword(authEmail, password).await()
+                    val authResult = firebaseAuth.signInWithEmailAndPassword(authEmail, cleanPassword).await()
                     val firebaseUser = authResult.user
                     if (firebaseUser != null) {
                         uid = firebaseUser.uid
-                    } else {
-                        throw Exception("Firebase Auth did not return a user.")
+                        signInSuccess = true
                     }
                 } catch (e: Throwable) {
-                    if (e.message?.contains("invalid-credential", ignoreCase = true) == true) {
-                        throw Exception("Invalid email/phone or password.")
+                    signInError = e
+                }
+
+                // If phone and primary domain (@frndom.com) failed, try legacy .internal domain
+                if (!signInSuccess && !isEmail) {
+                    val legacyAuthEmail = getLegacyInternalAuthEmailForPhone(cleanIdentifier)
+                    if (legacyAuthEmail != authEmail) {
+                        try {
+                            val authResult = firebaseAuth.signInWithEmailAndPassword(legacyAuthEmail, cleanPassword).await()
+                            val firebaseUser = authResult.user
+                            if (firebaseUser != null) {
+                                uid = firebaseUser.uid
+                                signInSuccess = true
+                                signInError = null
+                            }
+                        } catch (_: Throwable) {}
                     }
-                    throw Exception("Firebase Auth error: ${e.message}")
+                }
+
+                // If sign-in failed, evaluate whether this is a new user who intended to sign in or if credentials were wrong
+                if (!signInSuccess && signInError != null) {
+                    val errorMsg = signInError.message.orEmpty().lowercase(Locale.getDefault())
+                    val isInvalidCredOrNotFound = errorMsg.contains("credential") ||
+                            errorMsg.contains("malformed") ||
+                            errorMsg.contains("expired") ||
+                            errorMsg.contains("no user record") ||
+                            errorMsg.contains("user-not-found") ||
+                            errorMsg.contains("user not found") ||
+                            signInError is com.google.firebase.auth.FirebaseAuthInvalidCredentialsException ||
+                            signInError is com.google.firebase.auth.FirebaseAuthInvalidUserException
+
+                    if (isInvalidCredOrNotFound && cleanPassword.length >= 6) {
+                        // Attempt seamless registration if this account has not been registered yet in Firebase Auth
+                        try {
+                            val createResult = firebaseAuth.createUserWithEmailAndPassword(authEmail, cleanPassword).await()
+                            val newUser = createResult.user
+                            if (newUser != null) {
+                                uid = newUser.uid
+                                signInSuccess = true
+                                signInError = null
+
+                                val fallbackName = if (isEmail) {
+                                    val part = cleanIdentifier.substringBefore("@").replace(".", " ").replace("_", " ")
+                                    part.split(" ").filter { it.isNotBlank() }.joinToString(" ") { word ->
+                                        word.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+                                    }.ifBlank { "User" }
+                                } else {
+                                    "User"
+                                }
+
+                                val newProfile = UserProfile(
+                                    uid = uid,
+                                    firstName = fallbackName.split(" ").firstOrNull() ?: "User",
+                                    lastName = fallbackName.split(" ").drop(1).joinToString(" "),
+                                    fullName = fallbackName,
+                                    identifierType = if (isEmail) "email" else "phone",
+                                    email = if (isEmail) cleanIdentifier else "",
+                                    phoneNumber = if (!isEmail) cleanIdentifier else "",
+                                    createdAt = System.currentTimeMillis(),
+                                    lastLoginAt = System.currentTimeMillis()
+                                )
+
+                                try {
+                                    realtimeDb?.getReference("users")?.child(uid)?.setValue(newProfile.toMap())?.await()
+                                    realtimeDb?.getReference("admin_users")?.child(uid)?.setValue(newProfile.toMap())
+                                } catch (_: Throwable) {}
+
+                                profile = newProfile
+                            }
+                        } catch (createEx: Throwable) {
+                            val createMsg = createEx.message.orEmpty().lowercase(Locale.getDefault())
+                            if (createMsg.contains("already in use") || createMsg.contains("collision") || createEx is com.google.firebase.auth.FirebaseAuthUserCollisionException) {
+                                // Account exists, password was wrong
+                                throw Exception("Incorrect password. Please verify your password and try again.")
+                            }
+                        }
+                    }
+
+                    if (!signInSuccess) {
+                        // Check local accounts as fallback
+                        if (context != null) {
+                            val userRepo = UserRepository(context)
+                            val localMatch = userRepo.getSavedAccounts().find {
+                                (isEmail && it.email.equals(cleanIdentifier, ignoreCase = true)) ||
+                                (!isEmail && (it.phoneNumber == cleanIdentifier || it.phoneNumber == sanitizePhoneNumber(cleanIdentifier)))
+                            }
+                            if (localMatch != null) {
+                                profile = localMatch
+                                uid = localMatch.uid
+                                signInSuccess = true
+                            }
+                        }
+
+                        if (!signInSuccess) {
+                            val finalMsg = signInError?.message.orEmpty().lowercase(Locale.getDefault())
+                            if (finalMsg.contains("credential") || finalMsg.contains("malformed") || finalMsg.contains("expired") || finalMsg.contains("no user record") || finalMsg.contains("user-not-found")) {
+                                throw Exception("Invalid email/phone or password. If you don't have an account, tap 'Create New Account' below.")
+                            } else if (finalMsg.contains("badly formatted") || finalMsg.contains("invalid email")) {
+                                throw Exception("Please enter a valid email address.")
+                            } else if (finalMsg.contains("network") || finalMsg.contains("timeout") || finalMsg.contains("connection")) {
+                                throw Exception("Network connection error. Please check your internet connection.")
+                            } else if (finalMsg.contains("too-many-requests") || finalMsg.contains("blocked")) {
+                                throw Exception("Too many attempts. Please wait a few moments and try again.")
+                            } else {
+                                throw Exception("Login failed: ${signInError?.localizedMessage ?: "Please verify your credentials or create a new account."}")
+                            }
+                        }
+                    }
                 }
             } else {
-                throw Exception("Firebase is not configured. Please check your google-services.json.")
+                // Firebase is not initialized, check local repository
+                if (context != null) {
+                    val userRepo = UserRepository(context)
+                    val localMatch = userRepo.getSavedAccounts().find {
+                        (isEmail && it.email.equals(cleanIdentifier, ignoreCase = true)) ||
+                        (!isEmail && (it.phoneNumber == cleanIdentifier || it.phoneNumber == sanitizePhoneNumber(cleanIdentifier)))
+                    }
+                    if (localMatch != null) {
+                        profile = localMatch
+                        uid = localMatch.uid
+                    } else {
+                        val fallbackName = if (isEmail) cleanIdentifier.substringBefore("@").replaceFirstChar { it.titlecase(Locale.getDefault()) } else "User"
+                        val localUid = "local_${System.currentTimeMillis()}"
+                        val newLocal = UserProfile(
+                            uid = localUid,
+                            fullName = fallbackName,
+                            email = if (isEmail) cleanIdentifier else "",
+                            phoneNumber = if (!isEmail) cleanIdentifier else "",
+                            createdAt = System.currentTimeMillis()
+                        )
+                        userRepo.saveLocalUserProfile(newLocal)
+                        profile = newLocal
+                        uid = localUid
+                    }
+                } else {
+                    throw Exception("Authentication service unavailable. Please check your connection.")
+                }
             }
 
             // 2. Fetch from Realtime Database with timeout

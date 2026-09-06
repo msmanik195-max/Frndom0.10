@@ -18,6 +18,10 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Group
@@ -56,16 +60,28 @@ import coil.compose.AsyncImage
 import com.example.data.model.UserProfile
 import com.example.data.repository.UserRepository
 import com.example.ui.components.VerificationBadge
+import com.example.ui.theme.LocalIsDarkMode
 
 @Composable
 fun FriendsScreen(
     currentUserId: String,
     userRepository: UserRepository,
     onUserClick: (UserProfile) -> Unit,
+    onBackClick: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
+    val isDarkMode = LocalIsDarkMode.current
     val allUsers by userRepository.getAllUsersFlow().collectAsState(initial = emptyList())
     val currentUser by userRepository.getUserProfileFlow(currentUserId).collectAsState(initial = null)
+
+    val bgColor = if (isDarkMode) Color(0xFF18191A) else Color.White
+    val textPrimary = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505)
+    val textSecondary = if (isDarkMode) Color(0xFFB0B3B8) else Color(0xFF65676B)
+    val dividerColor = if (isDarkMode) Color(0xFF3E4042) else Color(0xFFE4E6EB)
+    val chipSelectedBg = if (isDarkMode) Color(0xFF263951) else Color(0xFFEBF5FF)
+    val chipUnselectedBg = if (isDarkMode) Color(0xFF242526) else Color(0xFFF0F2F5)
+    val secondaryBtnBg = if (isDarkMode) Color(0xFF3A3B3C) else Color(0xFFE4E6EB)
+    val secondaryBtnText = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505)
 
     var selectedFilter by remember { mutableIntStateOf(0) } // 0: All / Suggestions, 1: Requests, 2: Your Friends
     val dismissedSuggestions = remember { mutableStateListOf<String>() }
@@ -82,23 +98,37 @@ fun FriendsScreen(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(Color.White)
+            .background(bgColor)
             .testTag("friends_screen")
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
-            // Header
+            // Header with only Back Button and Friends Title
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 12.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
+                    .windowInsetsPadding(WindowInsets.statusBars)
+                    .padding(horizontal = 8.dp, vertical = 10.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
+                IconButton(
+                    onClick = onBackClick,
+                    modifier = Modifier.testTag("friends_back_button")
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Back",
+                        tint = textPrimary
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(4.dp))
+
                 Text(
                     text = "Friends",
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.ExtraBold,
-                    color = Color(0xFF050505)
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = textPrimary,
+                    modifier = Modifier.weight(1f)
                 )
 
                 if (friends.isNotEmpty()) {
@@ -106,7 +136,8 @@ fun FriendsScreen(
                         text = "${friends.size} friends",
                         fontSize = 14.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = Color(0xFF65676B)
+                        color = textSecondary,
+                        modifier = Modifier.padding(end = 12.dp)
                     )
                 }
             }
@@ -123,8 +154,10 @@ fun FriendsScreen(
                     onClick = { selectedFilter = 0 },
                     label = { Text("Suggestions") },
                     colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = Color(0xFFEBF5FF),
-                        selectedLabelColor = Color(0xFF0866FF)
+                        selectedContainerColor = chipSelectedBg,
+                        selectedLabelColor = Color(0xFF0866FF),
+                        containerColor = chipUnselectedBg,
+                        labelColor = textSecondary
                     )
                 )
 
@@ -137,8 +170,10 @@ fun FriendsScreen(
                         )
                     },
                     colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = if (friendRequests.isNotEmpty()) Color(0xFFFFEBEE) else Color(0xFFEBF5FF),
-                        selectedLabelColor = if (friendRequests.isNotEmpty()) Color(0xFFD32F2F) else Color(0xFF0866FF)
+                        selectedContainerColor = if (friendRequests.isNotEmpty()) (if (isDarkMode) Color(0xFF5A1E24) else Color(0xFFFFEBEE)) else chipSelectedBg,
+                        selectedLabelColor = if (friendRequests.isNotEmpty()) Color(0xFFFA383E) else Color(0xFF0866FF),
+                        containerColor = chipUnselectedBg,
+                        labelColor = textSecondary
                     )
                 )
 
@@ -147,13 +182,15 @@ fun FriendsScreen(
                     onClick = { selectedFilter = 2 },
                     label = { Text("Your Friends (${friends.size})") },
                     colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = Color(0xFFEBF5FF),
-                        selectedLabelColor = Color(0xFF0866FF)
+                        selectedContainerColor = chipSelectedBg,
+                        selectedLabelColor = Color(0xFF0866FF),
+                        containerColor = chipUnselectedBg,
+                        labelColor = textSecondary
                     )
                 )
             }
 
-            Divider(thickness = 0.5.dp, color = Color(0xFFE4E6EB), modifier = Modifier.padding(top = 8.dp))
+            Divider(thickness = 0.5.dp, color = dividerColor, modifier = Modifier.padding(top = 8.dp))
 
             LazyColumn(
                 modifier = Modifier.fillMaxSize()
@@ -173,7 +210,7 @@ fun FriendsScreen(
                                     text = "Friend Requests",
                                     fontSize = 18.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = Color(0xFF050505)
+                                    color = textPrimary
                                 )
                                 Spacer(modifier = Modifier.width(6.dp))
                                 Text(
@@ -197,7 +234,7 @@ fun FriendsScreen(
                                 Text(
                                     text = "No pending friend requests",
                                     fontSize = 15.sp,
-                                    color = Color(0xFF65676B)
+                                    color = textSecondary
                                 )
                             }
                         }
@@ -205,6 +242,7 @@ fun FriendsScreen(
                         items(friendRequests, key = { "req_${it.uid}" }) { requester ->
                             FriendRequestRow(
                                 user = requester,
+                                isDarkMode = isDarkMode,
                                 onConfirm = {
                                     userRepository.acceptFriendRequest(currentUserId, requester.uid)
                                 },
@@ -220,7 +258,7 @@ fun FriendsScreen(
                         item {
                             Divider(
                                 thickness = 1.dp,
-                                color = Color(0xFFE4E6EB),
+                                color = dividerColor,
                                 modifier = Modifier.padding(vertical = 8.dp)
                             )
                         }
@@ -234,7 +272,7 @@ fun FriendsScreen(
                             text = "People You May Know",
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF050505),
+                            color = textPrimary,
                             modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
                         )
                     }
@@ -250,7 +288,7 @@ fun FriendsScreen(
                                 Text(
                                     text = "No more suggestions available",
                                     fontSize = 14.sp,
-                                    color = Color(0xFF65676B)
+                                    color = textSecondary
                                 )
                             }
                         }
@@ -260,6 +298,7 @@ fun FriendsScreen(
                             SuggestionUserRow(
                                 user = suggestionUser,
                                 isRequested = isRequested,
+                                isDarkMode = isDarkMode,
                                 onAddFriend = {
                                     userRepository.sendFriendRequest(currentUserId, suggestionUser.uid)
                                 },
@@ -287,7 +326,7 @@ fun FriendsScreen(
                             ) {
                                 Surface(
                                     shape = CircleShape,
-                                    color = Color(0xFFEBF5FF),
+                                    color = if (isDarkMode) Color(0xFF263951) else Color(0xFFEBF5FF),
                                     modifier = Modifier.size(64.dp)
                                 ) {
                                     Box(contentAlignment = Alignment.Center) {
@@ -304,13 +343,13 @@ fun FriendsScreen(
                                     text = "No Friends Yet",
                                     fontSize = 18.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = Color(0xFF050505)
+                                    color = textPrimary
                                 )
                                 Spacer(modifier = Modifier.height(6.dp))
                                 Text(
                                     text = "Send friend requests to connect with people on Frndom.",
                                     fontSize = 14.sp,
-                                    color = Color(0xFF65676B),
+                                    color = textSecondary,
                                     textAlign = androidx.compose.ui.text.style.TextAlign.Center
                                 )
                             }
@@ -319,6 +358,7 @@ fun FriendsScreen(
                         items(friends, key = { "fr_${it.uid}" }) { friendUser ->
                             FriendUserRow(
                                 user = friendUser,
+                                isDarkMode = isDarkMode,
                                 onUnfriend = {
                                     userRepository.unfriend(currentUserId, friendUser.uid)
                                 },
@@ -335,11 +375,16 @@ fun FriendsScreen(
 @Composable
 private fun FriendRequestRow(
     user: UserProfile,
+    isDarkMode: Boolean,
     onConfirm: () -> Unit,
     onDelete: () -> Unit,
     onClick: () -> Unit
 ) {
     val displayName = user.fullName.ifBlank { "${user.firstName} ${user.lastName}".trim() }.ifBlank { "User" }
+    val textPrimary = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505)
+    val textSecondary = if (isDarkMode) Color(0xFFB0B3B8) else Color(0xFF65676B)
+    val secondaryBtnBg = if (isDarkMode) Color(0xFF3A3B3C) else Color(0xFFE4E6EB)
+    val secondaryBtnText = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505)
 
     Row(
         modifier = Modifier
@@ -380,7 +425,7 @@ private fun FriendRequestRow(
                     text = displayName,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF050505)
+                    color = textPrimary
                 )
                 if (user.isVerificationActive()) {
                     Spacer(modifier = Modifier.width(4.dp))
@@ -392,7 +437,7 @@ private fun FriendRequestRow(
                 Text(
                     text = user.bio,
                     fontSize = 13.sp,
-                    color = Color(0xFF65676B),
+                    color = textSecondary,
                     maxLines = 1
                 )
             }
@@ -416,8 +461,8 @@ private fun FriendRequestRow(
                     onClick = onDelete,
                     shape = RoundedCornerShape(8.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFFE4E6EB),
-                        contentColor = Color(0xFF050505)
+                        containerColor = secondaryBtnBg,
+                        contentColor = secondaryBtnText
                     ),
                     modifier = Modifier.weight(1f).height(38.dp)
                 ) {
@@ -432,12 +477,17 @@ private fun FriendRequestRow(
 private fun SuggestionUserRow(
     user: UserProfile,
     isRequested: Boolean,
+    isDarkMode: Boolean,
     onAddFriend: () -> Unit,
     onCancelRequest: () -> Unit,
     onRemove: () -> Unit,
     onClick: () -> Unit
 ) {
     val displayName = user.fullName.ifBlank { "${user.firstName} ${user.lastName}".trim() }.ifBlank { "User" }
+    val textPrimary = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505)
+    val textSecondary = if (isDarkMode) Color(0xFFB0B3B8) else Color(0xFF65676B)
+    val secondaryBtnBg = if (isDarkMode) Color(0xFF3A3B3C) else Color(0xFFE4E6EB)
+    val secondaryBtnText = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505)
 
     Row(
         modifier = Modifier
@@ -478,7 +528,7 @@ private fun SuggestionUserRow(
                     text = displayName,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF050505)
+                    color = textPrimary
                 )
                 if (user.isVerificationActive()) {
                     Spacer(modifier = Modifier.width(4.dp))
@@ -490,14 +540,14 @@ private fun SuggestionUserRow(
                 Text(
                     text = user.bio,
                     fontSize = 13.sp,
-                    color = Color(0xFF65676B),
+                    color = textSecondary,
                     maxLines = 1
                 )
             } else if (user.followersCount > 0) {
                 Text(
                     text = "${user.followersCount} followers",
                     fontSize = 12.sp,
-                    color = Color(0xFF65676B)
+                    color = textSecondary
                 )
             }
 
@@ -508,8 +558,8 @@ private fun SuggestionUserRow(
                     onClick = onCancelRequest,
                     shape = RoundedCornerShape(8.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFFE4E6EB),
-                        contentColor = Color(0xFF050505)
+                        containerColor = secondaryBtnBg,
+                        contentColor = secondaryBtnText
                     ),
                     modifier = Modifier.fillMaxWidth().height(38.dp)
                 ) {
@@ -535,8 +585,8 @@ private fun SuggestionUserRow(
                         onClick = onRemove,
                         shape = RoundedCornerShape(8.dp),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFFE4E6EB),
-                            contentColor = Color(0xFF050505)
+                            containerColor = secondaryBtnBg,
+                            contentColor = secondaryBtnText
                         ),
                         modifier = Modifier.weight(0.8f).height(38.dp)
                     ) {
@@ -551,10 +601,13 @@ private fun SuggestionUserRow(
 @Composable
 private fun FriendUserRow(
     user: UserProfile,
+    isDarkMode: Boolean,
     onUnfriend: () -> Unit,
     onClick: () -> Unit
 ) {
     val displayName = user.fullName.ifBlank { "${user.firstName} ${user.lastName}".trim() }.ifBlank { "User" }
+    val textPrimary = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505)
+    val menuBg = if (isDarkMode) Color(0xFF242526) else Color.White
     var showMenu by remember { mutableStateOf(false) }
 
     Row(
@@ -596,7 +649,7 @@ private fun FriendUserRow(
                     text = displayName,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF050505)
+                    color = textPrimary
                 )
                 if (user.isVerificationActive()) {
                     Spacer(modifier = Modifier.width(4.dp))
@@ -624,7 +677,8 @@ private fun FriendUserRow(
 
             DropdownMenu(
                 expanded = showMenu,
-                onDismissRequest = { showMenu = false }
+                onDismissRequest = { showMenu = false },
+                modifier = Modifier.background(menuBg)
             ) {
                 DropdownMenuItem(
                     text = {

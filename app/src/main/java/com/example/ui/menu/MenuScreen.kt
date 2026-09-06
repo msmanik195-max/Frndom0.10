@@ -329,63 +329,6 @@ fun MenuScreen(
                     .testTag("menu_screen")
             ) {
                 Column(modifier = Modifier.fillMaxSize()) {
-                    // Header
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(if (isDarkMode) Color(0xFF242526) else Color.White)
-                            .padding(horizontal = 16.dp, vertical = 10.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = "Menu",
-                            fontSize = 24.sp,
-                            fontWeight = FontWeight.ExtraBold,
-                            color = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505)
-                        )
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Surface(
-                                shape = CircleShape,
-                                color = if (isDarkMode) Color(0xFF3A3B3C) else Color(0xFFE4E6EB),
-                                modifier = Modifier
-                                    .size(38.dp)
-                                    .clickable(onClick = onSearchClick)
-                            ) {
-                                Box(contentAlignment = Alignment.Center) {
-                                    Icon(
-                                        imageVector = Icons.Default.Search,
-                                        contentDescription = "Search",
-                                        tint = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505),
-                                        modifier = Modifier.size(20.dp)
-                                    )
-                                }
-                            }
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Surface(
-                                shape = CircleShape,
-                                color = if (isDarkMode) Color(0xFF3A3B3C) else Color(0xFFE4E6EB),
-                                modifier = Modifier
-                                    .size(38.dp)
-                                    .clickable { currentSubScreen = MenuSubScreen.SETTINGS }
-                            ) {
-                                Box(contentAlignment = Alignment.Center) {
-                                    Icon(
-                                        imageVector = Icons.Default.Settings,
-                                        contentDescription = "Settings",
-                                        tint = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505),
-                                        modifier = Modifier.size(20.dp)
-                                    )
-                                }
-                            }
-                        }
-                    }
-
-                    Divider(
-                        thickness = 0.5.dp,
-                        color = if (isDarkMode) Color(0xFF3E4042) else Color(0xFFE4E6EB)
-                    )
-
                     LazyVerticalGrid(
                         columns = GridCells.Fixed(2),
                         modifier = Modifier.fillMaxSize(),

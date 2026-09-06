@@ -5,8 +5,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
@@ -14,6 +16,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 import com.example.data.repository.AppSettingsRepository
+
+val LocalIsDarkMode = compositionLocalOf { false }
 
 private val LightColorScheme =
   lightColorScheme(
@@ -43,14 +47,14 @@ private val DarkColorScheme =
     secondary = FrndomSecondary,
     onSecondary = Color.White,
     tertiary = FrndomTertiary,
-    background = Color(0xFF121212),
-    surface = Color(0xFF1E1E1E),
-    surfaceVariant = Color(0xFF2C2C2C),
-    outline = Color(0xFF3E3E3E),
-    outlineVariant = Color(0xFF333333),
-    onBackground = Color(0xFFEDEDED),
-    onSurface = Color(0xFFEDEDED),
-    onSurfaceVariant = Color(0xFFB0B3B8),
+    background = BackgroundDark,
+    surface = SurfaceDark,
+    surfaceVariant = SurfaceVariantDark,
+    outline = BorderDark,
+    outlineVariant = BorderDark,
+    onBackground = TextPrimaryDark,
+    onSurface = TextPrimaryDark,
+    onSurfaceVariant = TextSecondaryDark,
   )
 
 @Composable
@@ -73,9 +77,14 @@ fun MyApplicationTheme(
     }
   }
 
-  MaterialTheme(
-    colorScheme = if (isDarkMode) DarkColorScheme else LightColorScheme,
-    typography = Typography,
-    content = content
-  )
+  CompositionLocalProvider(
+    LocalIsDarkMode provides isDarkMode
+  ) {
+    MaterialTheme(
+      colorScheme = if (isDarkMode) DarkColorScheme else LightColorScheme,
+      typography = Typography,
+      content = content
+    )
+  }
 }
+

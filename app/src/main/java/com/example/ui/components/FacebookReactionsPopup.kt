@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -51,9 +52,9 @@ fun FacebookReactionsPopup(
     Surface(
         modifier = modifier
             .shadow(6.dp, RoundedCornerShape(22.dp))
-            .border(0.5.dp, Color(0xFFE4E6EB), RoundedCornerShape(22.dp)),
+            .border(0.5.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(22.dp)),
         shape = RoundedCornerShape(22.dp),
-        color = Color.White
+        color = MaterialTheme.colorScheme.surface
     ) {
         Row(
             modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),

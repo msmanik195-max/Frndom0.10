@@ -98,6 +98,7 @@ import com.example.ui.components.FrndomVideoPlayer
 import com.example.ui.components.FullScreenImageViewer
 import com.example.ui.components.FullScreenVideoViewer
 import com.example.ui.components.VerificationBadge
+import com.example.ui.theme.LocalIsDarkMode
 import com.example.util.AppPermissionHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -312,16 +313,24 @@ fun ChatDetailScreen(
         return
     }
 
+    val isDarkMode = LocalIsDarkMode.current
+    val bgColor = if (isDarkMode) Color(0xFF18191A) else Color.White
+    val surfaceColor = if (isDarkMode) Color(0xFF242526) else Color.White
+    val msgListBg = if (isDarkMode) Color(0xFF18191A) else Color(0xFFF0F2F5)
+    val textPrimary = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505)
+    val textSecondary = if (isDarkMode) Color(0xFFB0B3B8) else Color(0xFF65676B)
+    val inputBg = if (isDarkMode) Color(0xFF3A3B3C) else Color(0xFFF0F2F5)
+
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(Color.White)
+            .background(bgColor)
             .imePadding()
             .testTag("chat_detail_screen")
     ) {
         // Top Header
         Surface(
-            color = Color.White,
+            color = surfaceColor,
             shadowElevation = 2.dp,
             modifier = Modifier.fillMaxWidth()
         ) {
@@ -335,14 +344,14 @@ fun ChatDetailScreen(
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = "Back",
-                        tint = Color(0xFF050505)
+                        tint = textPrimary
                     )
                 }
 
                 Surface(
                     modifier = Modifier.size(40.dp),
                     shape = CircleShape,
-                    color = MaterialTheme.colorScheme.primaryContainer
+                    color = if (isDarkMode) Color(0xFF3A3B3C) else MaterialTheme.colorScheme.primaryContainer
                 ) {
                     if (peerProfile.profilePictureUrl.isNotBlank()) {
                         AsyncImage(
@@ -370,7 +379,7 @@ fun ChatDetailScreen(
                             text = peerDisplayName,
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF050505)
+                            color = textPrimary
                         )
                         if (peerProfile.isVerificationActive()) {
                             Spacer(modifier = Modifier.width(4.dp))
@@ -427,7 +436,7 @@ fun ChatDetailScreen(
             modifier = Modifier
                 .weight(1f)
                 .fillMaxWidth()
-                .background(Color(0xFFF0F2F5))
+                .background(msgListBg)
         ) {
             if (messages.isEmpty()) {
                 Column(
@@ -440,7 +449,7 @@ fun ChatDetailScreen(
                     Surface(
                         modifier = Modifier.size(72.dp),
                         shape = CircleShape,
-                        color = MaterialTheme.colorScheme.primaryContainer
+                        color = if (isDarkMode) Color(0xFF3A3B3C) else MaterialTheme.colorScheme.primaryContainer
                     ) {
                         if (peerProfile.profilePictureUrl.isNotBlank()) {
                             AsyncImage(
@@ -465,12 +474,12 @@ fun ChatDetailScreen(
                         text = peerDisplayName,
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF050505)
+                        color = textPrimary
                     )
                     Text(
                         text = "Say hello or send a message to start chatting!",
                         fontSize = 14.sp,
-                        color = Color(0xFF65676B)
+                        color = textSecondary
                     )
                 }
             } else {
@@ -486,6 +495,7 @@ fun ChatDetailScreen(
                         ChatMessageBubble(
                             message = msg,
                             isMe = isMe,
+                            isDarkMode = isDarkMode,
                             voicePlayerManager = voicePlayerManager,
                             onImageClick = { url ->
                                 viewingFullImageUrl = url
@@ -567,7 +577,7 @@ fun ChatDetailScreen(
 
         // Bottom Input Bar
         Surface(
-            color = Color.White,
+            color = surfaceColor,
             shadowElevation = 0.dp,
             modifier = Modifier.fillMaxWidth()
         ) {
@@ -689,8 +699,10 @@ fun ChatDetailScreen(
                     placeholder = { Text("Aa", color = Color(0xFF8A8D91), fontSize = 15.sp) },
                     shape = RoundedCornerShape(24.dp),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = Color(0xFFF0F2F5),
-                        unfocusedContainerColor = Color(0xFFF0F2F5),
+                        focusedContainerColor = inputBg,
+                        unfocusedContainerColor = inputBg,
+                        focusedTextColor = textPrimary,
+                        unfocusedTextColor = textPrimary,
                         focusedBorderColor = Color.Transparent,
                         unfocusedBorderColor = Color.Transparent
                     ),
@@ -738,7 +750,7 @@ fun ChatDetailScreen(
         ModalBottomSheet(
             onDismissRequest = { selectedMessageForOptions = null },
             sheetState = sheetState,
-            containerColor = Color.White
+            containerColor = surfaceColor
         ) {
             Column(
                 modifier = Modifier
@@ -749,7 +761,7 @@ fun ChatDetailScreen(
                     text = "Message Options",
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF050505),
+                    color = textPrimary,
                     modifier = Modifier.padding(bottom = 12.dp)
                 )
 
@@ -775,7 +787,7 @@ fun ChatDetailScreen(
                             text = if (msg.mediaType == "video") "Download Video to Gallery" else "Download Photo to Gallery",
                             fontSize = 15.sp,
                             fontWeight = FontWeight.Medium,
-                            color = Color(0xFF050505)
+                            color = textPrimary
                         )
                     }
                 }
@@ -794,9 +806,9 @@ fun ChatDetailScreen(
                             .padding(vertical = 12.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Icon(imageVector = Icons.Default.ContentCopy, contentDescription = null, tint = Color(0xFF65676B))
+                        Icon(imageVector = Icons.Default.ContentCopy, contentDescription = null, tint = textSecondary)
                         Spacer(modifier = Modifier.width(14.dp))
-                        Text(text = "Copy Text", fontSize = 15.sp, fontWeight = FontWeight.Medium, color = Color(0xFF050505))
+                        Text(text = "Copy Text", fontSize = 15.sp, fontWeight = FontWeight.Medium, color = textPrimary)
                     }
                 }
 
@@ -813,9 +825,9 @@ fun ChatDetailScreen(
                         .padding(vertical = 12.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(imageVector = Icons.Default.Delete, contentDescription = null, tint = Color(0xFF65676B))
+                    Icon(imageVector = Icons.Default.Delete, contentDescription = null, tint = textSecondary)
                     Spacer(modifier = Modifier.width(14.dp))
-                    Text(text = "Delete for You", fontSize = 15.sp, fontWeight = FontWeight.Medium, color = Color(0xFF050505))
+                    Text(text = "Delete for You", fontSize = 15.sp, fontWeight = FontWeight.Medium, color = textPrimary)
                 }
 
                 // 4. Delete for Everyone
@@ -902,6 +914,7 @@ fun ChatDetailScreen(
 private fun ChatMessageBubble(
     message: ChatMessage,
     isMe: Boolean,
+    isDarkMode: Boolean = false,
     voicePlayerManager: VoicePlayerManager,
     onImageClick: (url: String) -> Unit,
     onVideoClick: (url: String) -> Unit,
@@ -909,8 +922,8 @@ private fun ChatMessageBubble(
     onLongPress: () -> Unit,
     onDownloadMedia: (url: String, isVideo: Boolean) -> Unit
 ) {
-    val bubbleColor = if (isMe) Color(0xFF0866FF) else Color.White
-    val textColor = if (isMe) Color.White else Color(0xFF050505)
+    val bubbleColor = if (isMe) Color(0xFF0866FF) else (if (isDarkMode) Color(0xFF242526) else Color.White)
+    val textColor = if (isMe) Color.White else (if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505))
     val timeFormat = SimpleDateFormat("h:mm a", Locale.getDefault())
     val formattedTime = timeFormat.format(Date(message.timestamp))
 
@@ -936,7 +949,7 @@ private fun ChatMessageBubble(
                 bottomEnd = if (isMe) 4.dp else 16.dp
             ),
             color = bubbleColor,
-            shadowElevation = if (isMe) 0.dp else 1.dp,
+            shadowElevation = if (isMe || isDarkMode) 0.dp else 1.dp,
             modifier = Modifier.padding(horizontal = 4.dp)
         ) {
             Column(modifier = Modifier.padding(if (message.mediaType == "text") 12.dp else 4.dp)) {
@@ -1035,7 +1048,7 @@ private fun ChatMessageBubble(
 
                     Surface(
                         shape = RoundedCornerShape(12.dp),
-                        color = if (isMe) Color(0xFF0056D2) else Color(0xFFF0F2F5),
+                        color = if (isMe) Color(0xFF0056D2) else (if (isDarkMode) Color(0xFF3A3B3C) else Color(0xFFF0F2F5)),
                         modifier = Modifier
                             .width(230.dp)
                             .clickable { onOpenFile(message.mediaUrl, displayName) }
@@ -1070,14 +1083,14 @@ private fun ChatMessageBubble(
                                     fontSize = 13.sp,
                                     fontWeight = FontWeight.Bold,
                                     maxLines = 2,
-                                    color = if (isMe) Color.White else Color(0xFF050505)
+                                    color = if (isMe) Color.White else (if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505))
                                 )
                                 if (formattedSize.isNotBlank()) {
                                     Spacer(modifier = Modifier.height(2.dp))
                                     Text(
                                         text = formattedSize,
                                         fontSize = 11.sp,
-                                        color = if (isMe) Color.White.copy(alpha = 0.8f) else Color(0xFF65676B)
+                                        color = if (isMe) Color.White.copy(alpha = 0.8f) else (if (isDarkMode) Color(0xFFB0B3B8) else Color(0xFF65676B))
                                     )
                                 }
                             }
@@ -1128,7 +1141,7 @@ private fun ChatMessageBubble(
                             LinearProgressIndicator(
                                 progress = { playProgress },
                                 color = if (isMe) Color.White else Color(0xFF1877F2),
-                                trackColor = if (isMe) Color.White.copy(alpha = 0.3f) else Color(0xFFE4E6EB),
+                                trackColor = if (isMe) Color.White.copy(alpha = 0.3f) else (if (isDarkMode) Color(0xFF3A3B3C) else Color(0xFFE4E6EB)),
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .height(4.dp)
@@ -1138,7 +1151,7 @@ private fun ChatMessageBubble(
                             Text(
                                 text = "Voice note",
                                 fontSize = 11.sp,
-                                color = if (isMe) Color.White.copy(alpha = 0.85f) else Color(0xFF65676B)
+                                color = if (isMe) Color.White.copy(alpha = 0.85f) else (if (isDarkMode) Color(0xFFB0B3B8) else Color(0xFF65676B))
                             )
                         }
                     }

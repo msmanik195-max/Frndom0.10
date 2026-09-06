@@ -99,8 +99,22 @@ data class VerificationPlan(
     val durationDays: Int,
     val price: Double,
     val tag: String? = null,
-    val description: String
-)
+    val description: String,
+    val isFree: Boolean = false,
+    val createdAt: Long = System.currentTimeMillis()
+) {
+    fun toMap(): Map<String, Any?> = mapOf(
+        "id" to id,
+        "title" to title,
+        "durationText" to durationText,
+        "durationDays" to durationDays,
+        "price" to price,
+        "tag" to tag,
+        "description" to description,
+        "isFree" to isFree,
+        "createdAt" to createdAt
+    )
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

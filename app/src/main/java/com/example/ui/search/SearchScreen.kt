@@ -85,6 +85,7 @@ import com.example.data.repository.SearchHistoryRepository
 import com.example.data.repository.UserRepository
 import com.example.ui.components.VerificationBadge
 import com.example.ui.home.PostCardItem
+import com.example.ui.theme.LocalIsDarkMode
 
 @Composable
 fun SearchScreen(
@@ -204,10 +205,18 @@ fun SearchScreen(
         }
     }
 
+    val isDarkMode = LocalIsDarkMode.current
+    val bgColor = if (isDarkMode) Color(0xFF18191A) else Color.White
+    val surfaceColor = if (isDarkMode) Color(0xFF242526) else Color.White
+    val textPrimary = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505)
+    val textSecondary = if (isDarkMode) Color(0xFFB0B3B8) else Color(0xFF65676B)
+    val inputBg = if (isDarkMode) Color(0xFF3A3B3C) else Color(0xFFF0F2F5)
+    val dividerColor = if (isDarkMode) Color(0xFF3A3B3C) else Color(0xFFF0F2F5)
+
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(Color.White)
+            .background(bgColor)
             .statusBarsPadding()
             .testTag("search_screen")
     ) {
@@ -223,7 +232,7 @@ fun SearchScreen(
                     Icon(
                         imageVector = Icons.Default.ArrowBack,
                         contentDescription = "Back",
-                        tint = Color(0xFF050505)
+                        tint = textPrimary
                     )
                 }
                 Spacer(modifier = Modifier.width(2.dp))
@@ -235,12 +244,12 @@ fun SearchScreen(
                             searchHistoryRepository.addSearchQuery(it)
                         }
                     },
-                    placeholder = { Text("Search Posts, Reels, People, Pages, Groups...", color = Color(0xFF65676B), fontSize = 14.sp) },
+                    placeholder = { Text("Search Posts, Reels, People, Pages, Groups...", color = textSecondary, fontSize = 14.sp) },
                     leadingIcon = {
                         Icon(
                             imageVector = Icons.Default.Search,
                             contentDescription = "Search",
-                            tint = Color(0xFF65676B)
+                            tint = textSecondary
                         )
                     },
                     trailingIcon = {
@@ -249,7 +258,7 @@ fun SearchScreen(
                                 Icon(
                                     imageVector = Icons.Default.Close,
                                     contentDescription = "Clear",
-                                    tint = Color(0xFF65676B)
+                                    tint = textSecondary
                                 )
                             }
                         }
@@ -258,8 +267,10 @@ fun SearchScreen(
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = Color.Transparent,
                         unfocusedBorderColor = Color.Transparent,
-                        focusedContainerColor = Color(0xFFF0F2F5),
-                        unfocusedContainerColor = Color(0xFFF0F2F5)
+                        focusedTextColor = textPrimary,
+                        unfocusedTextColor = textPrimary,
+                        focusedContainerColor = inputBg,
+                        unfocusedContainerColor = inputBg
                     ),
                     singleLine = true,
                     modifier = Modifier
@@ -288,7 +299,7 @@ fun SearchScreen(
                                     text = "Recent Searches",
                                     fontSize = 16.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = Color(0xFF050505)
+                                    color = textPrimary
                                 )
                                 TextButton(onClick = { searchHistoryRepository.clearAll() }) {
                                     Text(
@@ -316,14 +327,14 @@ fun SearchScreen(
                                 ) {
                                     Surface(
                                         shape = CircleShape,
-                                        color = Color(0xFFF0F2F5),
+                                        color = inputBg,
                                         modifier = Modifier.size(36.dp)
                                     ) {
                                         Box(contentAlignment = Alignment.Center) {
                                             Icon(
                                                 imageVector = Icons.Default.History,
                                                 contentDescription = null,
-                                                tint = Color(0xFF65676B),
+                                                tint = textSecondary,
                                                 modifier = Modifier.size(18.dp)
                                             )
                                         }
@@ -332,7 +343,7 @@ fun SearchScreen(
                                     Text(
                                         text = query,
                                         fontSize = 15.sp,
-                                        color = Color(0xFF050505),
+                                        color = textPrimary,
                                         fontWeight = FontWeight.Medium
                                     )
                                 }
@@ -344,7 +355,7 @@ fun SearchScreen(
                                     Icon(
                                         imageVector = Icons.Default.Close,
                                         contentDescription = "Remove",
-                                        tint = Color(0xFF65676B),
+                                        tint = textSecondary,
                                         modifier = Modifier.size(16.dp)
                                     )
                                 }
@@ -354,7 +365,7 @@ fun SearchScreen(
                         item {
                             Divider(
                                 thickness = 4.dp,
-                                color = Color(0xFFF0F2F5),
+                                color = dividerColor,
                                 modifier = Modifier.padding(vertical = 8.dp)
                             )
                         }
@@ -380,7 +391,7 @@ fun SearchScreen(
                                     text = "Top Ranked Pages",
                                     fontSize = 16.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = Color(0xFF050505)
+                                    color = textPrimary
                                 )
                             }
                         }
@@ -397,7 +408,7 @@ fun SearchScreen(
                         item {
                             Divider(
                                 thickness = 4.dp,
-                                color = Color(0xFFF0F2F5),
+                                color = dividerColor,
                                 modifier = Modifier.padding(vertical = 8.dp)
                             )
                         }
@@ -423,7 +434,7 @@ fun SearchScreen(
                                     text = "Ranked Groups & Communities",
                                     fontSize = 16.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = Color(0xFF050505)
+                                    color = textPrimary
                                 )
                             }
                         }
@@ -448,14 +459,14 @@ fun SearchScreen(
                             ) {
                                 Surface(
                                     shape = CircleShape,
-                                    color = Color(0xFFF0F2F5),
+                                    color = inputBg,
                                     modifier = Modifier.size(64.dp)
                                 ) {
                                     Box(contentAlignment = Alignment.Center) {
                                         Icon(
                                             imageVector = Icons.Default.Search,
                                             contentDescription = null,
-                                            tint = Color(0xFF65676B),
+                                            tint = textSecondary,
                                             modifier = Modifier.size(32.dp)
                                         )
                                     }
@@ -465,13 +476,13 @@ fun SearchScreen(
                                     text = "Search Frndom",
                                     fontSize = 17.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = Color(0xFF050505)
+                                    color = textPrimary
                                 )
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Text(
                                     text = "Find friends, reels, posts, photos, and communities",
                                     fontSize = 13.sp,
-                                    color = Color(0xFF65676B)
+                                    color = textSecondary
                                 )
                             }
                         }
@@ -486,15 +497,17 @@ fun SearchScreen(
                 ScrollableTabRow(
                     selectedTabIndex = selectedTabIndex,
                     edgePadding = 16.dp,
-                    containerColor = Color.White,
-                    contentColor = Color(0xFF0866FF),
-                    divider = { Divider(thickness = 0.5.dp, color = Color(0xFFCED0D4)) },
+                    containerColor = surfaceColor,
+                    contentColor = Color(0xFF1877F2),
+                    divider = { Divider(thickness = 0.5.dp, color = dividerColor) },
                     modifier = Modifier.testTag("search_tabs")
                 ) {
                     tabs.forEachIndexed { index, title ->
                         Tab(
                             selected = selectedTabIndex == index,
                             onClick = { selectedTabIndex = index },
+                            selectedContentColor = Color(0xFF1877F2),
+                            unselectedContentColor = textSecondary,
                             text = {
                                 Text(
                                     text = title,
@@ -719,6 +732,7 @@ private fun SearchSectionHeader(
     title: String,
     onSeeAll: () -> Unit
 ) {
+    val isDarkMode = LocalIsDarkMode.current
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -730,7 +744,7 @@ private fun SearchSectionHeader(
             text = title,
             fontSize = 17.sp,
             fontWeight = FontWeight.Bold,
-            color = Color(0xFF050505)
+            color = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505)
         )
         Text(
             text = "See all",
@@ -750,6 +764,7 @@ private fun UserSearchRow(
     userRepository: UserRepository,
     onUserClick: () -> Unit
 ) {
+    val isDarkMode = LocalIsDarkMode.current
     val coroutineScope = rememberCoroutineScope()
     val displayName = user.fullName.ifBlank { "${user.firstName} ${user.lastName}".trim().ifBlank { "User" } }
     
@@ -777,7 +792,7 @@ private fun UserSearchRow(
             Surface(
                 modifier = Modifier.size(48.dp),
                 shape = CircleShape,
-                color = Color(0xFFE4E6EB)
+                color = if (isDarkMode) Color(0xFF3A3B3C) else Color(0xFFE4E6EB)
             ) {
                 Box(contentAlignment = Alignment.Center) {
                     Text(
@@ -798,7 +813,7 @@ private fun UserSearchRow(
                     text = displayName,
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF050505)
+                    color = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505)
                 )
                 if (user.isVerificationActive()) {
                     Spacer(modifier = Modifier.width(4.dp))
@@ -814,7 +829,7 @@ private fun UserSearchRow(
             Text(
                 text = subtext,
                 fontSize = 13.sp,
-                color = Color(0xFF65676B)
+                color = if (isDarkMode) Color(0xFFB0B3B8) else Color(0xFF65676B)
             )
         }
 
@@ -823,7 +838,7 @@ private fun UserSearchRow(
                 isFriend -> {
                     Surface(
                         shape = RoundedCornerShape(8.dp),
-                        color = Color(0xFFE4E6EB),
+                        color = if (isDarkMode) Color(0xFF3A3B3C) else Color(0xFFE4E6EB),
                         modifier = Modifier.height(34.dp)
                     ) {
                         Row(
@@ -833,7 +848,7 @@ private fun UserSearchRow(
                             Icon(
                                 imageVector = Icons.Default.Check,
                                 contentDescription = null,
-                                tint = Color(0xFF050505),
+                                tint = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505),
                                 modifier = Modifier.size(16.dp)
                             )
                             Spacer(modifier = Modifier.width(4.dp))
@@ -841,7 +856,7 @@ private fun UserSearchRow(
                                 text = "Friends",
                                 fontSize = 13.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = Color(0xFF050505)
+                                color = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505)
                             )
                         }
                     }
@@ -874,7 +889,9 @@ private fun UserSearchRow(
                             }
                         },
                         shape = RoundedCornerShape(8.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE4E6EB)),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = if (isDarkMode) Color(0xFF3A3B3C) else Color(0xFFE4E6EB)
+                        ),
                         contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 12.dp, vertical = 4.dp),
                         modifier = Modifier.height(34.dp)
                     ) {
@@ -882,7 +899,7 @@ private fun UserSearchRow(
                             text = "Cancel",
                             fontSize = 13.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF050505)
+                            color = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505)
                         )
                     }
                 }
@@ -925,6 +942,7 @@ private fun PageSearchRow(
     onToggleFollow: () -> Unit,
     onClick: () -> Unit
 ) {
+    val isDarkMode = LocalIsDarkMode.current
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -945,7 +963,7 @@ private fun PageSearchRow(
             Surface(
                 modifier = Modifier.size(48.dp),
                 shape = CircleShape,
-                color = Color(0xFFFCE4EC)
+                color = if (isDarkMode) Color(0xFF3A3B3C) else Color(0xFFFCE4EC)
             ) {
                 Box(contentAlignment = Alignment.Center) {
                     Icon(
@@ -965,12 +983,12 @@ private fun PageSearchRow(
                 text = page.name,
                 fontSize = 15.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFF050505)
+                color = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505)
             )
             Text(
                 text = "${page.category} • ${page.followersCount} followers",
                 fontSize = 13.sp,
-                color = Color(0xFF65676B)
+                color = if (isDarkMode) Color(0xFFB0B3B8) else Color(0xFF65676B)
             )
         }
 
@@ -978,8 +996,8 @@ private fun PageSearchRow(
             onClick = onToggleFollow,
             shape = RoundedCornerShape(8.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor = if (isFollowed) Color(0xFFE4E6EB) else Color(0xFF1877F2),
-                contentColor = if (isFollowed) Color(0xFF050505) else Color.White
+                containerColor = if (isFollowed) (if (isDarkMode) Color(0xFF3A3B3C) else Color(0xFFE4E6EB)) else Color(0xFF1877F2),
+                contentColor = if (isFollowed) (if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505)) else Color.White
             ),
             contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 12.dp, vertical = 4.dp),
             modifier = Modifier.height(34.dp)
@@ -1000,6 +1018,7 @@ private fun GroupSearchRow(
     onToggleJoin: () -> Unit,
     onClick: () -> Unit
 ) {
+    val isDarkMode = LocalIsDarkMode.current
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -1020,7 +1039,7 @@ private fun GroupSearchRow(
             Surface(
                 modifier = Modifier.size(48.dp),
                 shape = RoundedCornerShape(8.dp),
-                color = Color(0xFFE0F2F1)
+                color = if (isDarkMode) Color(0xFF3A3B3C) else Color(0xFFE0F2F1)
             ) {
                 Box(contentAlignment = Alignment.Center) {
                     Icon(
@@ -1040,14 +1059,14 @@ private fun GroupSearchRow(
                 text = group.name,
                 fontSize = 15.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFF050505),
+                color = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
             Text(
                 text = "${group.privacy} • ${group.membersCount} members",
                 fontSize = 13.sp,
-                color = Color(0xFF65676B)
+                color = if (isDarkMode) Color(0xFFB0B3B8) else Color(0xFF65676B)
             )
         }
 
@@ -1055,8 +1074,8 @@ private fun GroupSearchRow(
             onClick = onToggleJoin,
             shape = RoundedCornerShape(8.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor = if (isJoined) Color(0xFFE4E6EB) else Color(0xFF1877F2),
-                contentColor = if (isJoined) Color(0xFF050505) else Color.White
+                containerColor = if (isJoined) (if (isDarkMode) Color(0xFF3A3B3C) else Color(0xFFE4E6EB)) else Color(0xFF1877F2),
+                contentColor = if (isJoined) (if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505)) else Color.White
             ),
             contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 12.dp, vertical = 4.dp),
             modifier = Modifier.height(34.dp)
@@ -1136,6 +1155,7 @@ private fun ReelSearchCard(
 
 @Composable
 private fun EmptySearchResults(query: String) {
+    val isDarkMode = LocalIsDarkMode.current
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -1145,14 +1165,14 @@ private fun EmptySearchResults(query: String) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Surface(
                 shape = CircleShape,
-                color = Color(0xFFF0F2F5),
+                color = if (isDarkMode) Color(0xFF3A3B3C) else Color(0xFFF0F2F5),
                 modifier = Modifier.size(60.dp)
             ) {
                 Box(contentAlignment = Alignment.Center) {
                     Icon(
                         imageVector = Icons.Default.Search,
                         contentDescription = null,
-                        tint = Color(0xFF65676B),
+                        tint = if (isDarkMode) Color(0xFFB0B3B8) else Color(0xFF65676B),
                         modifier = Modifier.size(30.dp)
                     )
                 }
@@ -1162,13 +1182,13 @@ private fun EmptySearchResults(query: String) {
                 text = "No results found for \"$query\"",
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFF050505)
+                color = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505)
             )
             Spacer(modifier = Modifier.height(6.dp))
             Text(
                 text = "Try searching with different keywords, check the spelling, or discover top ranked pages and groups.",
                 fontSize = 13.sp,
-                color = Color(0xFF65676B),
+                color = if (isDarkMode) Color(0xFFB0B3B8) else Color(0xFF65676B),
                 lineHeight = 18.sp
             )
         }

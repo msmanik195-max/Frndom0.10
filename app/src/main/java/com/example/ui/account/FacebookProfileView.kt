@@ -302,7 +302,7 @@ fun FacebookProfileView(
     LazyColumn(
         modifier = modifier
             .fillMaxSize()
-            .background(Color.White)
+            .background(MaterialTheme.colorScheme.background)
             .testTag("facebook_profile_view")
     ) {
         // 1. Cover & Centered Profile Photo Header
@@ -338,14 +338,14 @@ fun FacebookProfileView(
                         Box(
                             modifier = Modifier
                                 .fillMaxSize()
-                                .background(Color(0xFFE4E6EB)),
+                                .background(MaterialTheme.colorScheme.surfaceVariant),
                             contentAlignment = Alignment.Center
                         ) {
                             if (isMyProfile) {
                                 Text(
                                     text = "Tap to add cover photo",
                                     fontSize = 13.sp,
-                                    color = Color(0xFF65676B)
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
                         }
@@ -355,7 +355,7 @@ fun FacebookProfileView(
                     if (isMyProfile) {
                         Surface(
                             shape = CircleShape,
-                            color = Color.White,
+                            color = MaterialTheme.colorScheme.surface,
                             modifier = Modifier
                                 .align(Alignment.BottomEnd)
                                 .padding(end = 16.dp, bottom = 12.dp)
@@ -369,7 +369,7 @@ fun FacebookProfileView(
                                     Icon(
                                         imageVector = Icons.Default.CameraAlt,
                                         contentDescription = "Cover Options",
-                                        tint = Color(0xFF1C1E21),
+                                        tint = MaterialTheme.colorScheme.onSurface,
                                         modifier = Modifier.size(18.dp)
                                     )
                                 }
@@ -387,7 +387,7 @@ fun FacebookProfileView(
                     Surface(
                         modifier = Modifier
                             .size(120.dp)
-                            .border(4.dp, Color.White, CircleShape)
+                            .border(4.dp, MaterialTheme.colorScheme.background, CircleShape)
                             .shadow(6.dp, CircleShape)
                             .clickable {
                                 if (user.profilePictureUrl.isNotBlank()) {
@@ -399,7 +399,7 @@ fun FacebookProfileView(
                                 }
                             },
                         shape = CircleShape,
-                        color = Color(0xFFD8DADF)
+                        color = MaterialTheme.colorScheme.surfaceVariant
                     ) {
                         if (user.profilePictureUrl.isNotBlank()) {
                             AsyncImage(
@@ -424,11 +424,11 @@ fun FacebookProfileView(
                     if (isMyProfile) {
                         Surface(
                             shape = CircleShape,
-                            color = Color(0xFFF0F2F5),
+                            color = MaterialTheme.colorScheme.surfaceVariant,
                             modifier = Modifier
                                 .align(Alignment.BottomEnd)
                                 .size(34.dp)
-                                .border(2.dp, Color.White, CircleShape)
+                                .border(2.dp, MaterialTheme.colorScheme.background, CircleShape)
                         ) {
                             IconButton(onClick = { showProfileOptionsSheet = true }) {
                                 if (isUploadingProfile) {
@@ -437,7 +437,7 @@ fun FacebookProfileView(
                                     Icon(
                                         imageVector = Icons.Default.CameraAlt,
                                         contentDescription = "Profile Picture Options",
-                                        tint = Color(0xFF1C1E21),
+                                        tint = MaterialTheme.colorScheme.onSurface,
                                         modifier = Modifier.size(16.dp)
                                     )
                                 }
@@ -464,7 +464,7 @@ fun FacebookProfileView(
                         text = displayName,
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF050505),
+                        color = MaterialTheme.colorScheme.onSurface,
                         textAlign = TextAlign.Center
                     )
                     if (user.isVerificationActive()) {
@@ -478,7 +478,7 @@ fun FacebookProfileView(
                     Text(
                         text = user.bio,
                         fontSize = 14.sp,
-                        color = Color(0xFF65676B),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         textAlign = TextAlign.Center,
                         modifier = Modifier.padding(horizontal = 24.dp)
                     )
@@ -524,8 +524,8 @@ fun FacebookProfileView(
                             onClick = { currentSubScreen = ProfileSubScreen.EDIT_PROFILE },
                             shape = RoundedCornerShape(8.dp),
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = if (isDarkMode) Color(0xFF3A3B3C) else Color(0xFFE4E6EB),
-                                contentColor = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505)
+                                containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                contentColor = MaterialTheme.colorScheme.onSurfaceVariant
                             ),
                             contentPadding = PaddingValues(horizontal = 8.dp, vertical = 6.dp),
                             modifier = Modifier
@@ -539,7 +539,7 @@ fun FacebookProfileView(
 
                         Surface(
                             shape = RoundedCornerShape(8.dp),
-                            color = if (isDarkMode) Color(0xFF3A3B3C) else Color(0xFFE4E6EB),
+                            color = MaterialTheme.colorScheme.surfaceVariant,
                             modifier = Modifier
                                 .size(36.dp)
                                 .clip(RoundedCornerShape(8.dp))
@@ -549,7 +549,7 @@ fun FacebookProfileView(
                                 Icon(
                                     imageVector = Icons.Default.MoreHoriz,
                                     contentDescription = "Profile Settings",
-                                    tint = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505),
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                     modifier = Modifier.size(18.dp)
                                 )
                             }
@@ -569,8 +569,8 @@ fun FacebookProfileView(
                                     onClick = { showFriendDropdown = true },
                                     shape = RoundedCornerShape(8.dp),
                                     colors = ButtonDefaults.buttonColors(
-                                        containerColor = Color(0xFFE4E6EB),
-                                        contentColor = Color(0xFF0866FF)
+                                        containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                        contentColor = MaterialTheme.colorScheme.primary
                                     ),
                                     modifier = Modifier.fillMaxWidth()
                                 ) {
@@ -603,8 +603,8 @@ fun FacebookProfileView(
                                 onClick = { onMessageClick(user) },
                                 shape = RoundedCornerShape(8.dp),
                                 colors = ButtonDefaults.buttonColors(
-                                    containerColor = Color(0xFF0866FF),
-                                    contentColor = Color.White
+                                    containerColor = MaterialTheme.colorScheme.primary,
+                                    contentColor = MaterialTheme.colorScheme.onPrimary
                                 ),
                                 modifier = Modifier.weight(1f)
                             ) {
@@ -617,8 +617,8 @@ fun FacebookProfileView(
                                 onClick = { userRepository.acceptFriendRequest(currentUserId, user.uid) },
                                 shape = RoundedCornerShape(8.dp),
                                 colors = ButtonDefaults.buttonColors(
-                                    containerColor = Color(0xFF0866FF),
-                                    contentColor = Color.White
+                                    containerColor = MaterialTheme.colorScheme.primary,
+                                    contentColor = MaterialTheme.colorScheme.onPrimary
                                 ),
                                 modifier = Modifier.weight(1f)
                             ) {
@@ -629,8 +629,8 @@ fun FacebookProfileView(
                                 onClick = { userRepository.declineFriendRequest(currentUserId, user.uid) },
                                 shape = RoundedCornerShape(8.dp),
                                 colors = ButtonDefaults.buttonColors(
-                                    containerColor = Color(0xFFE4E6EB),
-                                    contentColor = Color(0xFF050505)
+                                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                    contentColor = MaterialTheme.colorScheme.onSurfaceVariant
                                 ),
                                 modifier = Modifier.weight(1f)
                             ) {
@@ -641,8 +641,8 @@ fun FacebookProfileView(
                                 onClick = { userRepository.cancelFriendRequest(currentUserId, user.uid) },
                                 shape = RoundedCornerShape(8.dp),
                                 colors = ButtonDefaults.buttonColors(
-                                    containerColor = Color(0xFFE4E6EB),
-                                    contentColor = Color(0xFF050505)
+                                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                    contentColor = MaterialTheme.colorScheme.onSurfaceVariant
                                 ),
                                 modifier = Modifier.weight(1f)
                             ) {
@@ -653,8 +653,8 @@ fun FacebookProfileView(
                                 onClick = { onMessageClick(user) },
                                 shape = RoundedCornerShape(8.dp),
                                 colors = ButtonDefaults.buttonColors(
-                                    containerColor = Color(0xFF0866FF),
-                                    contentColor = Color.White
+                                    containerColor = MaterialTheme.colorScheme.primary,
+                                    contentColor = MaterialTheme.colorScheme.onPrimary
                                 ),
                                 modifier = Modifier.weight(1f)
                             ) {
@@ -667,8 +667,8 @@ fun FacebookProfileView(
                                 onClick = { userRepository.sendFriendRequest(currentUserId, user.uid) },
                                 shape = RoundedCornerShape(8.dp),
                                 colors = ButtonDefaults.buttonColors(
-                                    containerColor = Color(0xFF0866FF),
-                                    contentColor = Color.White
+                                    containerColor = MaterialTheme.colorScheme.primary,
+                                    contentColor = MaterialTheme.colorScheme.onPrimary
                                 ),
                                 modifier = Modifier.weight(1f)
                             ) {
@@ -689,8 +689,8 @@ fun FacebookProfileView(
                                 onClick = { onMessageClick(user) },
                                 shape = RoundedCornerShape(8.dp),
                                 colors = ButtonDefaults.buttonColors(
-                                    containerColor = Color(0xFFE4E6EB),
-                                    contentColor = Color(0xFF050505)
+                                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                    contentColor = MaterialTheme.colorScheme.onSurfaceVariant
                                 ),
                                 modifier = Modifier.weight(1f)
                             ) {
@@ -702,7 +702,7 @@ fun FacebookProfileView(
 
                         Surface(
                             shape = RoundedCornerShape(8.dp),
-                            color = Color(0xFFE4E6EB),
+                            color = MaterialTheme.colorScheme.surfaceVariant,
                             modifier = Modifier
                                 .size(40.dp)
                                 .clip(RoundedCornerShape(8.dp))
@@ -712,7 +712,7 @@ fun FacebookProfileView(
                                 Icon(
                                     imageVector = Icons.Default.MoreHoriz,
                                     contentDescription = "Profile Options",
-                                    tint = Color(0xFF050505),
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                     modifier = Modifier.size(20.dp)
                                 )
                             }
@@ -727,9 +727,9 @@ fun FacebookProfileView(
             ScrollableTabRow(
                 selectedTabIndex = pagerState.currentPage,
                 edgePadding = 16.dp,
-                containerColor = Color.White,
-                contentColor = Color(0xFF0866FF),
-                divider = { Divider(thickness = 0.5.dp, color = Color(0xFFCED0D4)) }
+                containerColor = MaterialTheme.colorScheme.surface,
+                contentColor = MaterialTheme.colorScheme.primary,
+                divider = { Divider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant) }
             ) {
                 tabs.forEachIndexed { index, title ->
                     Tab(
@@ -926,7 +926,7 @@ fun FacebookProfileView(
                                 text = "About Info",
                                 fontSize = 18.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = Color(0xFF050505)
+                                color = MaterialTheme.colorScheme.onSurface
                             )
 
                             // Work & Education Category
@@ -937,7 +937,7 @@ fun FacebookProfileView(
                                 Card(
                                     modifier = Modifier.fillMaxWidth(),
                                     shape = RoundedCornerShape(10.dp),
-                                    colors = CardDefaults.cardColors(containerColor = Color(0xFFF7F8FA))
+                                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
                                 ) {
                                     Column(
                                         modifier = Modifier
@@ -985,7 +985,7 @@ fun FacebookProfileView(
                                 Card(
                                     modifier = Modifier.fillMaxWidth(),
                                     shape = RoundedCornerShape(10.dp),
-                                    colors = CardDefaults.cardColors(containerColor = Color(0xFFF7F8FA))
+                                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
                                 ) {
                                     Column(
                                         modifier = Modifier
@@ -1034,7 +1034,7 @@ fun FacebookProfileView(
                                 Card(
                                     modifier = Modifier.fillMaxWidth(),
                                     shape = RoundedCornerShape(10.dp),
-                                    colors = CardDefaults.cardColors(containerColor = Color(0xFFF7F8FA))
+                                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
                                 ) {
                                     Column(
                                         modifier = Modifier
@@ -1101,7 +1101,7 @@ fun FacebookProfileView(
                                 Card(
                                     modifier = Modifier.fillMaxWidth(),
                                     shape = RoundedCornerShape(10.dp),
-                                    colors = CardDefaults.cardColors(containerColor = Color(0xFFF7F8FA))
+                                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
                                 ) {
                                     Column(
                                         modifier = Modifier
@@ -1155,8 +1155,8 @@ fun FacebookProfileView(
                                     onClick = { currentSubScreen = ProfileSubScreen.EDIT_PROFILE },
                                     shape = RoundedCornerShape(8.dp),
                                     colors = ButtonDefaults.buttonColors(
-                                        containerColor = Color(0xFFE4E6EB),
-                                        contentColor = Color(0xFF0866FF)
+                                        containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                        contentColor = MaterialTheme.colorScheme.primary
                                     ),
                                     modifier = Modifier
                                         .fillMaxWidth()
@@ -1166,14 +1166,14 @@ fun FacebookProfileView(
                                         imageVector = Icons.Default.Edit,
                                         contentDescription = null,
                                         modifier = Modifier.size(16.dp),
-                                        tint = Color(0xFF0866FF)
+                                        tint = MaterialTheme.colorScheme.primary
                                     )
                                     Spacer(modifier = Modifier.width(6.dp))
                                     Text(
                                         text = "Edit Public Details",
                                         fontWeight = FontWeight.Bold,
                                         fontSize = 14.sp,
-                                        color = Color(0xFF0866FF)
+                                        color = MaterialTheme.colorScheme.primary
                                     )
                                 }
                             }
@@ -1193,7 +1193,7 @@ fun FacebookProfileView(
                                     text = "Friends (${friendsUserList.size})",
                                     fontSize = 18.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = Color(0xFF050505)
+                                    color = MaterialTheme.colorScheme.onSurface
                                 )
                                 Spacer(modifier = Modifier.height(12.dp))
 
@@ -1242,7 +1242,7 @@ fun FacebookProfileView(
                                                 text = fName,
                                                 fontSize = 13.sp,
                                                 fontWeight = FontWeight.SemiBold,
-                                                color = Color(0xFF050505),
+                                                color = MaterialTheme.colorScheme.onSurface,
                                                 maxLines = 1,
                                                 overflow = TextOverflow.Ellipsis,
                                                 textAlign = TextAlign.Center
@@ -1385,7 +1385,7 @@ fun FacebookProfileView(
         ModalBottomSheet(
             onDismissRequest = { showProfileOptionsSheet = false },
             sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-            containerColor = Color.White
+            containerColor = MaterialTheme.colorScheme.surface
         ) {
             Column(
                 modifier = Modifier
@@ -1393,7 +1393,7 @@ fun FacebookProfileView(
                     .padding(horizontal = 20.dp, vertical = 12.dp),
                 verticalArrangement = Arrangement.spacedBy(14.dp)
             ) {
-                Text(text = "Profile Picture", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color(0xFF050505))
+                Text(text = "Profile Picture", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
 
                 if (user.profilePictureUrl.isNotBlank()) {
                     Row(
@@ -1410,7 +1410,7 @@ fun FacebookProfileView(
                     ) {
                         Icon(imageVector = Icons.Default.Visibility, contentDescription = "View", tint = Color(0xFF1877F2), modifier = Modifier.size(24.dp))
                         Spacer(modifier = Modifier.width(14.dp))
-                        Text(text = "View Profile Picture", fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF050505))
+                        Text(text = "View Profile Picture", fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurface)
                     }
                 }
 
@@ -1430,7 +1430,7 @@ fun FacebookProfileView(
                     ) {
                         Icon(imageVector = Icons.Default.CameraAlt, contentDescription = "Select", tint = Color(0xFF2E7D32), modifier = Modifier.size(24.dp))
                         Spacer(modifier = Modifier.width(14.dp))
-                        Text(text = "Choose New Profile Picture", fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF050505))
+                        Text(text = "Choose New Profile Picture", fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurface)
                     }
                 }
 
@@ -1444,7 +1444,7 @@ fun FacebookProfileView(
         ModalBottomSheet(
             onDismissRequest = { showCoverOptionsSheet = false },
             sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-            containerColor = Color.White
+            containerColor = MaterialTheme.colorScheme.surface
         ) {
             Column(
                 modifier = Modifier
@@ -1452,7 +1452,7 @@ fun FacebookProfileView(
                     .padding(horizontal = 20.dp, vertical = 12.dp),
                 verticalArrangement = Arrangement.spacedBy(14.dp)
             ) {
-                Text(text = "Cover Photo", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color(0xFF050505))
+                Text(text = "Cover Photo", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
 
                 if (user.coverPictureUrl.isNotBlank()) {
                     Row(
@@ -1469,7 +1469,7 @@ fun FacebookProfileView(
                     ) {
                         Icon(imageVector = Icons.Default.Visibility, contentDescription = "View", tint = Color(0xFF1877F2), modifier = Modifier.size(24.dp))
                         Spacer(modifier = Modifier.width(14.dp))
-                        Text(text = "View Cover Photo", fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF050505))
+                        Text(text = "View Cover Photo", fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurface)
                     }
                 }
 
@@ -1489,7 +1489,7 @@ fun FacebookProfileView(
                     ) {
                         Icon(imageVector = Icons.Default.CameraAlt, contentDescription = "Select", tint = Color(0xFF2E7D32), modifier = Modifier.size(24.dp))
                         Spacer(modifier = Modifier.width(14.dp))
-                        Text(text = "Choose New Cover Photo", fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF050505))
+                        Text(text = "Choose New Cover Photo", fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurface)
                     }
                 }
 
@@ -1503,7 +1503,7 @@ fun FacebookProfileView(
         ModalBottomSheet(
             onDismissRequest = { showProfileSettingsSheet = false },
             sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-            containerColor = if (isDarkMode) Color(0xFF242526) else Color.White
+            containerColor = MaterialTheme.colorScheme.surface
         ) {
             Column(
                 modifier = Modifier
@@ -1515,7 +1515,7 @@ fun FacebookProfileView(
                     text = if (isMyProfile) "Profile Settings" else "${displayName}'s Profile",
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
-                    color = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505),
+                    color = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.padding(bottom = 6.dp)
                 )
 
@@ -1551,7 +1551,7 @@ fun FacebookProfileView(
                             text = "Dashboard",
                             fontSize = 15.sp,
                             fontWeight = FontWeight.SemiBold,
-                            color = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505)
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                     }
 
@@ -1586,7 +1586,7 @@ fun FacebookProfileView(
                             text = "Pages",
                             fontSize = 15.sp,
                             fontWeight = FontWeight.SemiBold,
-                            color = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505)
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                     }
 
@@ -1621,7 +1621,7 @@ fun FacebookProfileView(
                             text = "Groups",
                             fontSize = 15.sp,
                             fontWeight = FontWeight.SemiBold,
-                            color = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505)
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                     }
 
@@ -1655,7 +1655,7 @@ fun FacebookProfileView(
                             text = "Verified",
                             fontSize = 15.sp,
                             fontWeight = FontWeight.SemiBold,
-                            color = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505)
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                     }
 
@@ -1673,14 +1673,14 @@ fun FacebookProfileView(
                     ) {
                         Surface(
                             shape = CircleShape,
-                            color = if (isDarkMode) Color(0xFF3A3B3C) else Color(0xFFF0F2F5),
+                            color = MaterialTheme.colorScheme.surfaceVariant,
                             modifier = Modifier.size(40.dp)
                         ) {
                             Box(contentAlignment = Alignment.Center) {
                                 Icon(
                                     imageVector = Icons.Default.Settings,
                                     contentDescription = "Settings",
-                                    tint = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF1C1E21),
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                     modifier = Modifier.size(22.dp)
                                 )
                             }
@@ -1690,13 +1690,13 @@ fun FacebookProfileView(
                             text = "Settings",
                             fontSize = 15.sp,
                             fontWeight = FontWeight.SemiBold,
-                            color = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505)
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                     }
 
                     Divider(
                         thickness = 0.5.dp,
-                        color = if (isDarkMode) Color(0xFF3E4042) else Color(0xFFCED0D4),
+                        color = MaterialTheme.colorScheme.outlineVariant,
                         modifier = Modifier.padding(vertical = 4.dp)
                     )
                 }
@@ -1717,14 +1717,14 @@ fun FacebookProfileView(
                 ) {
                     Surface(
                         shape = CircleShape,
-                        color = if (isDarkMode) Color(0xFF3A3B3C) else Color(0xFFF0F2F5),
+                        color = MaterialTheme.colorScheme.surfaceVariant,
                         modifier = Modifier.size(40.dp)
                     ) {
                         Box(contentAlignment = Alignment.Center) {
                             Icon(
                                 imageVector = Icons.Default.ContentCopy,
                                 contentDescription = "Copy Link",
-                                tint = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF1C1E21),
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.size(20.dp)
                             )
                         }
@@ -1734,7 +1734,7 @@ fun FacebookProfileView(
                         text = "Copy Profile Link",
                         fontSize = 15.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505)
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 }
 
@@ -1760,12 +1760,12 @@ private fun StatCounter(title: String, count: Int) {
             text = "$count",
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold,
-            color = Color(0xFF050505)
+            color = MaterialTheme.colorScheme.onSurface
         )
         Text(
             text = title,
             fontSize = 13.sp,
-            color = Color(0xFF65676B)
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
 }
@@ -1787,7 +1787,7 @@ private fun AboutInfoRow(
             modifier = Modifier
                 .size(36.dp)
                 .clip(CircleShape)
-                .background(Color(0xFFE4E6EB)),
+                .background(MaterialTheme.colorScheme.surfaceVariant),
             contentAlignment = Alignment.Center
         ) {
             Icon(
@@ -1803,21 +1803,21 @@ private fun AboutInfoRow(
                 Text(
                     text = label,
                     fontSize = 11.sp,
-                    color = Color(0xFF65676B),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontWeight = FontWeight.Medium
                 )
             }
             Text(
                 text = text,
                 fontSize = 14.sp,
-                color = Color(0xFF050505),
+                color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.Normal
             )
         }
         if (isPrivate) {
             Surface(
                 shape = RoundedCornerShape(4.dp),
-                color = Color(0xFFE4E6EB),
+                color = MaterialTheme.colorScheme.surfaceVariant,
                 modifier = Modifier.padding(start = 6.dp)
             ) {
                 Row(
@@ -1828,13 +1828,13 @@ private fun AboutInfoRow(
                     Icon(
                         imageVector = Icons.Default.Lock,
                         contentDescription = "Only You",
-                        tint = Color(0xFF65676B),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.size(12.dp)
                     )
                     Text(
                         text = "Only You",
                         fontSize = 11.sp,
-                        color = Color(0xFF65676B),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         fontWeight = FontWeight.Medium
                     )
                 }
@@ -1851,6 +1851,6 @@ private fun EmptyTabContent(message: String) {
             .padding(vertical = 32.dp, horizontal = 16.dp),
         contentAlignment = Alignment.Center
     ) {
-        Text(text = message, fontSize = 15.sp, color = Color(0xFF65676B))
+        Text(text = message, fontSize = 15.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }

@@ -39,6 +39,7 @@ import coil.compose.AsyncImage
 import com.example.data.model.ChatConversation
 import com.example.data.model.UserProfile
 import com.example.data.repository.ChatRepository
+import com.example.ui.theme.LocalIsDarkMode
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -54,10 +55,16 @@ fun ChatsScreen(
     val userRepository = androidx.compose.runtime.remember { com.example.data.repository.UserRepository(context) }
     val conversations by chatRepository.getConversationsFlow(currentUserId).collectAsState(initial = emptyList())
 
+    val isDarkMode = LocalIsDarkMode.current
+    val bgColor = if (isDarkMode) Color(0xFF18191A) else Color.White
+    val textPrimary = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505)
+    val textSecondary = if (isDarkMode) Color(0xFFB0B3B8) else Color(0xFF65676B)
+    val textMuted = if (isDarkMode) Color(0xFF8A8D91) else Color(0xFF8A8D91)
+
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(Color.White)
+            .background(bgColor)
             .testTag("chats_screen")
     ) {
         if (conversations.isEmpty()) {
@@ -71,7 +78,7 @@ fun ChatsScreen(
                 Surface(
                     modifier = Modifier.size(72.dp),
                     shape = CircleShape,
-                    color = MaterialTheme.colorScheme.primaryContainer
+                    color = if (isDarkMode) Color(0xFF242526) else MaterialTheme.colorScheme.primaryContainer
                 ) {
                     Box(contentAlignment = Alignment.Center) {
                         Icon(
@@ -89,7 +96,7 @@ fun ChatsScreen(
                     text = "No Messages Yet",
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF050505)
+                    color = textPrimary
                 )
 
                 Spacer(modifier = Modifier.height(6.dp))
@@ -97,7 +104,7 @@ fun ChatsScreen(
                 Text(
                     text = "Search for friends or visit profiles to start messaging!",
                     fontSize = 14.sp,
-                    color = Color(0xFF65676B),
+                    color = textSecondary,
                     modifier = Modifier.padding(horizontal = 16.dp)
                 )
             }
@@ -117,6 +124,7 @@ fun ChatsScreen(
                     ConversationItemRow(
                         conversation = conv,
                         isVerified = isVerified,
+                        isDarkMode = isDarkMode,
                         onClick = {
                             val resolvedProfile = peerProfile ?: userRepository.getLocalUserProfile(conv.peerId) ?: UserProfile(
                                 uid = conv.peerId,
@@ -136,10 +144,13 @@ fun ChatsScreen(
 private fun ConversationItemRow(
     conversation: ChatConversation,
     isVerified: Boolean = false,
+    isDarkMode: Boolean = false,
     onClick: () -> Unit
 ) {
     val timeFormat = SimpleDateFormat("h:mm a", Locale.getDefault())
     val formattedTime = if (conversation.lastMessageTime > 0) timeFormat.format(Date(conversation.lastMessageTime)) else ""
+    val textPrimary = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505)
+    val textSecondary = if (isDarkMode) Color(0xFFB0B3B8) else Color(0xFF65676B)
 
     Row(
         modifier = Modifier
@@ -151,7 +162,7 @@ private fun ConversationItemRow(
         Surface(
             modifier = Modifier.size(56.dp),
             shape = CircleShape,
-            color = MaterialTheme.colorScheme.primaryContainer
+            color = if (isDarkMode) Color(0xFF3A3B3C) else MaterialTheme.colorScheme.primaryContainer
         ) {
             if (conversation.peerAvatarUrl.isNotBlank()) {
                 AsyncImage(
@@ -180,7 +191,7 @@ private fun ConversationItemRow(
                     text = conversation.peerName,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF050505)
+                    color = textPrimary
                 )
                 if (isVerified) {
                     Spacer(modifier = Modifier.width(4.dp))
@@ -193,7 +204,7 @@ private fun ConversationItemRow(
             Text(
                 text = conversation.lastMessage,
                 fontSize = 14.sp,
-                color = Color(0xFF65676B),
+                color = textSecondary,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
@@ -203,7 +214,7 @@ private fun ConversationItemRow(
             Text(
                 text = formattedTime,
                 fontSize = 12.sp,
-                color = Color(0xFF8A8D91),
+                color = if (isDarkMode) Color(0xFFA8ABAF) else Color(0xFF8A8D91),
                 modifier = Modifier.padding(start = 8.dp)
             )
         }

@@ -7,17 +7,21 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ChatBubble
 import androidx.compose.material.icons.filled.DoneAll
 import androidx.compose.material.icons.filled.Favorite
@@ -51,6 +55,7 @@ import com.example.data.model.NotificationItem
 import com.example.data.model.UserProfile
 import com.example.data.repository.NotificationRepository
 import com.example.data.repository.UserRepository
+import com.example.ui.theme.LocalIsDarkMode
 
 @Composable
 fun NotificationsScreen(
@@ -58,30 +63,53 @@ fun NotificationsScreen(
     notificationRepository: NotificationRepository,
     userRepository: UserRepository,
     onUserClick: (UserProfile) -> Unit,
+    onBackClick: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
+    val isDarkMode = LocalIsDarkMode.current
     val notifications by notificationRepository.getNotificationsFlow(currentUserId).collectAsState(initial = emptyList())
     val allUsers by userRepository.getAllUsersFlow().collectAsState(initial = emptyList())
+
+    val bgColor = if (isDarkMode) Color(0xFF18191A) else Color.White
+    val textPrimary = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505)
+    val textSecondary = if (isDarkMode) Color(0xFFB0B3B8) else Color(0xFF65676B)
+    val dividerColor = if (isDarkMode) Color(0xFF3E4042) else Color(0xFFE4E6EB)
+    val emptyIconBg = if (isDarkMode) Color(0xFF242526) else Color(0xFFF0F2F5)
 
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(Color.White)
+            .background(bgColor)
             .testTag("notifications_screen")
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
+            // Header with Back button only
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 12.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
+                    .windowInsetsPadding(WindowInsets.statusBars)
+                    .padding(horizontal = 8.dp, vertical = 10.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
+                IconButton(
+                    onClick = onBackClick,
+                    modifier = Modifier.testTag("notifications_back_button")
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Back",
+                        tint = textPrimary
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(4.dp))
+
                 Text(
                     text = "Notifications",
-                    fontSize = 24.sp,
+                    fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF050505)
+                    color = textPrimary,
+                    modifier = Modifier.weight(1f)
                 )
 
                 if (notifications.isNotEmpty()) {
@@ -99,7 +127,7 @@ fun NotificationsScreen(
                 }
             }
 
-            Divider(thickness = 0.5.dp, color = Color(0xFFE4E6EB))
+            Divider(thickness = 0.5.dp, color = dividerColor)
 
             if (notifications.isEmpty()) {
                 Box(
@@ -111,14 +139,14 @@ fun NotificationsScreen(
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Surface(
                             shape = CircleShape,
-                            color = Color(0xFFF0F2F5),
+                            color = emptyIconBg,
                             modifier = Modifier.size(72.dp)
                         ) {
                             Box(contentAlignment = Alignment.Center) {
                                 Icon(
                                     imageVector = Icons.Default.NotificationsNone,
                                     contentDescription = null,
-                                    tint = Color(0xFF65676B),
+                                    tint = textSecondary,
                                     modifier = Modifier.size(36.dp)
                                 )
                             }
@@ -130,7 +158,7 @@ fun NotificationsScreen(
                             text = "No Notifications",
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF050505)
+                            color = textPrimary
                         )
 
                         Spacer(modifier = Modifier.height(6.dp))
@@ -138,7 +166,7 @@ fun NotificationsScreen(
                         Text(
                             text = "Likes, comments and follows on your posts will appear here.",
                             fontSize = 14.sp,
-                            color = Color(0xFF65676B),
+                            color = textSecondary,
                             textAlign = androidx.compose.ui.text.style.TextAlign.Center
                         )
                     }
@@ -154,10 +182,11 @@ fun NotificationsScreen(
 
                         NotificationRowItem(
                             notification = item,
+                            isDarkMode = isDarkMode,
                             onClick = { onUserClick(targetSender) },
                             onAvatarClick = { onUserClick(targetSender) }
                         )
-                        Divider(thickness = 0.5.dp, color = Color(0xFFF0F2F5))
+                        Divider(thickness = 0.5.dp, color = dividerColor)
                     }
                 }
             }
@@ -168,10 +197,17 @@ fun NotificationsScreen(
 @Composable
 private fun NotificationRowItem(
     notification: NotificationItem,
+    isDarkMode: Boolean,
     onClick: () -> Unit,
     onAvatarClick: () -> Unit
 ) {
-    val backgroundColor = if (!notification.isRead) Color(0xFFEBF5FF) else Color.White
+    val backgroundColor = if (!notification.isRead) {
+        if (isDarkMode) Color(0xFF1E2A3A) else Color(0xFFEBF5FF)
+    } else {
+        if (isDarkMode) Color(0xFF18191A) else Color.White
+    }
+    val textPrimary = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505)
+    val textSecondary = if (isDarkMode) Color(0xFFB0B3B8) else Color(0xFF65676B)
     val timeAgo = remember(notification.timestamp) { formatTimeAgo(notification.timestamp) }
 
     Row(
@@ -243,11 +279,11 @@ private fun NotificationRowItem(
         // Text & Timestamp
         Column(modifier = Modifier.weight(1f)) {
             val annotatedString = buildAnnotatedString {
-                withStyle(style = SpanStyle(fontWeight = FontWeight.Bold, color = Color(0xFF050505), fontSize = 14.sp)) {
+                withStyle(style = SpanStyle(fontWeight = FontWeight.Bold, color = textPrimary, fontSize = 14.sp)) {
                     append(notification.senderName)
                 }
                 append(" ")
-                withStyle(style = SpanStyle(fontWeight = FontWeight.Normal, color = Color(0xFF050505), fontSize = 14.sp)) {
+                withStyle(style = SpanStyle(fontWeight = FontWeight.Normal, color = textPrimary, fontSize = 14.sp)) {
                     append(notification.content)
                 }
             }
@@ -264,7 +300,7 @@ private fun NotificationRowItem(
             Text(
                 text = timeAgo,
                 fontSize = 12.sp,
-                color = if (!notification.isRead) Color(0xFF1877F2) else Color(0xFF65676B),
+                color = if (!notification.isRead) Color(0xFF1877F2) else textSecondary,
                 fontWeight = if (!notification.isRead) FontWeight.SemiBold else FontWeight.Normal
             )
         }

@@ -75,6 +75,7 @@ import androidx.compose.ui.unit.sp
 import com.example.data.model.UserProfile
 import com.example.data.repository.WalletRepository
 import com.example.data.repository.WalletTxItem
+import com.example.ui.theme.LocalIsDarkMode
 import java.util.Locale
 
 enum class WalletSubPage {
@@ -358,7 +359,7 @@ fun WalletView(
                             text = "Transactions",
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF050505)
+                            color = textPrimary
                         )
 
                         Text(
@@ -383,7 +384,7 @@ fun WalletView(
                         Card(
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(14.dp),
-                            colors = CardDefaults.cardColors(containerColor = Color.White),
+                            colors = CardDefaults.cardColors(containerColor = cardBg),
                             elevation = CardDefaults.cardElevation(0.5.dp)
                         ) {
                             Column(
@@ -396,12 +397,12 @@ fun WalletView(
                                     text = "No transactions yet",
                                     fontSize = 15.sp,
                                     fontWeight = FontWeight.Medium,
-                                    color = Color(0xFF65676B)
+                                    color = textSecondary
                                 )
                                 Text(
                                     text = "Recharge your wallet or earn money from content",
                                     fontSize = 13.sp,
-                                    color = Color(0xFF8A8D91),
+                                    color = if (isDarkMode) Color(0xFF8A8D91) else Color(0xFF8A8D91),
                                     textAlign = TextAlign.Center,
                                     modifier = Modifier.padding(top = 4.dp)
                                 )
@@ -438,6 +439,10 @@ private fun WalletActionCard(
     testTag: String,
     onClick: () -> Unit
 ) {
+    val isDarkMode = LocalIsDarkMode.current
+    val cardBg = if (isDarkMode) Color(0xFF242526) else Color.White
+    val textPrimary = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505)
+
     Card(
         modifier = modifier
             .shadow(
@@ -452,7 +457,7 @@ private fun WalletActionCard(
             )
             .testTag(testTag),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White)
+        colors = CardDefaults.cardColors(containerColor = cardBg)
     ) {
         Column(
             modifier = Modifier
@@ -464,7 +469,7 @@ private fun WalletActionCard(
             Surface(
                 modifier = Modifier.size(46.dp),
                 shape = CircleShape,
-                color = iconBgColor
+                color = if (isDarkMode) iconColor.copy(alpha = 0.2f) else iconBgColor
             ) {
                 Box(contentAlignment = Alignment.Center) {
                     Icon(
@@ -482,7 +487,7 @@ private fun WalletActionCard(
                 text = title,
                 fontSize = 13.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = Color(0xFF050505),
+                color = textPrimary,
                 textAlign = TextAlign.Center,
                 lineHeight = 16.sp
             )
@@ -495,14 +500,19 @@ private fun WalletTransactionCard(
     tx: WalletTxItem,
     modifier: Modifier = Modifier
 ) {
+    val isDarkMode = LocalIsDarkMode.current
+    val cardBg = if (isDarkMode) Color(0xFF242526) else Color.White
+    val textPrimary = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505)
+    val textSecondary = if (isDarkMode) Color(0xFFB0B3B8) else Color(0xFF65676B)
+
     val isPending = tx.status == "PENDING"
     val isRejected = tx.status == "REJECTED"
 
     val statusContainerColor = when {
-        isPending -> Color(0xFFFFF8E1)
-        isRejected -> Color(0xFFFFEBEE)
-        tx.isPositive -> Color(0xFFE8F8F0)
-        else -> Color(0xFFFFEBEE)
+        isPending -> if (isDarkMode) Color(0xFF3E2723) else Color(0xFFFFF8E1)
+        isRejected -> if (isDarkMode) Color(0xFF371B1D) else Color(0xFFFFEBEE)
+        tx.isPositive -> if (isDarkMode) Color(0xFF1B3320) else Color(0xFFE8F8F0)
+        else -> if (isDarkMode) Color(0xFF371B1D) else Color(0xFFFFEBEE)
     }
 
     val statusIconColor = when {
@@ -521,7 +531,7 @@ private fun WalletTransactionCard(
                 spotColor = Color.Black.copy(alpha = 0.05f)
             ),
         shape = RoundedCornerShape(14.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White)
+        colors = CardDefaults.cardColors(containerColor = cardBg)
     ) {
         Row(
             modifier = Modifier
@@ -562,14 +572,14 @@ private fun WalletTransactionCard(
                             text = tx.title,
                             fontSize = 15.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF050505)
+                            color = textPrimary
                         )
                         Spacer(modifier = Modifier.width(6.dp))
                         when {
                             isPending -> {
                                 Surface(
                                     shape = RoundedCornerShape(4.dp),
-                                    color = Color(0xFFFFF3E0)
+                                    color = if (isDarkMode) Color(0xFF3E2723) else Color(0xFFFFF3E0)
                                 ) {
                                     Text(
                                         text = "Pending",
@@ -583,7 +593,7 @@ private fun WalletTransactionCard(
                             isRejected -> {
                                 Surface(
                                     shape = RoundedCornerShape(4.dp),
-                                    color = Color(0xFFFFEBEE)
+                                    color = if (isDarkMode) Color(0xFF371B1D) else Color(0xFFFFEBEE)
                                 ) {
                                     Text(
                                         text = "Rejected",
@@ -597,7 +607,7 @@ private fun WalletTransactionCard(
                             else -> {
                                 Surface(
                                     shape = RoundedCornerShape(4.dp),
-                                    color = Color(0xFFE8F5E9)
+                                    color = if (isDarkMode) Color(0xFF1B3320) else Color(0xFFE8F5E9)
                                 ) {
                                     Text(
                                         text = "Approved",
@@ -615,7 +625,7 @@ private fun WalletTransactionCard(
                         Text(
                             text = tx.subtitle,
                             fontSize = 12.sp,
-                            color = Color(0xFF65676B),
+                            color = textSecondary,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
@@ -623,7 +633,7 @@ private fun WalletTransactionCard(
                     Text(
                         text = tx.date,
                         fontSize = 11.sp,
-                        color = Color(0xFF8A8D91)
+                        color = textSecondary
                     )
                 }
             }
@@ -644,7 +654,7 @@ private fun WalletTransactionCard(
                 Text(
                     text = if (isPending) "Processing" else "Bal: BDT ${String.format(Locale.US, "%.2f", tx.balanceAfter)}",
                     fontSize = 11.sp,
-                    color = if (isPending) Color(0xFFE65100) else Color(0xFF8A8D91)
+                    color = if (isPending) Color(0xFFE65100) else textSecondary
                 )
             }
         }
@@ -657,6 +667,11 @@ private fun RechargeBottomSheet(
     onDismiss: () -> Unit,
     onConfirmRecharge: (Double, String) -> Unit
 ) {
+    val isDarkMode = LocalIsDarkMode.current
+    val surfaceColor = if (isDarkMode) Color(0xFF242526) else Color.White
+    val textPrimary = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505)
+    val textSecondary = if (isDarkMode) Color(0xFFB0B3B8) else Color(0xFF65676B)
+
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var selectedAmount by remember { mutableStateOf("50") }
     var selectedMethod by remember { mutableStateOf("bKash") }
@@ -666,7 +681,7 @@ private fun RechargeBottomSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        containerColor = Color.White
+        containerColor = surfaceColor
     ) {
         Column(
             modifier = Modifier
@@ -682,10 +697,10 @@ private fun RechargeBottomSheet(
                     text = "Recharge Wallet",
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF050505)
+                    color = textPrimary
                 )
                 IconButton(onClick = onDismiss) {
-                    Icon(imageVector = Icons.Default.Close, contentDescription = "Close")
+                    Icon(imageVector = Icons.Default.Close, contentDescription = "Close", tint = textPrimary)
                 }
             }
 
@@ -695,7 +710,7 @@ private fun RechargeBottomSheet(
                 text = "Select Amount (BDT)",
                 fontSize = 13.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = Color(0xFF65676B)
+                color = textSecondary
             )
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -709,7 +724,7 @@ private fun RechargeBottomSheet(
                     val isSelected = selectedAmount == amt
                     Surface(
                         shape = RoundedCornerShape(10.dp),
-                        color = if (isSelected) Color(0xFF1877F2) else Color(0xFFF0F2F5),
+                        color = if (isSelected) Color(0xFF1877F2) else (if (isDarkMode) Color(0xFF3A3B3C) else Color(0xFFF0F2F5)),
                         modifier = Modifier
                             .weight(1f)
                             .clickable { selectedAmount = amt }
@@ -718,7 +733,7 @@ private fun RechargeBottomSheet(
                             text = "BDT $amt",
                             fontSize = 13.sp,
                             fontWeight = FontWeight.Bold,
-                            color = if (isSelected) Color.White else Color(0xFF050505),
+                            color = if (isSelected) Color.White else textPrimary,
                             textAlign = TextAlign.Center,
                             modifier = Modifier.padding(vertical = 10.dp)
                         )
@@ -731,14 +746,16 @@ private fun RechargeBottomSheet(
             OutlinedTextField(
                 value = selectedAmount,
                 onValueChange = { selectedAmount = it.filter { char -> char.isDigit() || char == '.' } },
-                label = { Text("Custom Amount") },
-                prefix = { Text("BDT ", fontWeight = FontWeight.Bold) },
+                label = { Text("Custom Amount", color = textSecondary) },
+                prefix = { Text("BDT ", fontWeight = FontWeight.Bold, color = textPrimary) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
                 colors = OutlinedTextFieldDefaults.colors(
+                    focusedTextColor = textPrimary,
+                    unfocusedTextColor = textPrimary,
                     focusedBorderColor = Color(0xFF1877F2),
-                    unfocusedBorderColor = Color(0xFFCED0D4)
+                    unfocusedBorderColor = if (isDarkMode) Color(0xFF3E4042) else Color(0xFFCED0D4)
                 )
             )
 
@@ -748,7 +765,7 @@ private fun RechargeBottomSheet(
                 text = "Payment Method",
                 fontSize = 13.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = Color(0xFF65676B)
+                color = textSecondary
             )
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -762,7 +779,7 @@ private fun RechargeBottomSheet(
                         .clickable { selectedMethod = method },
                     shape = RoundedCornerShape(10.dp),
                     colors = CardDefaults.cardColors(
-                        containerColor = if (isSelected) Color(0xFFE8F1FD) else Color(0xFFF8F9FA)
+                        containerColor = if (isSelected) (if (isDarkMode) Color(0xFF1877F2).copy(alpha = 0.2f) else Color(0xFFE8F1FD)) else (if (isDarkMode) Color(0xFF3A3B3C) else Color(0xFFF8F9FA))
                     ),
                     border = if (isSelected) androidx.compose.foundation.BorderStroke(1.5.dp, Color(0xFF1877F2)) else null
                 ) {
@@ -777,7 +794,7 @@ private fun RechargeBottomSheet(
                             Icon(
                                 imageVector = Icons.Default.Payment,
                                 contentDescription = null,
-                                tint = if (isSelected) Color(0xFF1877F2) else Color(0xFF65676B),
+                                tint = if (isSelected) Color(0xFF1877F2) else textSecondary,
                                 modifier = Modifier.size(20.dp)
                             )
                             Spacer(modifier = Modifier.width(10.dp))
@@ -785,7 +802,7 @@ private fun RechargeBottomSheet(
                                 text = method,
                                 fontSize = 14.sp,
                                 fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                                color = if (isSelected) Color(0xFF1877F2) else Color(0xFF050505)
+                                color = if (isSelected) Color(0xFF1877F2) else textPrimary
                             )
                         }
 
@@ -836,6 +853,11 @@ private fun WithdrawBottomSheet(
     onDismiss: () -> Unit,
     onConfirmWithdraw: (Double, String, String) -> Unit
 ) {
+    val isDarkMode = LocalIsDarkMode.current
+    val surfaceColor = if (isDarkMode) Color(0xFF242526) else Color.White
+    val textPrimary = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505)
+    val textSecondary = if (isDarkMode) Color(0xFFB0B3B8) else Color(0xFF65676B)
+
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var amountText by remember { mutableStateOf("") }
     var selectedMethod by remember { mutableStateOf("bKash") }
@@ -846,7 +868,7 @@ private fun WithdrawBottomSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        containerColor = Color.White
+        containerColor = surfaceColor
     ) {
         Column(
             modifier = Modifier
@@ -862,10 +884,10 @@ private fun WithdrawBottomSheet(
                     text = "Withdraw Funds",
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF050505)
+                    color = textPrimary
                 )
                 IconButton(onClick = onDismiss) {
-                    Icon(imageVector = Icons.Default.Close, contentDescription = "Close")
+                    Icon(imageVector = Icons.Default.Close, contentDescription = "Close", tint = textPrimary)
                 }
             }
 
@@ -886,14 +908,16 @@ private fun WithdrawBottomSheet(
                     amountText = it.filter { char -> char.isDigit() || char == '.' }
                     errorMessage = null
                 },
-                label = { Text("Withdraw Amount") },
-                prefix = { Text("BDT ", fontWeight = FontWeight.Bold) },
+                label = { Text("Withdraw Amount", color = textSecondary) },
+                prefix = { Text("BDT ", fontWeight = FontWeight.Bold, color = textPrimary) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
                 colors = OutlinedTextFieldDefaults.colors(
+                    focusedTextColor = textPrimary,
+                    unfocusedTextColor = textPrimary,
                     focusedBorderColor = Color(0xFF1877F2),
-                    unfocusedBorderColor = Color(0xFFCED0D4)
+                    unfocusedBorderColor = if (isDarkMode) Color(0xFF3E4042) else Color(0xFFCED0D4)
                 )
             )
 
@@ -903,7 +927,7 @@ private fun WithdrawBottomSheet(
                 text = "Withdraw To",
                 fontSize = 13.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = Color(0xFF65676B)
+                color = textSecondary
             )
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -916,7 +940,7 @@ private fun WithdrawBottomSheet(
                     val isSelected = selectedMethod == method
                     Surface(
                         shape = RoundedCornerShape(10.dp),
-                        color = if (isSelected) Color(0xFF1877F2) else Color(0xFFF0F2F5),
+                        color = if (isSelected) Color(0xFF1877F2) else (if (isDarkMode) Color(0xFF3A3B3C) else Color(0xFFF0F2F5)),
                         modifier = Modifier
                             .weight(1f)
                             .clickable { selectedMethod = method }
@@ -925,7 +949,7 @@ private fun WithdrawBottomSheet(
                             text = method,
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold,
-                            color = if (isSelected) Color.White else Color(0xFF050505),
+                            color = if (isSelected) Color.White else textPrimary,
                             textAlign = TextAlign.Center,
                             modifier = Modifier.padding(vertical = 8.dp)
                         )
@@ -941,13 +965,15 @@ private fun WithdrawBottomSheet(
                     accountNo = it
                     errorMessage = null
                 },
-                label = { Text("$selectedMethod Account / Phone Number") },
+                label = { Text("$selectedMethod Account / Phone Number", color = textSecondary) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
                 colors = OutlinedTextFieldDefaults.colors(
+                    focusedTextColor = textPrimary,
+                    unfocusedTextColor = textPrimary,
                     focusedBorderColor = Color(0xFF1877F2),
-                    unfocusedBorderColor = Color(0xFFCED0D4)
+                    unfocusedBorderColor = if (isDarkMode) Color(0xFF3E4042) else Color(0xFFCED0D4)
                 )
             )
 
@@ -997,6 +1023,11 @@ private fun TransactionHistoryBottomSheet(
     transactions: List<WalletTxItem>,
     onDismiss: () -> Unit
 ) {
+    val isDarkMode = LocalIsDarkMode.current
+    val surfaceColor = if (isDarkMode) Color(0xFF242526) else Color.White
+    val textPrimary = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505)
+    val textSecondary = if (isDarkMode) Color(0xFFB0B3B8) else Color(0xFF65676B)
+
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var filterIndex by remember { mutableStateOf(0) } // 0: All, 1: Approved, 2: Pending, 3: Cash Out, 4: Rejected
 
@@ -1021,7 +1052,7 @@ private fun TransactionHistoryBottomSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        containerColor = Color.White
+        containerColor = surfaceColor
     ) {
         Column(
             modifier = Modifier
@@ -1037,10 +1068,10 @@ private fun TransactionHistoryBottomSheet(
                     text = "Transaction History",
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF050505)
+                    color = textPrimary
                 )
                 IconButton(onClick = onDismiss) {
-                    Icon(imageVector = Icons.Default.Close, contentDescription = "Close")
+                    Icon(imageVector = Icons.Default.Close, contentDescription = "Close", tint = textPrimary)
                 }
             }
 
@@ -1056,13 +1087,13 @@ private fun TransactionHistoryBottomSheet(
                     val isPendingTab = idx == 2 && pendingCount > 0
                     val tabColor = when {
                         isSelected -> Color(0xFF1877F2)
-                        isPendingTab -> Color(0xFFFFF3E0)
-                        else -> Color(0xFFF0F2F5)
+                        isPendingTab -> if (isDarkMode) Color(0xFF3E2723) else Color(0xFFFFF3E0)
+                        else -> if (isDarkMode) Color(0xFF3A3B3C) else Color(0xFFF0F2F5)
                     }
                     val textColor = when {
                         isSelected -> Color.White
                         isPendingTab -> Color(0xFFE65100)
-                        else -> Color(0xFF050505)
+                        else -> textPrimary
                     }
 
                     Surface(
@@ -1094,7 +1125,7 @@ private fun TransactionHistoryBottomSheet(
                     Text(
                         text = "No transactions found in this category",
                         fontSize = 14.sp,
-                        color = Color(0xFF65676B)
+                        color = textSecondary
                     )
                 }
             } else {

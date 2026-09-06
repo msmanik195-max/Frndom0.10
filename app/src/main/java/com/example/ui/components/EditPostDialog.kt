@@ -42,6 +42,7 @@ import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -109,7 +110,7 @@ fun EditPostDialog(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = bottomSheetState,
-        containerColor = Color.White,
+        containerColor = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
         dragHandle = {
             Box(
@@ -118,7 +119,7 @@ fun EditPostDialog(
                     .width(40.dp)
                     .height(4.dp)
                     .clip(RoundedCornerShape(2.dp))
-                    .background(Color(0xFFBCC0C4))
+                    .background(MaterialTheme.colorScheme.outlineVariant)
             )
         }
     ) {
@@ -138,7 +139,7 @@ fun EditPostDialog(
                     Icon(
                         imageVector = Icons.Default.Close,
                         contentDescription = "Close",
-                        tint = Color(0xFF050505)
+                        tint = MaterialTheme.colorScheme.onSurface
                     )
                 }
 
@@ -146,7 +147,7 @@ fun EditPostDialog(
                     text = if (isVideoOrReel) "Edit Video" else "Edit Post",
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF050505)
+                    color = MaterialTheme.colorScheme.onSurface
                 )
 
                 Button(
@@ -197,7 +198,7 @@ fun EditPostDialog(
                 }
             }
 
-            Divider(thickness = 0.5.dp, color = Color(0xFFE4E6EB), modifier = Modifier.padding(vertical = 8.dp))
+            Divider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant, modifier = Modifier.padding(vertical = 8.dp))
 
             // Audience selector
             Row(
@@ -206,7 +207,7 @@ fun EditPostDialog(
             ) {
                 Surface(
                     shape = RoundedCornerShape(6.dp),
-                    color = Color(0xFFE4E6EB),
+                    color = MaterialTheme.colorScheme.surfaceVariant,
                     modifier = Modifier.clickable {
                         selectedAudience = when (selectedAudience) {
                             "Public" -> "Friends"
@@ -226,7 +227,7 @@ fun EditPostDialog(
                                 else -> Icons.Default.Public
                             },
                             contentDescription = selectedAudience,
-                            tint = Color(0xFF050505),
+                            tint = MaterialTheme.colorScheme.onSurface,
                             modifier = Modifier.size(14.dp)
                         )
                         Spacer(modifier = Modifier.width(4.dp))
@@ -234,7 +235,7 @@ fun EditPostDialog(
                             text = selectedAudience,
                             fontSize = 12.sp,
                             fontWeight = FontWeight.SemiBold,
-                            color = Color(0xFF050505)
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                     }
                 }
@@ -246,7 +247,7 @@ fun EditPostDialog(
             TextField(
                 value = textContent,
                 onValueChange = { textContent = it },
-                placeholder = { Text("What's on your mind? Use #hashtags", color = Color(0xFF65676B)) },
+                placeholder = { Text("What's on your mind? Use #hashtags", color = MaterialTheme.colorScheme.onSurfaceVariant) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(140.dp)
@@ -257,7 +258,7 @@ fun EditPostDialog(
                     focusedIndicatorColor = Color.Transparent,
                     unfocusedIndicatorColor = Color.Transparent
                 ),
-                textStyle = TextStyle(fontSize = 16.sp, color = Color(0xFF050505))
+                textStyle = TextStyle(fontSize = 16.sp, color = MaterialTheme.colorScheme.onSurface)
             )
 
             // Hashtag Helper suggestions bar
@@ -320,7 +321,7 @@ fun EditPostDialog(
                     text = "Post Photos",
                     fontWeight = FontWeight.Bold,
                     fontSize = 15.sp,
-                    color = Color(0xFF050505),
+                    color = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
 
@@ -335,7 +336,7 @@ fun EditPostDialog(
                                 modifier = Modifier
                                     .size(100.dp)
                                     .clip(RoundedCornerShape(8.dp))
-                                    .border(1.dp, Color(0xFFE4E6EB), RoundedCornerShape(8.dp))
+                                    .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(8.dp))
                             ) {
                                 AsyncImage(
                                     model = url,
@@ -411,19 +412,19 @@ fun EditPostDialog(
                         )
                     },
                     shape = RoundedCornerShape(8.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE4E6EB)),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Icon(
                         imageVector = Icons.Default.AddPhotoAlternate,
                         contentDescription = "Add/Change Photos",
-                        tint = Color(0xFF050505),
+                        tint = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.size(20.dp)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         text = if (existingImageUrls.isEmpty() && newSelectedImageUris.isEmpty()) "Add Photos" else "Add / Change More Photos",
-                        color = Color(0xFF050505),
+                        color = MaterialTheme.colorScheme.onSurface,
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 14.sp
                     )
