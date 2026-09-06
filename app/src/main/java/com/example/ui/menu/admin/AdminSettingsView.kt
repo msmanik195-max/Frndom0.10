@@ -20,6 +20,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.data.repository.AdminRequestRepository
+import com.example.ui.theme.LocalIsDarkMode
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -27,6 +28,14 @@ fun AdminSettingsView(
     adminRepo: AdminRequestRepository,
     onBack: () -> Unit
 ) {
+    val isDarkMode = LocalIsDarkMode.current
+    val bgScreen = if (isDarkMode) Color(0xFF18191A) else Color(0xFFF0F2F5)
+    val bgCard = if (isDarkMode) Color(0xFF242526) else Color.White
+    val textPrimary = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505)
+    val textSecondary = if (isDarkMode) Color(0xFFB0B3B8) else Color(0xFF65676B)
+    val dividerColor = if (isDarkMode) Color(0xFF3E4042) else Color(0xFFE4E6EB)
+    val inputBg = if (isDarkMode) Color(0xFF3A3B3C) else Color.White
+
     val currentSettings by adminRepo.monetizationSettingsFlow.collectAsState()
     
     var reelRate by remember { mutableStateOf(currentSettings.reelRatePer1000.toString()) }
@@ -57,18 +66,19 @@ fun AdminSettingsView(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Monetization Settings", fontWeight = FontWeight.Bold, fontSize = 18.sp) },
+                title = { Text("Monetization Settings", fontWeight = FontWeight.Bold, fontSize = 18.sp, color = textPrimary) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = textPrimary)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.White,
-                    titleContentColor = Color.Black
+                    containerColor = bgCard,
+                    titleContentColor = textPrimary
                 )
             )
         },
+        containerColor = bgScreen,
         floatingActionButton = {
             ExtendedFloatingActionButton(
                 onClick = {
@@ -95,7 +105,7 @@ fun AdminSettingsView(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color(0xFFF0F2F5))
+                .background(bgScreen)
                 .padding(paddingValues)
                 .padding(16.dp)
                 .verticalScroll(scrollState),
@@ -104,7 +114,7 @@ fun AdminSettingsView(
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White)
+                colors = CardDefaults.cardColors(containerColor = bgCard)
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text("Revenue Rates (per 1000 views)", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color(0xFF1877F2))
@@ -113,8 +123,16 @@ fun AdminSettingsView(
                     OutlinedTextField(
                         value = reelRate,
                         onValueChange = { reelRate = it },
-                        label = { Text("Reels Video Rate") },
+                        label = { Text("Reels Video Rate", color = textSecondary) },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = textPrimary,
+                            unfocusedTextColor = textPrimary,
+                            focusedBorderColor = Color(0xFF1877F2),
+                            unfocusedBorderColor = dividerColor,
+                            focusedContainerColor = inputBg,
+                            unfocusedContainerColor = inputBg
+                        ),
                         modifier = Modifier.fillMaxWidth()
                     )
                     Spacer(modifier = Modifier.height(12.dp))
@@ -122,8 +140,16 @@ fun AdminSettingsView(
                     OutlinedTextField(
                         value = imageRate,
                         onValueChange = { imageRate = it },
-                        label = { Text("Image Post Rate") },
+                        label = { Text("Image Post Rate", color = textSecondary) },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = textPrimary,
+                            unfocusedTextColor = textPrimary,
+                            focusedBorderColor = Color(0xFF1877F2),
+                            unfocusedBorderColor = dividerColor,
+                            focusedContainerColor = inputBg,
+                            unfocusedContainerColor = inputBg
+                        ),
                         modifier = Modifier.fillMaxWidth()
                     )
                     Spacer(modifier = Modifier.height(12.dp))
@@ -131,8 +157,16 @@ fun AdminSettingsView(
                     OutlinedTextField(
                         value = textRate,
                         onValueChange = { textRate = it },
-                        label = { Text("Text Post Rate") },
+                        label = { Text("Text Post Rate", color = textSecondary) },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = textPrimary,
+                            unfocusedTextColor = textPrimary,
+                            focusedBorderColor = Color(0xFF1877F2),
+                            unfocusedBorderColor = dividerColor,
+                            focusedContainerColor = inputBg,
+                            unfocusedContainerColor = inputBg
+                        ),
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
@@ -141,7 +175,7 @@ fun AdminSettingsView(
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White)
+                colors = CardDefaults.cardColors(containerColor = bgCard)
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text("Creator Fund Eligibility", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color(0xFF1877F2))
@@ -150,8 +184,16 @@ fun AdminSettingsView(
                     OutlinedTextField(
                         value = reqViews,
                         onValueChange = { reqViews = it },
-                        label = { Text("Total Reach/Views") },
+                        label = { Text("Total Reach/Views", color = textSecondary) },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = textPrimary,
+                            unfocusedTextColor = textPrimary,
+                            focusedBorderColor = Color(0xFF1877F2),
+                            unfocusedBorderColor = dividerColor,
+                            focusedContainerColor = inputBg,
+                            unfocusedContainerColor = inputBg
+                        ),
                         modifier = Modifier.fillMaxWidth()
                     )
                     Spacer(modifier = Modifier.height(12.dp))
@@ -159,8 +201,16 @@ fun AdminSettingsView(
                     OutlinedTextField(
                         value = reqFollowers,
                         onValueChange = { reqFollowers = it },
-                        label = { Text("Net Followers") },
+                        label = { Text("Net Followers", color = textSecondary) },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = textPrimary,
+                            unfocusedTextColor = textPrimary,
+                            focusedBorderColor = Color(0xFF1877F2),
+                            unfocusedBorderColor = dividerColor,
+                            focusedContainerColor = inputBg,
+                            unfocusedContainerColor = inputBg
+                        ),
                         modifier = Modifier.fillMaxWidth()
                     )
                     Spacer(modifier = Modifier.height(12.dp))
@@ -168,8 +218,16 @@ fun AdminSettingsView(
                     OutlinedTextField(
                         value = reqPosts,
                         onValueChange = { reqPosts = it },
-                        label = { Text("Total Posts") },
+                        label = { Text("Total Posts", color = textSecondary) },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = textPrimary,
+                            unfocusedTextColor = textPrimary,
+                            focusedBorderColor = Color(0xFF1877F2),
+                            unfocusedBorderColor = dividerColor,
+                            focusedContainerColor = inputBg,
+                            unfocusedContainerColor = inputBg
+                        ),
                         modifier = Modifier.fillMaxWidth()
                     )
                     Spacer(modifier = Modifier.height(12.dp))
@@ -177,8 +235,16 @@ fun AdminSettingsView(
                     OutlinedTextField(
                         value = reqReels,
                         onValueChange = { reqReels = it },
-                        label = { Text("Total Reels") },
+                        label = { Text("Total Reels", color = textSecondary) },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = textPrimary,
+                            unfocusedTextColor = textPrimary,
+                            focusedBorderColor = Color(0xFF1877F2),
+                            unfocusedBorderColor = dividerColor,
+                            focusedContainerColor = inputBg,
+                            unfocusedContainerColor = inputBg
+                        ),
                         modifier = Modifier.fillMaxWidth()
                     )
                     Spacer(modifier = Modifier.height(12.dp))
@@ -186,8 +252,16 @@ fun AdminSettingsView(
                     OutlinedTextField(
                         value = reqAge,
                         onValueChange = { reqAge = it },
-                        label = { Text("Account Age (Days)") },
+                        label = { Text("Account Age (Days)", color = textSecondary) },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = textPrimary,
+                            unfocusedTextColor = textPrimary,
+                            focusedBorderColor = Color(0xFF1877F2),
+                            unfocusedBorderColor = dividerColor,
+                            focusedContainerColor = inputBg,
+                            unfocusedContainerColor = inputBg
+                        ),
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
@@ -196,7 +270,7 @@ fun AdminSettingsView(
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White)
+                colors = CardDefaults.cardColors(containerColor = bgCard)
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text("Wallet Settings", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color(0xFF1877F2))
@@ -205,15 +279,23 @@ fun AdminSettingsView(
                     OutlinedTextField(
                         value = minTransfer,
                         onValueChange = { minTransfer = it },
-                        label = { Text("Minimum Transfer Amount") },
+                        label = { Text("Minimum Transfer Amount", color = textSecondary) },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = textPrimary,
+                            unfocusedTextColor = textPrimary,
+                            focusedBorderColor = Color(0xFF1877F2),
+                            unfocusedBorderColor = dividerColor,
+                            focusedContainerColor = inputBg,
+                            unfocusedContainerColor = inputBg
+                        ),
                         modifier = Modifier.fillMaxWidth()
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         text = "Minimum amount required to transfer from monetization wallet to main wallet.",
                         fontSize = 12.sp,
-                        color = Color.Gray
+                        color = textSecondary
                     )
                 }
             }

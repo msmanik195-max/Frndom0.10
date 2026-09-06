@@ -36,6 +36,7 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
@@ -60,6 +61,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.data.model.PaymentMethodItem
 import com.example.data.repository.AdminRequestRepository
+import com.example.ui.theme.LocalIsDarkMode
 import java.util.UUID
 
 @Composable
@@ -67,6 +69,13 @@ fun AdminPaymentMethodsView(
     onBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val isDarkMode = LocalIsDarkMode.current
+    val bgScreen = if (isDarkMode) Color(0xFF18191A) else Color(0xFFF0F2F5)
+    val bgCard = if (isDarkMode) Color(0xFF242526) else Color.White
+    val textPrimary = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505)
+    val textSecondary = if (isDarkMode) Color(0xFFB0B3B8) else Color(0xFF65676B)
+    val dividerColor = if (isDarkMode) Color(0xFF3E4042) else Color(0xFFE4E6EB)
+
     val context = LocalContext.current
     val adminRepo = remember { AdminRequestRepository.getInstance(context) }
     val paymentMethods by adminRepo.paymentMethodsFlow.collectAsState()
@@ -79,14 +88,14 @@ fun AdminPaymentMethodsView(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(Color(0xFFF0F2F5))
+            .background(bgScreen)
             .testTag("admin_payment_methods_screen")
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
             // Header
             Surface(
                 modifier = Modifier.fillMaxWidth(),
-                color = Color.White,
+                color = bgCard,
                 shadowElevation = 1.dp
             ) {
                 Row(
@@ -99,7 +108,7 @@ fun AdminPaymentMethodsView(
                         onClick = onBack,
                         modifier = Modifier.testTag("payment_methods_back_button")
                     ) {
-                        Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back", tint = textPrimary)
                     }
                     Spacer(modifier = Modifier.width(4.dp))
                     Column(modifier = Modifier.weight(1f)) {
@@ -107,12 +116,12 @@ fun AdminPaymentMethodsView(
                             text = "Payment Methods",
                             fontSize = 19.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF050505)
+                            color = textPrimary
                         )
                         Text(
                             text = "Configure bKash, Nagad, Rocket & Bank accounts",
                             fontSize = 12.sp,
-                            color = Color(0xFF65676B)
+                            color = textSecondary
                         )
                     }
 
@@ -132,7 +141,7 @@ fun AdminPaymentMethodsView(
                 }
             }
 
-            Divider(thickness = 0.5.dp, color = Color(0xFFE4E6EB))
+            Divider(thickness = 0.5.dp, color = dividerColor)
 
             LazyColumn(
                 modifier = Modifier
@@ -145,7 +154,9 @@ fun AdminPaymentMethodsView(
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp),
-                        colors = CardDefaults.cardColors(containerColor = Color(0xFFE7F3FF))
+                        colors = CardDefaults.cardColors(
+                            containerColor = if (isDarkMode) Color(0xFF1877F2).copy(alpha = 0.2f) else Color(0xFFE7F3FF)
+                        )
                     ) {
                         Row(
                             modifier = Modifier.padding(12.dp),
@@ -161,7 +172,7 @@ fun AdminPaymentMethodsView(
                             Text(
                                 text = "Account numbers and instructions configured here will appear directly on the user's Deposit and Withdraw screens.",
                                 fontSize = 12.sp,
-                                color = Color(0xFF0C3B75),
+                                color = if (isDarkMode) Color(0xFF70B5FF) else Color(0xFF0C3B75),
                                 lineHeight = 17.sp
                             )
                         }
@@ -208,8 +219,11 @@ fun AdminPaymentMethodsView(
             val item = itemToDelete!!
             AlertDialog(
                 onDismissRequest = { itemToDelete = null },
-                title = { Text("Delete ${item.name} Method?", fontWeight = FontWeight.Bold) },
-                text = { Text("Are you sure you want to remove this payment method? Users will no longer be able to select it for deposits or withdrawals.") },
+                containerColor = bgCard,
+                titleContentColor = textPrimary,
+                textContentColor = textSecondary,
+                title = { Text("Delete ${item.name} Method?", fontWeight = FontWeight.Bold, color = textPrimary) },
+                text = { Text("Are you sure you want to remove this payment method? Users will no longer be able to select it for deposits or withdrawals.", color = textPrimary) },
                 confirmButton = {
                     Button(
                         onClick = {
@@ -223,7 +237,7 @@ fun AdminPaymentMethodsView(
                 },
                 dismissButton = {
                     TextButton(onClick = { itemToDelete = null }) {
-                        Text("Cancel")
+                        Text("Cancel", color = textSecondary)
                     }
                 }
             )
@@ -239,6 +253,13 @@ private fun PaymentMethodCard(
     onDelete: () -> Unit,
     onCopy: () -> Unit
 ) {
+    val isDarkMode = LocalIsDarkMode.current
+    val bgCard = if (isDarkMode) Color(0xFF242526) else Color.White
+    val bgDetails = if (isDarkMode) Color(0xFF18191A) else Color(0xFFF7F8FA)
+    val textPrimary = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505)
+    val textSecondary = if (isDarkMode) Color(0xFFB0B3B8) else Color(0xFF65676B)
+    val dividerColor = if (isDarkMode) Color(0xFF3E4042) else Color(0xFFF0F2F5)
+
     val methodColor = try {
         Color(android.graphics.Color.parseColor(item.colorHex))
     } catch (_: Exception) {
@@ -250,7 +271,7 @@ private fun PaymentMethodCard(
             .fillMaxWidth()
             .testTag("payment_method_card_${item.id}"),
         shape = RoundedCornerShape(14.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = bgCard),
         elevation = CardDefaults.cardElevation(1.5.dp)
     ) {
         Column(modifier = Modifier.padding(14.dp)) {
@@ -277,7 +298,7 @@ private fun PaymentMethodCard(
                     Text(
                         text = item.accountType,
                         fontSize = 12.sp,
-                        color = Color(0xFF65676B)
+                        color = textSecondary
                     )
                 }
 
@@ -302,14 +323,14 @@ private fun PaymentMethodCard(
             }
 
             Spacer(modifier = Modifier.height(10.dp))
-            Divider(thickness = 0.5.dp, color = Color(0xFFF0F2F5))
+            Divider(thickness = 0.5.dp, color = dividerColor)
             Spacer(modifier = Modifier.height(10.dp))
 
             // Account Number Container
             Surface(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(10.dp),
-                color = Color(0xFFF7F8FA)
+                color = bgDetails
             ) {
                 Column(modifier = Modifier.padding(10.dp)) {
                     Row(
@@ -317,14 +338,14 @@ private fun PaymentMethodCard(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(text = "Account / Phone Number:", fontSize = 11.sp, color = Color(0xFF65676B))
+                        Text(text = "Account / Phone Number:", fontSize = 11.sp, color = textSecondary)
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(
                                 text = item.accountNumber,
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.Bold,
                                 fontFamily = FontFamily.Monospace,
-                                color = Color(0xFF050505)
+                                color = textPrimary
                             )
                             Spacer(modifier = Modifier.width(4.dp))
                             Icon(
@@ -340,11 +361,11 @@ private fun PaymentMethodCard(
 
                     if (item.instructions.isNotBlank()) {
                         Spacer(modifier = Modifier.height(6.dp))
-                        Text(text = "Deposit Instructions for Users:", fontSize = 11.sp, color = Color(0xFF65676B))
+                        Text(text = "Deposit Instructions for Users:", fontSize = 11.sp, color = textSecondary)
                         Text(
                             text = item.instructions,
                             fontSize = 12.sp,
-                            color = Color(0xFF050505),
+                            color = textPrimary,
                             lineHeight = 16.sp,
                             modifier = Modifier.padding(top = 2.dp)
                         )
@@ -361,6 +382,13 @@ private fun AddEditPaymentMethodDialog(
     onDismiss: () -> Unit,
     onSave: (PaymentMethodItem) -> Unit
 ) {
+    val isDarkMode = LocalIsDarkMode.current
+    val bgCard = if (isDarkMode) Color(0xFF242526) else Color.White
+    val textPrimary = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505)
+    val textSecondary = if (isDarkMode) Color(0xFFB0B3B8) else Color(0xFF65676B)
+    val dividerColor = if (isDarkMode) Color(0xFF3E4042) else Color(0xFFE4E6EB)
+    val inputBg = if (isDarkMode) Color(0xFF3A3B3C) else Color.White
+
     var name by remember { mutableStateOf(initialItem?.name ?: "") }
     var accountNumber by remember { mutableStateOf(initialItem?.accountNumber ?: "") }
     var accountType by remember { mutableStateOf(initialItem?.accountType ?: "Personal (Send Money)") }
@@ -381,7 +409,8 @@ private fun AddEditPaymentMethodDialog(
             Text(
                 text = if (initialItem == null) "Add Payment Method" else "Edit Payment Method",
                 fontWeight = FontWeight.Bold,
-                fontSize = 18.sp
+                fontSize = 18.sp,
+                color = textPrimary
             )
         },
         text = {
@@ -392,37 +421,69 @@ private fun AddEditPaymentMethodDialog(
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
-                    label = { Text("Method Name (e.g. bKash, Nagad)") },
+                    label = { Text("Method Name (e.g. bKash, Nagad)", color = textSecondary) },
                     singleLine = true,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = textPrimary,
+                        unfocusedTextColor = textPrimary,
+                        focusedBorderColor = Color(0xFF1877F2),
+                        unfocusedBorderColor = dividerColor,
+                        focusedContainerColor = inputBg,
+                        unfocusedContainerColor = inputBg
+                    ),
                     modifier = Modifier.fillMaxWidth()
                 )
 
                 OutlinedTextField(
                     value = accountNumber,
                     onValueChange = { accountNumber = it },
-                    label = { Text("Account / Phone Number") },
+                    label = { Text("Account / Phone Number", color = textSecondary) },
                     singleLine = true,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = textPrimary,
+                        unfocusedTextColor = textPrimary,
+                        focusedBorderColor = Color(0xFF1877F2),
+                        unfocusedBorderColor = dividerColor,
+                        focusedContainerColor = inputBg,
+                        unfocusedContainerColor = inputBg
+                    ),
                     modifier = Modifier.fillMaxWidth()
                 )
 
                 OutlinedTextField(
                     value = accountType,
                     onValueChange = { accountType = it },
-                    label = { Text("Account Type (e.g. Personal / Merchant)") },
+                    label = { Text("Account Type (e.g. Personal / Merchant)", color = textSecondary) },
                     singleLine = true,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = textPrimary,
+                        unfocusedTextColor = textPrimary,
+                        focusedBorderColor = Color(0xFF1877F2),
+                        unfocusedBorderColor = dividerColor,
+                        focusedContainerColor = inputBg,
+                        unfocusedContainerColor = inputBg
+                    ),
                     modifier = Modifier.fillMaxWidth()
                 )
 
                 OutlinedTextField(
                     value = instructions,
                     onValueChange = { instructions = it },
-                    label = { Text("Deposit Instructions for User") },
+                    label = { Text("Deposit Instructions for User", color = textSecondary) },
                     minLines = 2,
                     maxLines = 4,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = textPrimary,
+                        unfocusedTextColor = textPrimary,
+                        focusedBorderColor = Color(0xFF1877F2),
+                        unfocusedBorderColor = dividerColor,
+                        focusedContainerColor = inputBg,
+                        unfocusedContainerColor = inputBg
+                    ),
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                Text(text = "Badge Color Theme:", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color(0xFF65676B))
+                Text(text = "Badge Color Theme:", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = textSecondary)
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -432,7 +493,7 @@ private fun AddEditPaymentMethodDialog(
                         Surface(
                             shape = CircleShape,
                             color = color,
-                            border = if (selectedColor == hex) androidx.compose.foundation.BorderStroke(2.dp, Color(0xFF050505)) else null,
+                            border = if (selectedColor == hex) androidx.compose.foundation.BorderStroke(2.dp, if (isDarkMode) Color.White else Color(0xFF050505)) else null,
                             modifier = Modifier
                                 .size(32.dp)
                                 .clickable { selectedColor = hex }
@@ -471,10 +532,10 @@ private fun AddEditPaymentMethodDialog(
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text("Cancel", color = textSecondary)
             }
         },
-        containerColor = Color.White,
+        containerColor = bgCard,
         shape = RoundedCornerShape(16.dp)
     )
 }

@@ -66,6 +66,7 @@ import com.example.data.model.PaymentMethodItem
 import com.example.data.repository.AdminRequestRepository
 import com.example.data.repository.UserRepository
 import com.example.data.repository.WalletRepository
+import com.example.ui.theme.LocalIsDarkMode
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.Locale
@@ -108,17 +109,24 @@ fun DepositScreen(
 
     val presetAmounts = listOf("50", "100", "200", "500", "1000", "2000")
 
+    val isDarkMode = LocalIsDarkMode.current
+    val bgScreen = if (isDarkMode) Color(0xFF18191A) else Color(0xFFF0F2F5)
+    val bgCard = if (isDarkMode) Color(0xFF242526) else Color.White
+    val textPrimary = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505)
+    val textSecondary = if (isDarkMode) Color(0xFFB0B3B8) else Color(0xFF65676B)
+    val itemBg = if (isDarkMode) Color(0xFF3A3B3C) else Color(0xFFF0F2F5)
+
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(Color(0xFFF0F2F5))
+            .background(bgScreen)
             .testTag("deposit_screen")
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
             // Top App Bar
             Surface(
                 modifier = Modifier.fillMaxWidth(),
-                color = Color.White,
+                color = bgCard,
                 shadowElevation = 1.dp
             ) {
                 Row(
@@ -131,7 +139,7 @@ fun DepositScreen(
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
                             contentDescription = "Back",
-                            tint = Color(0xFF050505)
+                            tint = textPrimary
                         )
                     }
                     Spacer(modifier = Modifier.width(4.dp))
@@ -139,7 +147,7 @@ fun DepositScreen(
                         text = "Deposit Funds",
                         fontSize = 19.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF050505)
+                        color = textPrimary
                     )
                 }
             }
@@ -264,7 +272,7 @@ fun DepositScreen(
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(16.dp),
-                        colors = CardDefaults.cardColors(containerColor = Color.White),
+                        colors = CardDefaults.cardColors(containerColor = bgCard),
                         elevation = CardDefaults.cardElevation(1.dp)
                     ) {
                         Column(
@@ -276,7 +284,7 @@ fun DepositScreen(
                                 text = "1. Select Amount",
                                 fontSize = 15.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = Color(0xFF050505)
+                                color = textPrimary
                             )
                             Spacer(modifier = Modifier.height(12.dp))
 
@@ -289,7 +297,7 @@ fun DepositScreen(
                                     val isSelected = selectedAmount == amt
                                     Surface(
                                         shape = RoundedCornerShape(10.dp),
-                                        color = if (isSelected) Color(0xFF0B5ED7) else Color(0xFFF0F2F5),
+                                        color = if (isSelected) Color(0xFF0B5ED7) else itemBg,
                                         modifier = Modifier
                                             .weight(1f)
                                             .clickable { selectedAmount = amt }
@@ -298,7 +306,7 @@ fun DepositScreen(
                                             text = "BDT $amt",
                                             fontSize = 14.sp,
                                             fontWeight = FontWeight.Bold,
-                                            color = if (isSelected) Color.White else Color(0xFF050505),
+                                            color = if (isSelected) Color.White else textPrimary,
                                             textAlign = TextAlign.Center,
                                             modifier = Modifier.padding(vertical = 10.dp)
                                         )
@@ -316,7 +324,7 @@ fun DepositScreen(
                                     val isSelected = selectedAmount == amt
                                     Surface(
                                         shape = RoundedCornerShape(10.dp),
-                                        color = if (isSelected) Color(0xFF0B5ED7) else Color(0xFFF0F2F5),
+                                        color = if (isSelected) Color(0xFF0B5ED7) else itemBg,
                                         modifier = Modifier
                                             .weight(1f)
                                             .clickable { selectedAmount = amt }
@@ -325,7 +333,7 @@ fun DepositScreen(
                                             text = "BDT $amt",
                                             fontSize = 14.sp,
                                             fontWeight = FontWeight.Bold,
-                                            color = if (isSelected) Color.White else Color(0xFF050505),
+                                            color = if (isSelected) Color.White else textPrimary,
                                             textAlign = TextAlign.Center,
                                             modifier = Modifier.padding(vertical = 10.dp)
                                         )
@@ -338,14 +346,16 @@ fun DepositScreen(
                             OutlinedTextField(
                                 value = selectedAmount,
                                 onValueChange = { selectedAmount = it.filter { c -> c.isDigit() || c == '.' } },
-                                label = { Text("Custom Amount") },
-                                prefix = { Text("BDT ", fontWeight = FontWeight.Bold) },
+                                label = { Text("Custom Amount", color = textSecondary) },
+                                prefix = { Text("BDT ", fontWeight = FontWeight.Bold, color = textPrimary) },
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                                 modifier = Modifier.fillMaxWidth(),
                                 shape = RoundedCornerShape(12.dp),
                                 colors = OutlinedTextFieldDefaults.colors(
+                                    focusedTextColor = textPrimary,
+                                    unfocusedTextColor = textPrimary,
                                     focusedBorderColor = Color(0xFF0B5ED7),
-                                    unfocusedBorderColor = Color(0xFFCED0D4)
+                                    unfocusedBorderColor = if (isDarkMode) Color(0xFF3E4042) else Color(0xFFCED0D4)
                                 )
                             )
                         }
@@ -355,7 +365,7 @@ fun DepositScreen(
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(16.dp),
-                        colors = CardDefaults.cardColors(containerColor = Color.White),
+                        colors = CardDefaults.cardColors(containerColor = bgCard),
                         elevation = CardDefaults.cardElevation(1.dp)
                     ) {
                         Column(
@@ -367,7 +377,7 @@ fun DepositScreen(
                                 text = "2. Select Payment Method",
                                 fontSize = 15.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = Color(0xFF050505)
+                                color = textPrimary
                             )
                             Spacer(modifier = Modifier.height(10.dp))
 
@@ -386,7 +396,11 @@ fun DepositScreen(
                                         .clickable { selectedMethodId = method.id },
                                     shape = RoundedCornerShape(12.dp),
                                     colors = CardDefaults.cardColors(
-                                        containerColor = if (isSelected) Color(0xFFE8F1FD) else Color(0xFFF8F9FA)
+                                        containerColor = if (isSelected) {
+                                            if (isDarkMode) Color(0xFF1E3A5F) else Color(0xFFE8F1FD)
+                                        } else {
+                                            if (isDarkMode) Color(0xFF3A3B3C) else Color(0xFFF8F9FA)
+                                        }
                                     ),
                                     border = if (isSelected) BorderStroke(1.5.dp, Color(0xFF0B5ED7)) else null
                                 ) {
@@ -418,12 +432,12 @@ fun DepositScreen(
                                                     text = method.name,
                                                     fontSize = 15.sp,
                                                     fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                                                    color = if (isSelected) Color(0xFF0B5ED7) else Color(0xFF050505)
+                                                    color = if (isSelected) Color(0xFF0B5ED7) else textPrimary
                                                 )
                                                 Text(
                                                     text = method.accountType,
                                                     fontSize = 11.sp,
-                                                    color = Color(0xFF65676B)
+                                                    color = textSecondary
                                                 )
                                             }
                                         }
@@ -446,7 +460,9 @@ fun DepositScreen(
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(16.dp),
-                        colors = CardDefaults.cardColors(containerColor = Color(0xFFFFF9E6)),
+                        colors = CardDefaults.cardColors(
+                            containerColor = if (isDarkMode) Color(0xFF3E2D0C) else Color(0xFFFFF9E6)
+                        ),
                         border = BorderStroke(1.dp, Color(0xFFFFB300))
                     ) {
                         Column(
@@ -458,7 +474,7 @@ fun DepositScreen(
                                 Icon(
                                     imageVector = Icons.Default.Info,
                                     contentDescription = null,
-                                    tint = Color(0xFFE65100),
+                                    tint = Color(0xFFFFB300),
                                     modifier = Modifier.size(20.dp)
                                 )
                                 Spacer(modifier = Modifier.width(6.dp))
@@ -466,7 +482,7 @@ fun DepositScreen(
                                     text = "Deposit Instructions (${selectedMethodItem.name})",
                                     fontSize = 14.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = Color(0xFFE65100)
+                                    color = if (isDarkMode) Color(0xFFFFD54F) else Color(0xFFE65100)
                                 )
                             }
 
@@ -475,19 +491,19 @@ fun DepositScreen(
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .background(Color.White, RoundedCornerShape(8.dp))
+                                    .background(if (isDarkMode) Color(0xFF242526) else Color.White, RoundedCornerShape(8.dp))
                                     .padding(horizontal = 12.dp, vertical = 10.dp),
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Column {
-                                    Text(text = "Send Money To (${selectedMethodItem.accountType}):", fontSize = 11.sp, color = Color(0xFF65676B))
+                                    Text(text = "Send Money To (${selectedMethodItem.accountType}):", fontSize = 11.sp, color = textSecondary)
                                     Text(
                                         text = selectedMethodItem.accountNumber,
                                         fontSize = 16.sp,
                                         fontWeight = FontWeight.Bold,
                                         fontFamily = FontFamily.Monospace,
-                                        color = Color(0xFF050505)
+                                        color = textPrimary
                                     )
                                 }
 
@@ -514,7 +530,7 @@ fun DepositScreen(
                                 Text(
                                     text = selectedMethodItem.instructions,
                                     fontSize = 12.sp,
-                                    color = Color(0xFF5D4037),
+                                    color = if (isDarkMode) Color(0xFFFFE082) else Color(0xFF5D4037),
                                     lineHeight = 16.sp
                                 )
                             }
@@ -525,7 +541,7 @@ fun DepositScreen(
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(16.dp),
-                        colors = CardDefaults.cardColors(containerColor = Color.White),
+                        colors = CardDefaults.cardColors(containerColor = bgCard),
                         elevation = CardDefaults.cardElevation(1.dp)
                     ) {
                         Column(
@@ -538,7 +554,7 @@ fun DepositScreen(
                                 text = "3. Verify Transaction",
                                 fontSize = 15.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = Color(0xFF050505)
+                                color = textPrimary
                             )
 
                             OutlinedTextField(
@@ -547,12 +563,18 @@ fun DepositScreen(
                                     senderNumber = it
                                     errorMessage = null
                                 },
-                                label = { Text("Your ${selectedMethodItem.name} Number / Phone") },
-                                placeholder = { Text("01XXXXXXXXX") },
+                                label = { Text("Your ${selectedMethodItem.name} Number / Phone", color = textSecondary) },
+                                placeholder = { Text("01XXXXXXXXX", color = textSecondary.copy(alpha = 0.6f)) },
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
                                 singleLine = true,
                                 modifier = Modifier.fillMaxWidth(),
-                                shape = RoundedCornerShape(12.dp)
+                                shape = RoundedCornerShape(12.dp),
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    focusedTextColor = textPrimary,
+                                    unfocusedTextColor = textPrimary,
+                                    focusedBorderColor = Color(0xFF0B5ED7),
+                                    unfocusedBorderColor = if (isDarkMode) Color(0xFF3E4042) else Color(0xFFCED0D4)
+                                )
                             )
 
                             OutlinedTextField(
@@ -561,11 +583,17 @@ fun DepositScreen(
                                     transactionId = it.uppercase()
                                     errorMessage = null
                                 },
-                                label = { Text("Transaction ID (TrxID)") },
-                                placeholder = { Text("e.g. BL99AX23PQ") },
+                                label = { Text("Transaction ID (TrxID)", color = textSecondary) },
+                                placeholder = { Text("e.g. BL99AX23PQ", color = textSecondary.copy(alpha = 0.6f)) },
                                 singleLine = true,
                                 modifier = Modifier.fillMaxWidth(),
-                                shape = RoundedCornerShape(12.dp)
+                                shape = RoundedCornerShape(12.dp),
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    focusedTextColor = textPrimary,
+                                    unfocusedTextColor = textPrimary,
+                                    focusedBorderColor = Color(0xFF0B5ED7),
+                                    unfocusedBorderColor = if (isDarkMode) Color(0xFF3E4042) else Color(0xFFCED0D4)
+                                )
                             )
                         }
                     }

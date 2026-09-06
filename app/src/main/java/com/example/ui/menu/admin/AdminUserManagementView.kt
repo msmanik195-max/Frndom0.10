@@ -90,6 +90,7 @@ import coil.compose.AsyncImage
 import com.example.data.model.UserProfile
 import com.example.data.repository.UserRepository
 import com.example.ui.components.VerificationBadge
+import com.example.ui.theme.LocalIsDarkMode
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -109,6 +110,14 @@ fun AdminUserManagementView(
     onBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val isDarkMode = LocalIsDarkMode.current
+    val bgScreen = if (isDarkMode) Color(0xFF18191A) else Color(0xFFF0F2F5)
+    val bgCard = if (isDarkMode) Color(0xFF242526) else Color.White
+    val textPrimary = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505)
+    val textSecondary = if (isDarkMode) Color(0xFFB0B3B8) else Color(0xFF65676B)
+    val dividerColor = if (isDarkMode) Color(0xFF3E4042) else Color(0xFFE4E6EB)
+    val inputBg = if (isDarkMode) Color(0xFF3A3B3C) else Color(0xFFF0F2F5)
+
     val context = LocalContext.current
     val userRepository = remember { UserRepository(context) }
     val coroutineScope = rememberCoroutineScope()
@@ -170,12 +179,12 @@ fun AdminUserManagementView(
                             text = "User Management",
                             fontWeight = FontWeight.Bold,
                             fontSize = 19.sp,
-                            color = Color(0xFF050505)
+                            color = textPrimary
                         )
                         Text(
                             text = "Total ${usersList.size} registered users",
                             fontSize = 12.sp,
-                            color = Color(0xFF65676B)
+                            color = textSecondary
                         )
                     }
                 },
@@ -187,16 +196,16 @@ fun AdminUserManagementView(
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
                             contentDescription = "Back",
-                            tint = Color(0xFF050505)
+                            tint = textPrimary
                         )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.White
+                    containerColor = bgCard
                 )
             )
         },
-        containerColor = Color(0xFFF0F2F5),
+        containerColor = bgScreen,
         modifier = modifier.testTag("admin_user_management_screen")
     ) { innerPadding ->
         Column(
@@ -206,7 +215,7 @@ fun AdminUserManagementView(
         ) {
             // Search Bar & Filter Chips Header
             Surface(
-                color = Color.White,
+                color = bgCard,
                 shadowElevation = 2.dp
             ) {
                 Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp)) {
@@ -217,7 +226,7 @@ fun AdminUserManagementView(
                         modifier = Modifier
                             .fillMaxWidth()
                             .testTag("user_search_input"),
-                        placeholder = { Text("Search by name, email, or phone number...", fontSize = 14.sp) },
+                        placeholder = { Text("Search by name, email, or phone number...", fontSize = 14.sp, color = textSecondary) },
                         leadingIcon = {
                             Icon(
                                 imageVector = Icons.Default.Search,
@@ -231,7 +240,7 @@ fun AdminUserManagementView(
                                     Icon(
                                         imageVector = Icons.Default.Clear,
                                         contentDescription = "Clear",
-                                        tint = Color(0xFF65676B)
+                                        tint = textSecondary
                                     )
                                 }
                             }
@@ -239,8 +248,12 @@ fun AdminUserManagementView(
                         singleLine = true,
                         shape = RoundedCornerShape(12.dp),
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedContainerColor = Color(0xFFF0F2F5),
-                            unfocusedContainerColor = Color(0xFFF0F2F5),
+                            focusedTextColor = textPrimary,
+                            unfocusedTextColor = textPrimary,
+                            focusedPlaceholderColor = textSecondary,
+                            unfocusedPlaceholderColor = textSecondary,
+                            focusedContainerColor = inputBg,
+                            unfocusedContainerColor = inputBg,
                             unfocusedBorderColor = Color.Transparent,
                             focusedBorderColor = Color(0xFF1877F2)
                         )
@@ -276,7 +289,7 @@ fun AdminUserManagementView(
                                         Spacer(modifier = Modifier.width(6.dp))
                                         Surface(
                                             shape = CircleShape,
-                                            color = if (isSelected) Color(0xFF1877F2) else Color(0xFFE4E6EB),
+                                            color = if (isSelected) Color(0xFF1877F2) else (if (isDarkMode) Color(0xFF4E4F50) else Color(0xFFE4E6EB)),
                                             modifier = Modifier.size(20.dp)
                                         ) {
                                             Box(contentAlignment = Alignment.Center) {
@@ -284,17 +297,17 @@ fun AdminUserManagementView(
                                                     text = "$count",
                                                     fontSize = 11.sp,
                                                     fontWeight = FontWeight.Bold,
-                                                    color = if (isSelected) Color.White else Color(0xFF050505)
+                                                    color = if (isSelected) Color.White else textPrimary
                                                 )
                                             }
                                         }
                                     }
                                 },
                                 colors = FilterChipDefaults.filterChipColors(
-                                    selectedContainerColor = Color(0xFFE7F3FF),
+                                    selectedContainerColor = if (isDarkMode) Color(0xFF1877F2).copy(alpha = 0.3f) else Color(0xFFE7F3FF),
                                     selectedLabelColor = Color(0xFF1877F2),
-                                    containerColor = Color(0xFFF0F2F5),
-                                    labelColor = Color(0xFF050505)
+                                    containerColor = if (isDarkMode) Color(0xFF3A3B3C) else Color(0xFFF0F2F5),
+                                    labelColor = textPrimary
                                 ),
                                 shape = RoundedCornerShape(20.dp),
                                 border = null,
@@ -316,14 +329,14 @@ fun AdminUserManagementView(
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Surface(
                             shape = CircleShape,
-                            color = Color(0xFFE4E6EB),
+                            color = if (isDarkMode) Color(0xFF3A3B3C) else Color(0xFFE4E6EB),
                             modifier = Modifier.size(64.dp)
                         ) {
                             Box(contentAlignment = Alignment.Center) {
                                 Icon(
                                     imageVector = Icons.Default.Person,
                                     contentDescription = null,
-                                    tint = Color(0xFF65676B),
+                                    tint = textSecondary,
                                     modifier = Modifier.size(36.dp)
                                 )
                             }
@@ -333,12 +346,12 @@ fun AdminUserManagementView(
                             text = if (searchQuery.isNotBlank()) "No users match '$searchQuery'" else "No users in this category",
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF050505)
+                            color = textPrimary
                         )
                         Text(
                             text = "Try clearing filters or search term.",
                             fontSize = 13.sp,
-                            color = Color(0xFF65676B)
+                            color = textSecondary
                         )
                     }
                 }
@@ -408,11 +421,15 @@ fun AdminUserManagementView(
 
         AlertDialog(
             onDismissRequest = { if (!isProcessingAction) userToEdit = null },
+            containerColor = bgCard,
+            titleContentColor = textPrimary,
+            textContentColor = textSecondary,
             title = {
                 Text(
                     text = "Edit User: ${target.fullName}",
                     fontWeight = FontWeight.Bold,
-                    fontSize = 18.sp
+                    fontSize = 18.sp,
+                    color = textPrimary
                 )
             },
             text = {
@@ -420,42 +437,82 @@ fun AdminUserManagementView(
                     OutlinedTextField(
                         value = editName,
                         onValueChange = { editName = it },
-                        label = { Text("Full Name") },
+                        label = { Text("Full Name", color = textSecondary) },
                         singleLine = true,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = textPrimary,
+                            unfocusedTextColor = textPrimary,
+                            focusedBorderColor = Color(0xFF1877F2),
+                            unfocusedBorderColor = dividerColor,
+                            focusedContainerColor = inputBg,
+                            unfocusedContainerColor = inputBg
+                        ),
                         modifier = Modifier.fillMaxWidth()
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     OutlinedTextField(
                         value = editEmail,
                         onValueChange = { editEmail = it },
-                        label = { Text("Email Address") },
+                        label = { Text("Email Address", color = textSecondary) },
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = textPrimary,
+                            unfocusedTextColor = textPrimary,
+                            focusedBorderColor = Color(0xFF1877F2),
+                            unfocusedBorderColor = dividerColor,
+                            focusedContainerColor = inputBg,
+                            unfocusedContainerColor = inputBg
+                        ),
                         modifier = Modifier.fillMaxWidth()
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     OutlinedTextField(
                         value = editPhone,
                         onValueChange = { editPhone = it },
-                        label = { Text("Phone Number") },
+                        label = { Text("Phone Number", color = textSecondary) },
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = textPrimary,
+                            unfocusedTextColor = textPrimary,
+                            focusedBorderColor = Color(0xFF1877F2),
+                            unfocusedBorderColor = dividerColor,
+                            focusedContainerColor = inputBg,
+                            unfocusedContainerColor = inputBg
+                        ),
                         modifier = Modifier.fillMaxWidth()
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     OutlinedTextField(
                         value = editBio,
                         onValueChange = { editBio = it },
-                        label = { Text("Bio / Description") },
+                        label = { Text("Bio / Description", color = textSecondary) },
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = textPrimary,
+                            unfocusedTextColor = textPrimary,
+                            focusedBorderColor = Color(0xFF1877F2),
+                            unfocusedBorderColor = dividerColor,
+                            focusedContainerColor = inputBg,
+                            unfocusedContainerColor = inputBg
+                        ),
                         modifier = Modifier.fillMaxWidth()
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     OutlinedTextField(
                         value = editBalance,
                         onValueChange = { editBalance = it },
-                        label = { Text("Wallet Balance (BDT)") },
+                        label = { Text("Wallet Balance (BDT)", color = textSecondary) },
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = textPrimary,
+                            unfocusedTextColor = textPrimary,
+                            focusedBorderColor = Color(0xFF1877F2),
+                            unfocusedBorderColor = dividerColor,
+                            focusedContainerColor = inputBg,
+                            unfocusedContainerColor = inputBg
+                        ),
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
@@ -485,7 +542,7 @@ fun AdminUserManagementView(
             },
             dismissButton = {
                 TextButton(onClick = { userToEdit = null }) {
-                    Text("Cancel")
+                    Text("Cancel", color = textSecondary)
                 }
             }
         )
@@ -501,6 +558,9 @@ fun AdminUserManagementView(
 
         AlertDialog(
             onDismissRequest = { if (!isProcessingAction) userToManageVerification = null },
+            containerColor = bgCard,
+            titleContentColor = textPrimary,
+            textContentColor = textSecondary,
             title = {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
@@ -513,7 +573,8 @@ fun AdminUserManagementView(
                     Text(
                         text = "Verification Badge Control",
                         fontWeight = FontWeight.Bold,
-                        fontSize = 17.sp
+                        fontSize = 17.sp,
+                        color = textPrimary
                     )
                 }
             },
@@ -523,18 +584,22 @@ fun AdminUserManagementView(
                         text = "User: ${target.fullName}",
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 15.sp,
-                        color = Color(0xFF050505)
+                        color = textPrimary
                     )
                     Text(
                         text = "UID: ${target.uid.take(12)}... | ${target.email.ifBlank { target.phoneNumber }}",
                         fontSize = 12.sp,
-                        color = Color(0xFF65676B)
+                        color = textSecondary
                     )
 
                     Spacer(modifier = Modifier.height(14.dp))
 
                     Surface(
-                        color = if (isVerified) Color(0xFFE8F5E9) else Color(0xFFFFF3E0),
+                        color = if (isVerified) {
+                            if (isDarkMode) Color(0xFF00C853).copy(alpha = 0.2f) else Color(0xFFE8F5E9)
+                        } else {
+                            if (isDarkMode) Color(0xFFE65100).copy(alpha = 0.2f) else Color(0xFFFFF3E0)
+                        },
                         shape = RoundedCornerShape(8.dp),
                         modifier = Modifier.fillMaxWidth()
                     ) {
@@ -548,13 +613,13 @@ fun AdminUserManagementView(
                                     text = if (isVerified) "Status: Active Green Badge" else "Status: Inactive / Not Verified",
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 13.sp,
-                                    color = if (isVerified) Color(0xFF008937) else Color(0xFFE65100)
+                                    color = if (isVerified) (if (isDarkMode) Color(0xFF00E676) else Color(0xFF008937)) else (if (isDarkMode) Color(0xFFFFB74D) else Color(0xFFE65100))
                                 )
                                 if (isVerified) {
                                     Text(
                                         text = "$remainingDays days remaining (${formatTimestamp(target.verifiedUntil)})",
                                         fontSize = 11.sp,
-                                        color = Color(0xFF008937)
+                                        color = if (isDarkMode) Color(0xFF00E676) else Color(0xFF008937)
                                     )
                                 }
                             }
@@ -590,7 +655,7 @@ fun AdminUserManagementView(
                         text = "Extend Validity Duration:",
                         fontWeight = FontWeight.Bold,
                         fontSize = 13.sp,
-                        color = Color(0xFF050505)
+                        color = textPrimary
                     )
                     Spacer(modifier = Modifier.height(8.dp))
 
@@ -645,7 +710,7 @@ fun AdminUserManagementView(
             },
             confirmButton = {
                 TextButton(onClick = { userToManageVerification = null }) {
-                    Text("Close")
+                    Text("Close", color = textSecondary)
                 }
             }
         )
@@ -658,6 +723,9 @@ fun AdminUserManagementView(
         val target = userToDelete!!
         AlertDialog(
             onDismissRequest = { if (!isProcessingAction) userToDelete = null },
+            containerColor = bgCard,
+            titleContentColor = textPrimary,
+            textContentColor = textSecondary,
             icon = {
                 Icon(
                     imageVector = Icons.Default.Delete,
@@ -678,7 +746,7 @@ fun AdminUserManagementView(
                     Text(
                         text = "Are you sure you want to permanently delete '${target.fullName}' (${target.email.ifBlank { target.phoneNumber }})?",
                         fontSize = 14.sp,
-                        color = Color(0xFF050505)
+                        color = textPrimary
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
@@ -713,7 +781,7 @@ fun AdminUserManagementView(
             },
             dismissButton = {
                 TextButton(onClick = { userToDelete = null }) {
-                    Text("Cancel")
+                    Text("Cancel", color = textSecondary)
                 }
             }
         )
@@ -730,6 +798,16 @@ fun AdminUserCard(
     onDeleteUser: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val isDarkMode = LocalIsDarkMode.current
+    val bgCard = if (isDarkMode) {
+        if (user.isBlocked) Color(0xFF3B1E1E) else Color(0xFF242526)
+    } else {
+        if (user.isBlocked) Color(0xFFFFF8F8) else Color.White
+    }
+    val textPrimary = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505)
+    val textSecondary = if (isDarkMode) Color(0xFFB0B3B8) else Color(0xFF65676B)
+    val dividerColor = if (isDarkMode) Color(0xFF3E4042) else Color(0xFFF0F2F5)
+
     val isOnline = user.isUserOnline()
     val isVerified = user.isVerificationActive()
     val isBlocked = user.isBlocked
@@ -741,7 +819,7 @@ fun AdminUserCard(
             .testTag("admin_user_card_${user.uid}"),
         shape = RoundedCornerShape(14.dp),
         colors = CardDefaults.cardColors(
-            containerColor = if (isBlocked) Color(0xFFFFF8F8) else Color.White
+            containerColor = bgCard
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
@@ -785,7 +863,7 @@ fun AdminUserCard(
                             modifier = Modifier
                                 .size(14.dp)
                                 .align(Alignment.BottomEnd)
-                                .border(2.dp, Color.White, CircleShape),
+                                .border(2.dp, bgCard, CircleShape),
                             shape = CircleShape,
                             color = Color(0xFF00C853)
                         ) {}
@@ -801,7 +879,7 @@ fun AdminUserCard(
                             text = user.fullName.ifBlank { "User ${user.uid.take(6)}" },
                             fontSize = 15.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF050505),
+                            color = textPrimary,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
@@ -821,7 +899,7 @@ fun AdminUserCard(
                     Text(
                         text = contactText,
                         fontSize = 12.sp,
-                        color = Color(0xFF65676B),
+                        color = textSecondary,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -830,20 +908,26 @@ fun AdminUserCard(
                 // Account Status Pill (Active / Blocked)
                 Surface(
                     shape = RoundedCornerShape(12.dp),
-                    color = if (isBlocked) Color(0xFFFFEBEE) else if (isOnline) Color(0xFFE8F5E9) else Color(0xFFF0F2F5)
+                    color = if (isBlocked) {
+                        if (isDarkMode) Color(0xFFD32F2F).copy(alpha = 0.2f) else Color(0xFFFFEBEE)
+                    } else if (isOnline) {
+                        if (isDarkMode) Color(0xFF008937).copy(alpha = 0.2f) else Color(0xFFE8F5E9)
+                    } else {
+                        if (isDarkMode) Color(0xFF3A3B3C) else Color(0xFFF0F2F5)
+                    }
                 ) {
                     Text(
                         text = if (isBlocked) "Blocked" else if (isOnline) "Online" else "Offline",
                         fontSize = 11.sp,
                         fontWeight = FontWeight.Bold,
-                        color = if (isBlocked) Color(0xFFD32F2F) else if (isOnline) Color(0xFF008937) else Color(0xFF65676B),
+                        color = if (isBlocked) Color(0xFFD32F2F) else if (isOnline) (if (isDarkMode) Color(0xFF00E676) else Color(0xFF008937)) else textSecondary,
                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
                     )
                 }
             }
 
             Spacer(modifier = Modifier.height(10.dp))
-            Divider(thickness = 0.5.dp, color = Color(0xFFF0F2F5))
+            Divider(thickness = 0.5.dp, color = dividerColor)
             Spacer(modifier = Modifier.height(8.dp))
 
             // Badges & Features Status Row (Verification, Monetization, Wallet Balance)
@@ -855,7 +939,11 @@ fun AdminUserCard(
                 // 1. Verification badge status & click to manage
                 Surface(
                     shape = RoundedCornerShape(8.dp),
-                    color = if (isVerified) Color(0xFFE8F5E9) else Color(0xFFF5F5F5),
+                    color = if (isVerified) {
+                        if (isDarkMode) Color(0xFF008937).copy(alpha = 0.2f) else Color(0xFFE8F5E9)
+                    } else {
+                        if (isDarkMode) Color(0xFF3A3B3C) else Color(0xFFF5F5F5)
+                    },
                     modifier = Modifier
                         .clickable(onClick = onManageVerification)
                         .clip(RoundedCornerShape(8.dp))
@@ -867,7 +955,7 @@ fun AdminUserCard(
                         Icon(
                             imageVector = Icons.Default.Verified,
                             contentDescription = "Badge",
-                            tint = if (isVerified) Color(0xFF00C853) else Color(0xFF9E9E9E),
+                            tint = if (isVerified) Color(0xFF00C853) else (if (isDarkMode) Color(0xFF8A8D91) else Color(0xFF9E9E9E)),
                             modifier = Modifier.size(16.dp)
                         )
                         Spacer(modifier = Modifier.width(4.dp))
@@ -875,7 +963,7 @@ fun AdminUserCard(
                             text = if (isVerified) "${user.getRemainingDays()}d Left" else "No Badge",
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Bold,
-                            color = if (isVerified) Color(0xFF008937) else Color(0xFF757575)
+                            color = if (isVerified) (if (isDarkMode) Color(0xFF00E676) else Color(0xFF008937)) else textSecondary
                         )
                     }
                 }
@@ -883,7 +971,11 @@ fun AdminUserCard(
                 // 2. Monetization status switch
                 Surface(
                     shape = RoundedCornerShape(8.dp),
-                    color = if (isMonetized) Color(0xFFFFF8E1) else Color(0xFFF5F5F5)
+                    color = if (isMonetized) {
+                        if (isDarkMode) Color(0xFFFFA000).copy(alpha = 0.2f) else Color(0xFFFFF8E1)
+                    } else {
+                        if (isDarkMode) Color(0xFF3A3B3C) else Color(0xFFF5F5F5)
+                    }
                 ) {
                     Row(
                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
@@ -892,7 +984,7 @@ fun AdminUserCard(
                         Icon(
                             imageVector = Icons.Default.MonetizationOn,
                             contentDescription = "Monetization",
-                            tint = if (isMonetized) Color(0xFFFFA000) else Color(0xFF9E9E9E),
+                            tint = if (isMonetized) Color(0xFFFFA000) else (if (isDarkMode) Color(0xFF8A8D91) else Color(0xFF9E9E9E)),
                             modifier = Modifier.size(15.dp)
                         )
                         Spacer(modifier = Modifier.width(4.dp))
@@ -900,7 +992,7 @@ fun AdminUserCard(
                             text = "Monetized",
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Bold,
-                            color = if (isMonetized) Color(0xFFE65100) else Color(0xFF757575)
+                            color = if (isMonetized) (if (isDarkMode) Color(0xFFFFB74D) else Color(0xFFE65100)) else textSecondary
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Switch(
@@ -918,7 +1010,7 @@ fun AdminUserCard(
                 // 3. Wallet Balance
                 Surface(
                     shape = RoundedCornerShape(8.dp),
-                    color = Color(0xFFE3F2FD)
+                    color = if (isDarkMode) Color(0xFF1976D2).copy(alpha = 0.2f) else Color(0xFFE3F2FD)
                 ) {
                     Row(
                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 5.dp),
@@ -928,7 +1020,7 @@ fun AdminUserCard(
                             text = "BDT ${String.format(Locale.US, "%.0f", user.walletBalance)}",
                             fontSize = 12.sp,
                             fontWeight = FontWeight.ExtraBold,
-                            color = Color(0xFF1976D2)
+                            color = if (isDarkMode) Color(0xFF64B5F6) else Color(0xFF1976D2)
                         )
                     }
                 }
@@ -946,7 +1038,7 @@ fun AdminUserCard(
                     onClick = { onToggleBlock(!isBlocked) },
                     shape = RoundedCornerShape(8.dp),
                     colors = ButtonDefaults.outlinedButtonColors(
-                        contentColor = if (isBlocked) Color(0xFF008937) else Color(0xFFD32F2F)
+                        contentColor = if (isBlocked) (if (isDarkMode) Color(0xFF00E676) else Color(0xFF008937)) else Color(0xFFD32F2F)
                     ),
                     modifier = Modifier.weight(1f)
                 ) {

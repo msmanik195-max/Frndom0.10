@@ -29,6 +29,7 @@ import coil.compose.AsyncImage
 import com.example.data.model.AdvertisementItem
 import com.example.data.repository.AdvertisementRepository
 import com.example.data.repository.WalletRepository
+import com.example.ui.theme.LocalIsDarkMode
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -47,6 +48,14 @@ fun AdminAdvertisementManagementView(
     onBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val isDarkMode = LocalIsDarkMode.current
+    val bgScreen = if (isDarkMode) Color(0xFF18191A) else Color(0xFFF0F2F5)
+    val bgCard = if (isDarkMode) Color(0xFF242526) else Color.White
+    val textPrimary = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505)
+    val textSecondary = if (isDarkMode) Color(0xFFB0B3B8) else Color(0xFF65676B)
+    val dividerColor = if (isDarkMode) Color(0xFF3E4042) else Color(0xFFE4E6EB)
+    val inputBg = if (isDarkMode) Color(0xFF3A3B3C) else Color.White
+
     val context = LocalContext.current
     val adRepo = remember { AdvertisementRepository.getInstance(context) }
     val walletRepo = remember { WalletRepository.getInstance(context) }
@@ -107,7 +116,7 @@ fun AdminAdvertisementManagementView(
                             text = "Advertisement Manage",
                             fontWeight = FontWeight.Bold,
                             fontSize = 17.sp,
-                            color = Color(0xFF050505)
+                            color = textPrimary
                         )
                         Text(
                             text = "${allAds.size} total campaigns • $pendingCount pending",
@@ -122,18 +131,18 @@ fun AdminAdvertisementManagementView(
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Back",
-                            tint = Color(0xFF050505)
+                            tint = textPrimary
                         )
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = bgCard)
             )
         }
     ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color(0xFFF0F2F5))
+                .background(bgScreen)
                 .padding(innerPadding)
         ) {
             // Summary Stats Cards
@@ -147,12 +156,14 @@ fun AdminAdvertisementManagementView(
                 Card(
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(10.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFFFFF3E0)),
+                    colors = CardDefaults.cardColors(
+                        containerColor = if (isDarkMode) Color(0xFFE65100).copy(alpha = 0.2f) else Color(0xFFFFF3E0)
+                    ),
                     elevation = CardDefaults.cardElevation(1.dp)
                 ) {
                     Column(modifier = Modifier.padding(10.dp)) {
-                        Text("Pending", fontSize = 11.sp, color = Color(0xFFE65100), fontWeight = FontWeight.SemiBold)
-                        Text("$pendingCount", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color(0xFFE65100))
+                        Text("Pending", fontSize = 11.sp, color = if (isDarkMode) Color(0xFFFFB74D) else Color(0xFFE65100), fontWeight = FontWeight.SemiBold)
+                        Text("$pendingCount", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = if (isDarkMode) Color(0xFFFFB74D) else Color(0xFFE65100))
                     }
                 }
 
@@ -160,12 +171,14 @@ fun AdminAdvertisementManagementView(
                 Card(
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(10.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFFE8F5E9)),
+                    colors = CardDefaults.cardColors(
+                        containerColor = if (isDarkMode) Color(0xFF2E7D32).copy(alpha = 0.2f) else Color(0xFFE8F5E9)
+                    ),
                     elevation = CardDefaults.cardElevation(1.dp)
                 ) {
                     Column(modifier = Modifier.padding(10.dp)) {
-                        Text("Running", fontSize = 11.sp, color = Color(0xFF2E7D32), fontWeight = FontWeight.SemiBold)
-                        Text("$runningCount", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color(0xFF2E7D32))
+                        Text("Running", fontSize = 11.sp, color = if (isDarkMode) Color(0xFF81C784) else Color(0xFF2E7D32), fontWeight = FontWeight.SemiBold)
+                        Text("$runningCount", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = if (isDarkMode) Color(0xFF81C784) else Color(0xFF2E7D32))
                     }
                 }
 
@@ -173,12 +186,14 @@ fun AdminAdvertisementManagementView(
                 Card(
                     modifier = Modifier.weight(1.3f),
                     shape = RoundedCornerShape(10.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFFE3F2FD)),
+                    colors = CardDefaults.cardColors(
+                        containerColor = if (isDarkMode) Color(0xFF1565C0).copy(alpha = 0.2f) else Color(0xFFE3F2FD)
+                    ),
                     elevation = CardDefaults.cardElevation(1.dp)
                 ) {
                     Column(modifier = Modifier.padding(10.dp)) {
-                        Text("Ad Revenue", fontSize = 11.sp, color = Color(0xFF1565C0), fontWeight = FontWeight.SemiBold)
-                        Text("BDT ${String.format(Locale.US, "%.0f", totalRevenue)}", fontSize = 17.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1565C0))
+                        Text("Ad Revenue", fontSize = 11.sp, color = if (isDarkMode) Color(0xFF90CAF9) else Color(0xFF1565C0), fontWeight = FontWeight.SemiBold)
+                        Text("BDT ${String.format(Locale.US, "%.0f", totalRevenue)}", fontSize = 17.sp, fontWeight = FontWeight.Bold, color = if (isDarkMode) Color(0xFF90CAF9) else Color(0xFF1565C0))
                     }
                 }
             }
@@ -189,20 +204,28 @@ fun AdminAdvertisementManagementView(
                     .fillMaxWidth()
                     .padding(horizontal = 14.dp),
                 shape = RoundedCornerShape(10.dp),
-                color = Color.White
+                color = inputBg
             ) {
                 OutlinedTextField(
                     value = searchQuery,
                     onValueChange = { searchQuery = it },
-                    placeholder = { Text("Search by campaign or advertiser...", fontSize = 13.sp) },
-                    leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = Color(0xFF65676B)) },
+                    placeholder = { Text("Search by campaign or advertiser...", fontSize = 13.sp, color = textSecondary) },
+                    leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = textSecondary) },
                     trailingIcon = {
                         if (searchQuery.isNotBlank()) {
                             IconButton(onClick = { searchQuery = "" }) {
-                                Icon(Icons.Default.Close, contentDescription = "Clear", tint = Color(0xFF65676B))
+                                Icon(Icons.Default.Close, contentDescription = "Clear", tint = textSecondary)
                             }
                         }
                     },
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = textPrimary,
+                        unfocusedTextColor = textPrimary,
+                        focusedBorderColor = Color(0xFF1877F2),
+                        unfocusedBorderColor = dividerColor,
+                        focusedContainerColor = inputBg,
+                        unfocusedContainerColor = inputBg
+                    ),
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(50.dp)
@@ -216,22 +239,22 @@ fun AdminAdvertisementManagementView(
             // Filter Tabs Table (Approved, Rejected, Pending)
             ScrollableTabRow(
                 selectedTabIndex = selectedFilterTab.ordinal,
-                containerColor = Color.White,
+                containerColor = bgCard,
                 contentColor = Color(0xFF1877F2),
                 edgePadding = 12.dp,
-                divider = { Divider(color = Color(0xFFE4E6EB)) }
+                divider = { Divider(color = dividerColor) }
             ) {
                 Tab(
                     selected = selectedFilterTab == AdminAdFilterTab.ALL,
                     onClick = { selectedFilterTab = AdminAdFilterTab.ALL },
-                    text = { Text("All (${allAds.size})", fontWeight = FontWeight.Bold) }
+                    text = { Text("All (${allAds.size})", fontWeight = FontWeight.Bold, color = if (selectedFilterTab == AdminAdFilterTab.ALL) Color(0xFF1877F2) else textSecondary) }
                 )
                 Tab(
                     selected = selectedFilterTab == AdminAdFilterTab.PENDING,
                     onClick = { selectedFilterTab = AdminAdFilterTab.PENDING },
                     text = {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text("Pending ($pendingCount)", fontWeight = FontWeight.Bold)
+                            Text("Pending ($pendingCount)", fontWeight = FontWeight.Bold, color = if (selectedFilterTab == AdminAdFilterTab.PENDING) Color(0xFF1877F2) else textSecondary)
                             if (pendingCount > 0) {
                                 Spacer(modifier = Modifier.width(4.dp))
                                 Surface(
@@ -246,22 +269,22 @@ fun AdminAdvertisementManagementView(
                 Tab(
                     selected = selectedFilterTab == AdminAdFilterTab.RUNNING,
                     onClick = { selectedFilterTab = AdminAdFilterTab.RUNNING },
-                    text = { Text("Approved / Running ($runningCount)", fontWeight = FontWeight.Bold) }
+                    text = { Text("Approved / Running ($runningCount)", fontWeight = FontWeight.Bold, color = if (selectedFilterTab == AdminAdFilterTab.RUNNING) Color(0xFF1877F2) else textSecondary) }
                 )
                 Tab(
                     selected = selectedFilterTab == AdminAdFilterTab.PAUSED,
                     onClick = { selectedFilterTab = AdminAdFilterTab.PAUSED },
-                    text = { Text("Paused ($pausedCount)", fontWeight = FontWeight.Bold) }
+                    text = { Text("Paused ($pausedCount)", fontWeight = FontWeight.Bold, color = if (selectedFilterTab == AdminAdFilterTab.PAUSED) Color(0xFF1877F2) else textSecondary) }
                 )
                 Tab(
                     selected = selectedFilterTab == AdminAdFilterTab.COMPLETED,
                     onClick = { selectedFilterTab = AdminAdFilterTab.COMPLETED },
-                    text = { Text("Completed ($completedCount)", fontWeight = FontWeight.Bold) }
+                    text = { Text("Completed ($completedCount)", fontWeight = FontWeight.Bold, color = if (selectedFilterTab == AdminAdFilterTab.COMPLETED) Color(0xFF1877F2) else textSecondary) }
                 )
                 Tab(
                     selected = selectedFilterTab == AdminAdFilterTab.REJECTED,
                     onClick = { selectedFilterTab = AdminAdFilterTab.REJECTED },
-                    text = { Text("Rejected ($rejectedCount)", fontWeight = FontWeight.Bold) }
+                    text = { Text("Rejected ($rejectedCount)", fontWeight = FontWeight.Bold, color = if (selectedFilterTab == AdminAdFilterTab.REJECTED) Color(0xFF1877F2) else textSecondary) }
                 )
             }
 
@@ -274,13 +297,13 @@ fun AdminAdvertisementManagementView(
                     contentAlignment = Alignment.Center
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(Icons.Default.Campaign, contentDescription = null, tint = Color(0xFFB0B3B8), modifier = Modifier.size(48.dp))
+                        Icon(Icons.Default.Campaign, contentDescription = null, tint = textSecondary, modifier = Modifier.size(48.dp))
                         Spacer(modifier = Modifier.height(10.dp))
                         Text(
                             text = "No advertisements found",
                             fontWeight = FontWeight.Bold,
                             fontSize = 16.sp,
-                            color = Color(0xFF65676B)
+                            color = textSecondary
                         )
                     }
                 }
@@ -310,12 +333,15 @@ fun AdminAdvertisementManagementView(
 
         AlertDialog(
             onDismissRequest = { adToQuickAction = null },
+            containerColor = bgCard,
+            titleContentColor = textPrimary,
+            textContentColor = textSecondary,
             title = {
-                Text("Manage Ad: ${ad.campaignName}", fontWeight = FontWeight.Bold, fontSize = 17.sp)
+                Text("Manage Ad: ${ad.campaignName}", fontWeight = FontWeight.Bold, fontSize = 17.sp, color = textPrimary)
             },
             text = {
                 Column(modifier = Modifier.fillMaxWidth()) {
-                    Text("Select Status:", fontSize = 12.sp, color = Color(0xFF65676B))
+                    Text("Select Status:", fontSize = 12.sp, color = textSecondary)
                     Spacer(modifier = Modifier.height(6.dp))
 
                     listOf("RUNNING", "PAUSED", "COMPLETED", "REJECTED", "PENDING").forEach { st ->
@@ -342,7 +368,8 @@ fun AdminAdvertisementManagementView(
                                     else -> st
                                 },
                                 fontWeight = FontWeight.Bold,
-                                fontSize = 13.sp
+                                fontSize = 13.sp,
+                                color = textPrimary
                             )
                         }
                     }
@@ -361,7 +388,15 @@ fun AdminAdvertisementManagementView(
                     OutlinedTextField(
                         value = adminNote,
                         onValueChange = { adminNote = it },
-                        label = { Text("Admin Note") },
+                        label = { Text("Admin Note", color = textSecondary) },
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = textPrimary,
+                            unfocusedTextColor = textPrimary,
+                            focusedBorderColor = Color(0xFF1877F2),
+                            unfocusedBorderColor = dividerColor,
+                            focusedContainerColor = inputBg,
+                            unfocusedContainerColor = inputBg
+                        ),
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true
                     )
@@ -384,12 +419,12 @@ fun AdminAdvertisementManagementView(
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1877F2))
                 ) {
-                    Text("Save")
+                    Text("Save", color = Color.White)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { adToQuickAction = null }) {
-                    Text("Cancel")
+                    Text("Cancel", color = textSecondary)
                 }
             }
         )
@@ -402,20 +437,26 @@ private fun AdminAdCard(
     onViewClick: () -> Unit,
     onQuickAction: () -> Unit
 ) {
+    val isDarkMode = LocalIsDarkMode.current
+    val bgCard = if (isDarkMode) Color(0xFF242526) else Color.White
+    val textPrimary = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505)
+    val textSecondary = if (isDarkMode) Color(0xFFB0B3B8) else Color(0xFF65676B)
+    val dividerColor = if (isDarkMode) Color(0xFF3E4042) else Color(0xFFE4E6EB)
+
     val dateFormat = SimpleDateFormat("dd MMM, hh:mm a", Locale.getDefault())
 
     val (statusLabel, statusBg, statusColor) = when (ad.status) {
-        "RUNNING" -> Triple("RUNNING", Color(0xFFE8F5E9), Color(0xFF2E7D32))
-        "PAUSED" -> Triple("PAUSED", Color(0xFFFFF3E0), Color(0xFFE65100))
-        "PENDING" -> Triple("PENDING", Color(0xFFE3F2FD), Color(0xFF1565C0))
-        "COMPLETED" -> Triple("COMPLETED", Color(0xFFECEFF1), Color(0xFF455A64))
-        "REJECTED" -> Triple("REJECTED", Color(0xFFFFEBEE), Color(0xFFC62828))
-        else -> Triple(ad.status, Color(0xFFF5F5F5), Color(0xFF616161))
+        "RUNNING" -> Triple("RUNNING", if (isDarkMode) Color(0xFF2E7D32).copy(alpha = 0.25f) else Color(0xFFE8F5E9), if (isDarkMode) Color(0xFF81C784) else Color(0xFF2E7D32))
+        "PAUSED" -> Triple("PAUSED", if (isDarkMode) Color(0xFFE65100).copy(alpha = 0.25f) else Color(0xFFFFF3E0), if (isDarkMode) Color(0xFFFFB74D) else Color(0xFFE65100))
+        "PENDING" -> Triple("PENDING", if (isDarkMode) Color(0xFF1565C0).copy(alpha = 0.25f) else Color(0xFFE3F2FD), if (isDarkMode) Color(0xFF90CAF9) else Color(0xFF1565C0))
+        "COMPLETED" -> Triple("COMPLETED", if (isDarkMode) Color(0xFF455A64).copy(alpha = 0.25f) else Color(0xFFECEFF1), if (isDarkMode) Color(0xFFB0BEC5) else Color(0xFF455A64))
+        "REJECTED" -> Triple("REJECTED", if (isDarkMode) Color(0xFFC62828).copy(alpha = 0.25f) else Color(0xFFFFEBEE), if (isDarkMode) Color(0xFFEF9A9A) else Color(0xFFC62828))
+        else -> Triple(ad.status, if (isDarkMode) Color(0xFF616161).copy(alpha = 0.25f) else Color(0xFFF5F5F5), if (isDarkMode) Color(0xFFBDBDBD) else Color(0xFF616161))
     }
 
     Card(
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = bgCard),
         elevation = CardDefaults.cardElevation(1.dp),
         modifier = Modifier
             .fillMaxWidth()
@@ -460,12 +501,12 @@ private fun AdminAdCard(
                             text = ad.userName,
                             fontWeight = FontWeight.Bold,
                             fontSize = 14.sp,
-                            color = Color(0xFF050505)
+                            color = textPrimary
                         )
                         Text(
                             text = dateFormat.format(Date(ad.createdAt)),
                             fontSize = 11.sp,
-                            color = Color(0xFF65676B)
+                            color = textSecondary
                         )
                     }
                 }
@@ -513,14 +554,14 @@ private fun AdminAdCard(
                         text = ad.campaignName,
                         fontWeight = FontWeight.Bold,
                         fontSize = 14.sp,
-                        color = Color(0xFF050505),
+                        color = textPrimary,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
                     Text(
                         text = ad.headline,
                         fontSize = 12.sp,
-                        color = Color(0xFF65676B),
+                        color = textSecondary,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -535,7 +576,7 @@ private fun AdminAdCard(
             }
 
             Spacer(modifier = Modifier.height(10.dp))
-            Divider(color = Color(0xFFE4E6EB))
+            Divider(color = dividerColor)
             Spacer(modifier = Modifier.height(8.dp))
 
             // Bottom Buttons: "View" button and "Action" button
@@ -564,9 +605,9 @@ private fun AdminAdCard(
                         contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp),
                         modifier = Modifier.height(34.dp).testTag("quick_action_${ad.id}")
                     ) {
-                        Icon(Icons.Default.Tune, contentDescription = null, modifier = Modifier.size(14.dp))
+                        Icon(Icons.Default.Tune, contentDescription = null, modifier = Modifier.size(14.dp), tint = textPrimary)
                         Spacer(modifier = Modifier.width(4.dp))
-                        Text("Action", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                        Text("Action", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = textPrimary)
                     }
 
                     Button(

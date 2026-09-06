@@ -47,6 +47,7 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.data.model.PostItem
 import com.example.data.repository.WatchHistoryRepository
+import com.example.ui.theme.LocalIsDarkMode
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -60,10 +61,17 @@ fun WatchHistoryView(
 ) {
     val history by watchHistoryRepository.historyFlow.collectAsState()
 
+    val isDarkMode = LocalIsDarkMode.current
+    val bgScreen = if (isDarkMode) Color(0xFF18191A) else Color(0xFFF0F2F5)
+    val bgCard = if (isDarkMode) Color(0xFF242526) else Color.White
+    val textPrimary = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505)
+    val textSecondary = if (isDarkMode) Color(0xFFB0B3B8) else Color(0xFF65676B)
+    val dividerColor = if (isDarkMode) Color(0xFF3A3B3C) else Color(0xFFE4E6EB)
+
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(Color(0xFFF0F2F5))
+            .background(bgScreen)
             .testTag("watch_history_view")
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
@@ -71,21 +79,21 @@ fun WatchHistoryView(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Color.White)
+                    .background(bgCard)
                     .padding(horizontal = 8.dp, vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     IconButton(onClick = onBack) {
-                        Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back", tint = textPrimary)
                     }
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
                         text = "History",
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF050505)
+                        color = textPrimary
                     )
                 }
 
@@ -96,7 +104,7 @@ fun WatchHistoryView(
                 }
             }
 
-            Divider(thickness = 0.5.dp, color = Color(0xFFE4E6EB))
+            Divider(thickness = 0.5.dp, color = dividerColor)
 
             if (history.isEmpty()) {
                 Box(
@@ -109,14 +117,14 @@ fun WatchHistoryView(
                     ) {
                         Surface(
                             shape = CircleShape,
-                            color = Color(0xFFE4E6EB),
+                            color = if (isDarkMode) Color(0xFF3A3B3C) else Color(0xFFE4E6EB),
                             modifier = Modifier.size(64.dp)
                         ) {
                             Box(contentAlignment = Alignment.Center) {
                                 Icon(
                                     imageVector = Icons.Default.VideoLibrary,
                                     contentDescription = null,
-                                    tint = Color(0xFF65676B),
+                                    tint = textSecondary,
                                     modifier = Modifier.size(32.dp)
                                 )
                             }
@@ -126,13 +134,13 @@ fun WatchHistoryView(
                             text = "No Watch History Yet",
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF050505)
+                            color = textPrimary
                         )
                         Spacer(modifier = Modifier.height(6.dp))
                         Text(
                             text = "Videos and reels you watch will appear here so you can easily find them again.",
                             fontSize = 14.sp,
-                            color = Color(0xFF65676B),
+                            color = textSecondary,
                             lineHeight = 20.sp
                         )
                     }
@@ -150,7 +158,7 @@ fun WatchHistoryView(
                                 .fillMaxWidth()
                                 .clickable { onPostClick(post) },
                             shape = RoundedCornerShape(10.dp),
-                            colors = CardDefaults.cardColors(containerColor = Color.White),
+                            colors = CardDefaults.cardColors(containerColor = bgCard),
                             elevation = CardDefaults.cardElevation(0.5.dp)
                         ) {
                             Row(
@@ -197,7 +205,7 @@ fun WatchHistoryView(
                                         text = post.content.ifBlank { "Video Post by ${post.authorName}" },
                                         fontSize = 14.sp,
                                         fontWeight = FontWeight.Bold,
-                                        color = Color(0xFF050505),
+                                        color = textPrimary,
                                         maxLines = 2,
                                         overflow = TextOverflow.Ellipsis
                                     )
@@ -212,7 +220,7 @@ fun WatchHistoryView(
                                     Text(
                                         text = "Watched • $dateStr",
                                         fontSize = 11.sp,
-                                        color = Color(0xFF65676B)
+                                        color = textSecondary
                                     )
                                 }
                             }

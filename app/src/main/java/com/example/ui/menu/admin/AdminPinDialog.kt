@@ -25,6 +25,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import com.example.ui.theme.LocalIsDarkMode
 
 /**
  * Dialog to verify Admin Security PIN before allowing access into the Admin Dashboard.
@@ -36,6 +37,13 @@ fun AdminPinEntryDialog(
     onSuccess: () -> Unit,
     onVerifyPin: (String) -> Boolean
 ) {
+    val isDarkMode = LocalIsDarkMode.current
+    val bgCard = if (isDarkMode) Color(0xFF242526) else Color.White
+    val textPrimary = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505)
+    val textSecondary = if (isDarkMode) Color(0xFFB0B3B8) else Color(0xFF65676B)
+    val dividerColor = if (isDarkMode) Color(0xFF3E4042) else Color(0xFFCED0D4)
+    val inputBg = if (isDarkMode) Color(0xFF3A3B3C) else Color.White
+
     var pinText by remember { mutableStateOf("") }
     var isPinVisible by remember { mutableStateOf(false) }
     var isError by remember { mutableStateOf(false) }
@@ -44,7 +52,7 @@ fun AdminPinEntryDialog(
     Dialog(onDismissRequest = onDismiss) {
         Card(
             shape = RoundedCornerShape(20.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White),
+            colors = CardDefaults.cardColors(containerColor = bgCard),
             elevation = CardDefaults.cardElevation(8.dp),
             modifier = Modifier
                 .fillMaxWidth()
@@ -60,7 +68,7 @@ fun AdminPinEntryDialog(
                 // Header Icon
                 Surface(
                     shape = CircleShape,
-                    color = Color(0xFF1877F2).copy(alpha = 0.12f),
+                    color = Color(0xFF1877F2).copy(alpha = if (isDarkMode) 0.2f else 0.12f),
                     modifier = Modifier.size(64.dp)
                 ) {
                     Box(contentAlignment = Alignment.Center) {
@@ -79,14 +87,14 @@ fun AdminPinEntryDialog(
                     text = "Admin Security PIN",
                     fontWeight = FontWeight.Bold,
                     fontSize = 20.sp,
-                    color = Color(0xFF050505),
+                    color = textPrimary,
                     textAlign = TextAlign.Center
                 )
 
                 Text(
                     text = "Enter your security PIN to access the Admin Panel",
                     fontSize = 13.sp,
-                    color = Color(0xFF65676B),
+                    color = textSecondary,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.padding(top = 4.dp, bottom = 12.dp)
                 )
@@ -94,7 +102,7 @@ fun AdminPinEntryDialog(
                 // Hint badge
                 Surface(
                     shape = RoundedCornerShape(8.dp),
-                    color = Color(0xFFE8F5E9),
+                    color = if (isDarkMode) Color(0xFF2E7D32).copy(alpha = 0.2f) else Color(0xFFE8F5E9),
                     modifier = Modifier.padding(bottom = 16.dp)
                 ) {
                     Row(
@@ -104,7 +112,7 @@ fun AdminPinEntryDialog(
                         Icon(
                             imageVector = Icons.Default.Info,
                             contentDescription = null,
-                            tint = Color(0xFF2E7D32),
+                            tint = if (isDarkMode) Color(0xFF81C784) else Color(0xFF2E7D32),
                             modifier = Modifier.size(16.dp)
                         )
                         Spacer(modifier = Modifier.width(6.dp))
@@ -112,7 +120,7 @@ fun AdminPinEntryDialog(
                             text = "Default PIN: 1234",
                             fontSize = 12.sp,
                             fontWeight = FontWeight.SemiBold,
-                            color = Color(0xFF2E7D32)
+                            color = if (isDarkMode) Color(0xFF81C784) else Color(0xFF2E7D32)
                         )
                     }
                 }
@@ -126,8 +134,8 @@ fun AdminPinEntryDialog(
                             isError = false
                         }
                     },
-                    label = { Text("Security PIN") },
-                    placeholder = { Text("1234") },
+                    label = { Text("Security PIN", color = textSecondary) },
+                    placeholder = { Text("1234", color = textSecondary) },
                     singleLine = true,
                     isError = isError,
                     keyboardOptions = KeyboardOptions(
@@ -150,15 +158,19 @@ fun AdminPinEntryDialog(
                             Icon(
                                 imageVector = if (isPinVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
                                 contentDescription = if (isPinVisible) "Hide PIN" else "Show PIN",
-                                tint = Color(0xFF65676B)
+                                tint = textSecondary
                             )
                         }
                     },
                     shape = RoundedCornerShape(12.dp),
                     colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = textPrimary,
+                        unfocusedTextColor = textPrimary,
                         focusedBorderColor = Color(0xFF1877F2),
-                        unfocusedBorderColor = Color(0xFFCED0D4),
-                        errorBorderColor = Color(0xFFD32F2F)
+                        unfocusedBorderColor = dividerColor,
+                        errorBorderColor = Color(0xFFD32F2F),
+                        focusedContainerColor = inputBg,
+                        unfocusedContainerColor = inputBg
                     ),
                     modifier = Modifier
                         .fillMaxWidth()
@@ -193,7 +205,7 @@ fun AdminPinEntryDialog(
                             .height(46.dp)
                             .testTag("admin_pin_cancel_btn")
                     ) {
-                        Text("Cancel", color = Color(0xFF65676B), fontWeight = FontWeight.SemiBold)
+                        Text("Cancel", color = textSecondary, fontWeight = FontWeight.SemiBold)
                     }
 
                     Button(
@@ -230,6 +242,13 @@ fun AdminChangePinDialog(
     onVerifyCurrentPin: (String) -> Boolean,
     onSaveNewPin: (String) -> Unit
 ) {
+    val isDarkMode = LocalIsDarkMode.current
+    val bgCard = if (isDarkMode) Color(0xFF242526) else Color.White
+    val textPrimary = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505)
+    val textSecondary = if (isDarkMode) Color(0xFFB0B3B8) else Color(0xFF65676B)
+    val dividerColor = if (isDarkMode) Color(0xFF3E4042) else Color(0xFFCED0D4)
+    val inputBg = if (isDarkMode) Color(0xFF3A3B3C) else Color.White
+
     var currentPin by remember { mutableStateOf("") }
     var newPin by remember { mutableStateOf("") }
     var confirmPin by remember { mutableStateOf("") }
@@ -243,7 +262,7 @@ fun AdminChangePinDialog(
     Dialog(onDismissRequest = onDismiss) {
         Card(
             shape = RoundedCornerShape(20.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White),
+            colors = CardDefaults.cardColors(containerColor = bgCard),
             elevation = CardDefaults.cardElevation(8.dp),
             modifier = Modifier
                 .fillMaxWidth()
@@ -259,14 +278,14 @@ fun AdminChangePinDialog(
                 // Header
                 Surface(
                     shape = CircleShape,
-                    color = Color(0xFF4CAF50).copy(alpha = 0.12f),
+                    color = Color(0xFF4CAF50).copy(alpha = if (isDarkMode) 0.2f else 0.12f),
                     modifier = Modifier.size(54.dp)
                 ) {
                     Box(contentAlignment = Alignment.Center) {
                         Icon(
                             imageVector = Icons.Default.VpnKey,
                             contentDescription = "Change PIN",
-                            tint = Color(0xFF2E7D32),
+                            tint = if (isDarkMode) Color(0xFF81C784) else Color(0xFF2E7D32),
                             modifier = Modifier.size(28.dp)
                         )
                     }
@@ -278,14 +297,14 @@ fun AdminChangePinDialog(
                     text = "Change Admin Security PIN",
                     fontWeight = FontWeight.Bold,
                     fontSize = 18.sp,
-                    color = Color(0xFF050505),
+                    color = textPrimary,
                     textAlign = TextAlign.Center
                 )
 
                 Text(
                     text = "New PIN will sync with Firebase Realtime Database (admin_pin)",
                     fontSize = 12.sp,
-                    color = Color(0xFF65676B),
+                    color = textSecondary,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.padding(top = 4.dp, bottom = 14.dp)
                 )
@@ -297,8 +316,8 @@ fun AdminChangePinDialog(
                         currentPin = it
                         errorMessage = ""
                     },
-                    label = { Text("Current PIN") },
-                    placeholder = { Text("1234") },
+                    label = { Text("Current PIN", color = textSecondary) },
+                    placeholder = { Text("1234", color = textSecondary) },
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
                     visualTransformation = if (isCurrentVisible) VisualTransformation.None else PasswordVisualTransformation(),
@@ -307,11 +326,19 @@ fun AdminChangePinDialog(
                             Icon(
                                 imageVector = if (isCurrentVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
                                 contentDescription = null,
-                                tint = Color(0xFF65676B)
+                                tint = textSecondary
                             )
                         }
                     },
                     shape = RoundedCornerShape(12.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = textPrimary,
+                        unfocusedTextColor = textPrimary,
+                        focusedBorderColor = Color(0xFF1877F2),
+                        unfocusedBorderColor = dividerColor,
+                        focusedContainerColor = inputBg,
+                        unfocusedContainerColor = inputBg
+                    ),
                     modifier = Modifier
                         .fillMaxWidth()
                         .testTag("admin_change_current_pin_input")
@@ -326,8 +353,8 @@ fun AdminChangePinDialog(
                         newPin = it
                         errorMessage = ""
                     },
-                    label = { Text("New PIN") },
-                    placeholder = { Text("At least 4 digits") },
+                    label = { Text("New PIN", color = textSecondary) },
+                    placeholder = { Text("At least 4 digits", color = textSecondary) },
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
                     visualTransformation = if (isNewVisible) VisualTransformation.None else PasswordVisualTransformation(),
@@ -336,11 +363,19 @@ fun AdminChangePinDialog(
                             Icon(
                                 imageVector = if (isNewVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
                                 contentDescription = null,
-                                tint = Color(0xFF65676B)
+                                tint = textSecondary
                             )
                         }
                     },
                     shape = RoundedCornerShape(12.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = textPrimary,
+                        unfocusedTextColor = textPrimary,
+                        focusedBorderColor = Color(0xFF1877F2),
+                        unfocusedBorderColor = dividerColor,
+                        focusedContainerColor = inputBg,
+                        unfocusedContainerColor = inputBg
+                    ),
                     modifier = Modifier
                         .fillMaxWidth()
                         .testTag("admin_change_new_pin_input")
@@ -355,12 +390,20 @@ fun AdminChangePinDialog(
                         confirmPin = it
                         errorMessage = ""
                     },
-                    label = { Text("Confirm New PIN") },
-                    placeholder = { Text("Re-enter new PIN") },
+                    label = { Text("Confirm New PIN", color = textSecondary) },
+                    placeholder = { Text("Re-enter new PIN", color = textSecondary) },
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
                     visualTransformation = PasswordVisualTransformation(),
                     shape = RoundedCornerShape(12.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = textPrimary,
+                        unfocusedTextColor = textPrimary,
+                        focusedBorderColor = Color(0xFF1877F2),
+                        unfocusedBorderColor = dividerColor,
+                        focusedContainerColor = inputBg,
+                        unfocusedContainerColor = inputBg
+                    ),
                     modifier = Modifier
                         .fillMaxWidth()
                         .testTag("admin_change_confirm_pin_input")
@@ -382,14 +425,14 @@ fun AdminChangePinDialog(
                 AnimatedVisibility(visible = isSuccess) {
                     Surface(
                         shape = RoundedCornerShape(8.dp),
-                        color = Color(0xFFE8F5E9),
+                        color = if (isDarkMode) Color(0xFF2E7D32).copy(alpha = 0.2f) else Color(0xFFE8F5E9),
                         modifier = Modifier
                             .padding(top = 8.dp)
                             .fillMaxWidth()
                     ) {
                         Text(
                             text = "✓ PIN successfully updated and synced to Firebase!",
-                            color = Color(0xFF2E7D32),
+                            color = if (isDarkMode) Color(0xFF81C784) else Color(0xFF2E7D32),
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold,
                             modifier = Modifier.padding(8.dp),
@@ -411,7 +454,7 @@ fun AdminChangePinDialog(
                             .weight(1f)
                             .height(46.dp)
                     ) {
-                        Text("Cancel", color = Color(0xFF65676B), fontWeight = FontWeight.SemiBold)
+                        Text("Cancel", color = textSecondary, fontWeight = FontWeight.SemiBold)
                     }
 
                     Button(

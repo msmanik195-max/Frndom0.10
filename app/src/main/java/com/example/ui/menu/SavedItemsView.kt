@@ -74,6 +74,7 @@ import com.example.data.repository.UserRepository
 import com.example.ui.components.HashtagText
 import com.example.ui.components.PostOptionsBottomSheet
 import com.example.ui.components.VerificationBadge
+import com.example.ui.theme.LocalIsDarkMode
 import java.text.NumberFormat
 import java.util.Locale
 
@@ -111,16 +112,23 @@ fun SavedItemsView(
     var selectedPostForOptions by remember { mutableStateOf<PostItem?>(null) }
     var selectedProductForDetail by remember { mutableStateOf<MarketplaceItem?>(null) }
 
+    val isDarkMode = LocalIsDarkMode.current
+    val bgScreen = if (isDarkMode) Color(0xFF18191A) else Color(0xFFF0F2F5)
+    val bgCard = if (isDarkMode) Color(0xFF242526) else Color.White
+    val textPrimary = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505)
+    val textSecondary = if (isDarkMode) Color(0xFFB0B3B8) else Color(0xFF65676B)
+    val badgeBg = if (isDarkMode) Color(0xFF3A3B3C) else Color(0xFFE4E6EB)
+
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(Color(0xFFF0F2F5))
+            .background(bgScreen)
             .testTag("saved_items_view")
     ) {
         // Top Header
         Surface(
             modifier = Modifier.fillMaxWidth(),
-            color = Color.White,
+            color = bgCard,
             shadowElevation = 1.dp
         ) {
             Column {
@@ -134,7 +142,7 @@ fun SavedItemsView(
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Back",
-                            tint = Color(0xFF050505)
+                            tint = textPrimary
                         )
                     }
                     Spacer(modifier = Modifier.width(4.dp))
@@ -142,14 +150,14 @@ fun SavedItemsView(
                         text = "Saved Items",
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF050505)
+                        color = textPrimary
                     )
                 }
 
                 // 3 Tabs (Products | Saved Posts | Saved Videos)
                 PrimaryTabRow(
                     selectedTabIndex = selectedTabIndex,
-                    containerColor = Color.White,
+                    containerColor = bgCard,
                     contentColor = Color(0xFF1877F2)
                 ) {
                     tabs.forEachIndexed { index, title ->
@@ -167,17 +175,18 @@ fun SavedItemsView(
                                     Text(
                                         text = title,
                                         fontWeight = if (selectedTabIndex == index) FontWeight.Bold else FontWeight.Normal,
-                                        fontSize = 13.sp
+                                        fontSize = 13.sp,
+                                        color = if (selectedTabIndex == index) Color(0xFF1877F2) else textSecondary
                                     )
                                     if (count > 0) {
                                         Spacer(modifier = Modifier.width(4.dp))
                                         Surface(
                                             shape = CircleShape,
-                                            color = if (selectedTabIndex == index) Color(0xFF1877F2) else Color(0xFFE4E6EB)
+                                            color = if (selectedTabIndex == index) Color(0xFF1877F2) else badgeBg
                                         ) {
                                             Text(
                                                 text = "$count",
-                                                color = if (selectedTabIndex == index) Color.White else Color(0xFF050505),
+                                                color = if (selectedTabIndex == index) Color.White else textPrimary,
                                                 fontSize = 11.sp,
                                                 fontWeight = FontWeight.Bold,
                                                 modifier = Modifier.padding(horizontal = 5.dp, vertical = 1.dp)
@@ -207,7 +216,7 @@ fun SavedItemsView(
                             Surface(
                                 modifier = Modifier.size(72.dp),
                                 shape = CircleShape,
-                                color = Color(0xFFE8F1FD)
+                                color = if (isDarkMode) Color(0xFF263238) else Color(0xFFE8F1FD)
                             ) {
                                 Box(contentAlignment = Alignment.Center) {
                                     Icon(
@@ -223,13 +232,13 @@ fun SavedItemsView(
                                 text = "No Saved Products",
                                 fontSize = 18.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = Color(0xFF050505)
+                                color = textPrimary
                             )
                             Spacer(modifier = Modifier.height(6.dp))
                             Text(
                                 text = "Items you bookmark and save from Marketplace will appear here.",
                                 fontSize = 14.sp,
-                                color = Color(0xFF65676B),
+                                color = textSecondary,
                                 textAlign = androidx.compose.ui.text.style.TextAlign.Center
                             )
                         }
@@ -277,13 +286,13 @@ fun SavedItemsView(
                             Surface(
                                 modifier = Modifier.size(72.dp),
                                 shape = CircleShape,
-                                color = Color(0xFFE4E6EB)
+                                color = if (isDarkMode) Color(0xFF3A3B3C) else Color(0xFFE4E6EB)
                             ) {
                                 Box(contentAlignment = Alignment.Center) {
                                     Icon(
                                         imageVector = Icons.Default.BookmarkBorder,
                                         contentDescription = "Empty Posts",
-                                        tint = Color(0xFF65676B),
+                                        tint = textSecondary,
                                         modifier = Modifier.size(36.dp)
                                     )
                                 }
@@ -293,13 +302,13 @@ fun SavedItemsView(
                                 text = "No Saved Posts",
                                 fontSize = 18.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = Color(0xFF050505)
+                                color = textPrimary
                             )
                             Spacer(modifier = Modifier.height(6.dp))
                             Text(
                                 text = "Feed posts you save will show up here.",
                                 fontSize = 14.sp,
-                                color = Color(0xFF65676B),
+                                color = textSecondary,
                                 textAlign = androidx.compose.ui.text.style.TextAlign.Center
                             )
                         }
@@ -338,13 +347,13 @@ fun SavedItemsView(
                             Surface(
                                 modifier = Modifier.size(72.dp),
                                 shape = CircleShape,
-                                color = Color(0xFFE4E6EB)
+                                color = if (isDarkMode) Color(0xFF3A3B3C) else Color(0xFFE4E6EB)
                             ) {
                                 Box(contentAlignment = Alignment.Center) {
                                     Icon(
                                         imageVector = Icons.Default.VideoLibrary,
                                         contentDescription = "Empty Videos",
-                                        tint = Color(0xFF65676B),
+                                        tint = textSecondary,
                                         modifier = Modifier.size(36.dp)
                                     )
                                 }
@@ -354,13 +363,13 @@ fun SavedItemsView(
                                 text = "No Saved Videos",
                                 fontSize = 18.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = Color(0xFF050505)
+                                color = textPrimary
                             )
                             Spacer(modifier = Modifier.height(6.dp))
                             Text(
                                 text = "Reels and videos you save will show up here.",
                                 fontSize = 14.sp,
-                                color = Color(0xFF65676B),
+                                color = textSecondary,
                                 textAlign = androidx.compose.ui.text.style.TextAlign.Center
                             )
                         }
@@ -447,6 +456,12 @@ fun SavedProductCard(
     onUnsave: () -> Unit,
     onMessageSeller: () -> Unit
 ) {
+    val isDarkMode = LocalIsDarkMode.current
+    val cardBg = if (isDarkMode) Color(0xFF242526) else Color.White
+    val textPrimary = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505)
+    val textSecondary = if (isDarkMode) Color(0xFFB0B3B8) else Color(0xFF65676B)
+    val thumbBg = if (isDarkMode) Color(0xFF3A3B3C) else Color(0xFFE4E6EB)
+
     val formattedPrice = "BDT " + NumberFormat.getNumberInstance(Locale.US).format(item.price.toLong())
     var showMenu by remember { mutableStateOf(false) }
 
@@ -457,7 +472,7 @@ fun SavedProductCard(
             .clickable(onClick = onClick)
             .testTag("saved_product_${item.id}"),
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = cardBg),
         elevation = CardDefaults.cardElevation(1.dp)
     ) {
         Row(
@@ -471,7 +486,7 @@ fun SavedProductCard(
                 modifier = Modifier
                     .size(90.dp)
                     .clip(RoundedCornerShape(8.dp))
-                    .background(Color(0xFFE4E6EB)),
+                    .background(thumbBg),
                 contentAlignment = Alignment.Center
             ) {
                 if (item.coverImageUrl.isNotBlank()) {
@@ -485,7 +500,7 @@ fun SavedProductCard(
                     Icon(
                         imageVector = Icons.Default.Storefront,
                         contentDescription = null,
-                        tint = Color(0xFF8A8D91),
+                        tint = textSecondary,
                         modifier = Modifier.size(36.dp)
                     )
                 }
@@ -526,7 +541,7 @@ fun SavedProductCard(
                     text = item.title,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = Color(0xFF050505),
+                    color = textPrimary,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -538,14 +553,14 @@ fun SavedProductCard(
                     Icon(
                         imageVector = Icons.Default.LocationOn,
                         contentDescription = null,
-                        tint = Color(0xFF8A8D91),
+                        tint = textSecondary,
                         modifier = Modifier.size(12.dp)
                     )
                     Spacer(modifier = Modifier.width(2.dp))
                     Text(
                         text = "${item.location} • ${item.sellerName}",
                         fontSize = 11.sp,
-                        color = Color(0xFF65676B),
+                        color = textSecondary,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -567,7 +582,7 @@ fun SavedProductCard(
                     Icon(
                         imageVector = Icons.Default.MoreHoriz,
                         contentDescription = "Options",
-                        tint = Color(0xFF65676B)
+                        tint = textSecondary
                     )
                 }
 
@@ -604,6 +619,12 @@ fun SavedPostCard(
     onOptionsClick: () -> Unit,
     onUnsave: () -> Unit
 ) {
+    val isDarkMode = LocalIsDarkMode.current
+    val cardBg = if (isDarkMode) Color(0xFF242526) else Color.White
+    val textPrimary = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505)
+    val textSecondary = if (isDarkMode) Color(0xFFB0B3B8) else Color(0xFF65676B)
+    val thumbBg = if (isDarkMode) Color(0xFF3A3B3C) else Color(0xFFE4E6EB)
+
     val isVideo = post.mediaType == "reel" || post.mediaType == "video"
     val mediaUrls = post.getAllMediaUrls()
     val authorInitial = post.authorName.firstOrNull()?.uppercase() ?: "U"
@@ -614,7 +635,7 @@ fun SavedPostCard(
             .clip(RoundedCornerShape(12.dp))
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = cardBg),
         elevation = CardDefaults.cardElevation(1.dp)
     ) {
         Row(
@@ -628,7 +649,7 @@ fun SavedPostCard(
                 modifier = Modifier
                     .size(90.dp)
                     .clip(RoundedCornerShape(8.dp))
-                    .background(Color(0xFFE4E6EB)),
+                    .background(thumbBg),
                 contentAlignment = Alignment.Center
             ) {
                 if (mediaUrls.isNotEmpty()) {
@@ -686,7 +707,7 @@ fun SavedPostCard(
                         overflow = TextOverflow.Ellipsis,
                         fontSize = 14.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = Color(0xFF050505),
+                        color = textPrimary,
                         onTextClick = onClick
                     )
                     Spacer(modifier = Modifier.height(4.dp))
@@ -696,7 +717,7 @@ fun SavedPostCard(
                     Surface(
                         modifier = Modifier.size(20.dp),
                         shape = CircleShape,
-                        color = Color(0xFFD8DADF)
+                        color = if (isDarkMode) Color(0xFF3A3B3C) else Color(0xFFD8DADF)
                     ) {
                         if (post.authorAvatarUrl.isNotBlank()) {
                             AsyncImage(
@@ -720,7 +741,7 @@ fun SavedPostCard(
                     Text(
                         text = post.authorName,
                         fontSize = 12.sp,
-                        color = Color(0xFF65676B),
+                        color = textSecondary,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -744,7 +765,7 @@ fun SavedPostCard(
                 Icon(
                     imageVector = Icons.Default.MoreHoriz,
                     contentDescription = "Options",
-                    tint = Color(0xFF65676B)
+                    tint = textSecondary
                 )
             }
         }

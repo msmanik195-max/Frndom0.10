@@ -58,6 +58,7 @@ import com.example.data.model.PaymentMethodItem
 import com.example.data.repository.AdminRequestRepository
 import com.example.data.repository.UserRepository
 import com.example.data.repository.WalletRepository
+import com.example.ui.theme.LocalIsDarkMode
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.Locale
@@ -97,17 +98,24 @@ fun WithdrawScreen(
 
     val presetAmounts = listOf("100", "300", "500", "1000", "2000", "5000")
 
+    val isDarkMode = LocalIsDarkMode.current
+    val bgScreen = if (isDarkMode) Color(0xFF18191A) else Color(0xFFF0F2F5)
+    val bgCard = if (isDarkMode) Color(0xFF242526) else Color.White
+    val textPrimary = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505)
+    val textSecondary = if (isDarkMode) Color(0xFFB0B3B8) else Color(0xFF65676B)
+    val itemBg = if (isDarkMode) Color(0xFF3A3B3C) else Color(0xFFF0F2F5)
+
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(Color(0xFFF0F2F5))
+            .background(bgScreen)
             .testTag("withdraw_screen")
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
             // Top App Bar
             Surface(
                 modifier = Modifier.fillMaxWidth(),
-                color = Color.White,
+                color = bgCard,
                 shadowElevation = 1.dp
             ) {
                 Row(
@@ -120,7 +128,7 @@ fun WithdrawScreen(
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
                             contentDescription = "Back",
-                            tint = Color(0xFF050505)
+                            tint = textPrimary
                         )
                     }
                     Spacer(modifier = Modifier.width(4.dp))
@@ -128,7 +136,7 @@ fun WithdrawScreen(
                         text = "Withdraw Funds",
                         fontSize = 19.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF050505)
+                        color = textPrimary
                     )
                 }
             }
@@ -253,7 +261,7 @@ fun WithdrawScreen(
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(16.dp),
-                        colors = CardDefaults.cardColors(containerColor = Color.White),
+                        colors = CardDefaults.cardColors(containerColor = bgCard),
                         elevation = CardDefaults.cardElevation(1.dp)
                     ) {
                         Column(
@@ -265,7 +273,7 @@ fun WithdrawScreen(
                                 text = "1. Select Withdrawal Amount",
                                 fontSize = 15.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = Color(0xFF050505)
+                                color = textPrimary
                             )
                             Spacer(modifier = Modifier.height(12.dp))
 
@@ -278,7 +286,7 @@ fun WithdrawScreen(
                                     val isSelected = withdrawAmount == amt
                                     Surface(
                                         shape = RoundedCornerShape(10.dp),
-                                        color = if (isSelected) Color(0xFF6C5CE7) else Color(0xFFF0F2F5),
+                                        color = if (isSelected) Color(0xFF6C5CE7) else itemBg,
                                         modifier = Modifier
                                             .weight(1f)
                                             .clickable { withdrawAmount = amt }
@@ -287,7 +295,7 @@ fun WithdrawScreen(
                                             text = "BDT $amt",
                                             fontSize = 14.sp,
                                             fontWeight = FontWeight.Bold,
-                                            color = if (isSelected) Color.White else Color(0xFF050505),
+                                            color = if (isSelected) Color.White else textPrimary,
                                             textAlign = TextAlign.Center,
                                             modifier = Modifier.padding(vertical = 10.dp)
                                         )
@@ -305,7 +313,7 @@ fun WithdrawScreen(
                                     val isSelected = withdrawAmount == amt
                                     Surface(
                                         shape = RoundedCornerShape(10.dp),
-                                        color = if (isSelected) Color(0xFF6C5CE7) else Color(0xFFF0F2F5),
+                                        color = if (isSelected) Color(0xFF6C5CE7) else itemBg,
                                         modifier = Modifier
                                             .weight(1f)
                                             .clickable { withdrawAmount = amt }
@@ -314,7 +322,7 @@ fun WithdrawScreen(
                                             text = "BDT $amt",
                                             fontSize = 14.sp,
                                             fontWeight = FontWeight.Bold,
-                                            color = if (isSelected) Color.White else Color(0xFF050505),
+                                            color = if (isSelected) Color.White else textPrimary,
                                             textAlign = TextAlign.Center,
                                             modifier = Modifier.padding(vertical = 10.dp)
                                         )
@@ -330,14 +338,16 @@ fun WithdrawScreen(
                                     withdrawAmount = it.filter { c -> c.isDigit() || c == '.' }
                                     errorMessage = null
                                 },
-                                label = { Text("Custom Amount") },
-                                prefix = { Text("BDT ", fontWeight = FontWeight.Bold) },
+                                label = { Text("Custom Amount", color = textSecondary) },
+                                prefix = { Text("BDT ", fontWeight = FontWeight.Bold, color = textPrimary) },
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                                 modifier = Modifier.fillMaxWidth(),
                                 shape = RoundedCornerShape(12.dp),
                                 colors = OutlinedTextFieldDefaults.colors(
+                                    focusedTextColor = textPrimary,
+                                    unfocusedTextColor = textPrimary,
                                     focusedBorderColor = Color(0xFF6C5CE7),
-                                    unfocusedBorderColor = Color(0xFFCED0D4)
+                                    unfocusedBorderColor = if (isDarkMode) Color(0xFF3E4042) else Color(0xFFCED0D4)
                                 )
                             )
                         }
@@ -347,7 +357,7 @@ fun WithdrawScreen(
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(16.dp),
-                        colors = CardDefaults.cardColors(containerColor = Color.White),
+                        colors = CardDefaults.cardColors(containerColor = bgCard),
                         elevation = CardDefaults.cardElevation(1.dp)
                     ) {
                         Column(
@@ -359,7 +369,7 @@ fun WithdrawScreen(
                                 text = "2. Select Receiving Payment Method",
                                 fontSize = 15.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = Color(0xFF050505)
+                                color = textPrimary
                             )
                             Spacer(modifier = Modifier.height(10.dp))
 
@@ -378,7 +388,11 @@ fun WithdrawScreen(
                                         .clickable { selectedMethodId = method.id },
                                     shape = RoundedCornerShape(12.dp),
                                     colors = CardDefaults.cardColors(
-                                        containerColor = if (isSelected) Color(0xFFF3F0FF) else Color(0xFFF8F9FA)
+                                        containerColor = if (isSelected) {
+                                            if (isDarkMode) Color(0xFF2E2350) else Color(0xFFF3F0FF)
+                                        } else {
+                                            if (isDarkMode) Color(0xFF3A3B3C) else Color(0xFFF8F9FA)
+                                        }
                                     ),
                                     border = if (isSelected) BorderStroke(1.5.dp, Color(0xFF6C5CE7)) else null
                                 ) {
@@ -410,12 +424,12 @@ fun WithdrawScreen(
                                                     text = method.name,
                                                     fontSize = 15.sp,
                                                     fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                                                    color = if (isSelected) Color(0xFF6C5CE7) else Color(0xFF050505)
+                                                    color = if (isSelected) Color(0xFF6C5CE7) else textPrimary
                                                 )
                                                 Text(
                                                     text = method.accountType,
                                                     fontSize = 11.sp,
-                                                    color = Color(0xFF65676B)
+                                                    color = textSecondary
                                                 )
                                             }
                                         }
@@ -440,15 +454,17 @@ fun WithdrawScreen(
                                     accountNumber = it
                                     errorMessage = null
                                 },
-                                label = { Text("${selectedMethodItem.name} Account / Mobile Number") },
-                                placeholder = { Text("01XXXXXXXXX") },
+                                label = { Text("${selectedMethodItem.name} Account / Mobile Number", color = textSecondary) },
+                                placeholder = { Text("01XXXXXXXXX", color = textSecondary.copy(alpha = 0.6f)) },
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
                                 singleLine = true,
                                 modifier = Modifier.fillMaxWidth(),
                                 shape = RoundedCornerShape(12.dp),
                                 colors = OutlinedTextFieldDefaults.colors(
+                                    focusedTextColor = textPrimary,
+                                    unfocusedTextColor = textPrimary,
                                     focusedBorderColor = Color(0xFF6C5CE7),
-                                    unfocusedBorderColor = Color(0xFFCED0D4)
+                                    unfocusedBorderColor = if (isDarkMode) Color(0xFF3E4042) else Color(0xFFCED0D4)
                                 )
                             )
                         }

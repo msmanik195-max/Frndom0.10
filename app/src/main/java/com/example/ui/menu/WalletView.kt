@@ -101,6 +101,11 @@ fun WalletView(
     var currentSubPage by remember { mutableStateOf(WalletSubPage.OVERVIEW) }
     var showHistorySheet by remember { mutableStateOf(false) }
 
+    val isDarkMode = LocalIsDarkMode.current
+    val cardBg = if (isDarkMode) Color(0xFF242526) else Color.White
+    val textPrimary = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505)
+    val textSecondary = if (isDarkMode) Color(0xFFB0B3B8) else Color(0xFF65676B)
+
     BackHandler(enabled = currentSubPage != WalletSubPage.OVERVIEW) {
         currentSubPage = WalletSubPage.OVERVIEW
     }

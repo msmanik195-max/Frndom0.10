@@ -32,6 +32,7 @@ import coil.compose.AsyncImage
 import com.example.data.model.PageItem
 import com.example.data.repository.GroupPageRepository
 import com.example.ui.components.VerificationBadge
+import com.example.ui.theme.LocalIsDarkMode
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -49,6 +50,14 @@ fun AdminPageManagementView(
     onBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val isDarkMode = LocalIsDarkMode.current
+    val bgScreen = if (isDarkMode) Color(0xFF18191A) else Color(0xFFF0F2F5)
+    val bgCard = if (isDarkMode) Color(0xFF242526) else Color.White
+    val textPrimary = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505)
+    val textSecondary = if (isDarkMode) Color(0xFFB0B3B8) else Color(0xFF65676B)
+    val dividerColor = if (isDarkMode) Color(0xFF3E4042) else Color(0xFFE4E6EB)
+    val inputBg = if (isDarkMode) Color(0xFF3A3B3C) else Color.White
+
     val context = LocalContext.current
     val repository = remember { GroupPageRepository(context) }
     val allPages by repository.pagesFlow.collectAsState()
@@ -100,7 +109,7 @@ fun AdminPageManagementView(
                                 text = "Page Management",
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 18.sp,
-                                color = Color(0xFF050505)
+                                color = textPrimary
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                             Surface(
@@ -119,7 +128,7 @@ fun AdminPageManagementView(
                         Text(
                             text = "Manage and oversee all user pages",
                             fontSize = 11.sp,
-                            color = Color(0xFF65676B)
+                            color = textSecondary
                         )
                     }
                 },
@@ -128,14 +137,14 @@ fun AdminPageManagementView(
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
                             contentDescription = "Back",
-                            tint = Color(0xFF050505)
+                            tint = textPrimary
                         )
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = bgCard)
             )
         },
-        containerColor = Color(0xFFF0F2F5),
+        containerColor = bgScreen,
         modifier = modifier.testTag("admin_page_management_screen")
     ) { paddingValues ->
         LazyColumn(
@@ -151,7 +160,7 @@ fun AdminPageManagementView(
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp, vertical = 8.dp),
                     shape = RoundedCornerShape(14.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    colors = CardDefaults.cardColors(containerColor = bgCard),
                     elevation = CardDefaults.cardElevation(2.dp)
                 ) {
                     Row(
@@ -161,9 +170,9 @@ fun AdminPageManagementView(
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         AdminStatMiniItem(title = "Total Pages", value = "$totalCount", color = Color(0xFFE91E63))
-                        AdminStatMiniItem(title = "Active", value = "$activeCount", color = Color(0xFF2E7D32))
+                        AdminStatMiniItem(title = "Active", value = "$activeCount", color = if (isDarkMode) Color(0xFF81C784) else Color(0xFF2E7D32))
                         AdminStatMiniItem(title = "Blocked", value = "$blockedCount", color = Color(0xFFD32F2F))
-                        AdminStatMiniItem(title = "Verified", value = "$verifiedCount", color = Color(0xFF00897B))
+                        AdminStatMiniItem(title = "Verified", value = "$verifiedCount", color = if (isDarkMode) Color(0xFF4DB6AC) else Color(0xFF00897B))
                     }
                 }
             }
@@ -173,24 +182,28 @@ fun AdminPageManagementView(
                 OutlinedTextField(
                     value = searchQuery,
                     onValueChange = { searchQuery = it },
-                    placeholder = { Text("Search by page name, category, email, ID...", fontSize = 14.sp) },
+                    placeholder = { Text("Search by page name, category, email, ID...", fontSize = 14.sp, color = textSecondary) },
                     leadingIcon = {
-                        Icon(Icons.Default.Search, contentDescription = "Search", tint = Color(0xFF65676B))
+                        Icon(Icons.Default.Search, contentDescription = "Search", tint = textSecondary)
                     },
                     trailingIcon = {
                         if (searchQuery.isNotEmpty()) {
                             IconButton(onClick = { searchQuery = "" }) {
-                                Icon(Icons.Default.Clear, contentDescription = "Clear", tint = Color(0xFF65676B))
+                                Icon(Icons.Default.Clear, contentDescription = "Clear", tint = textSecondary)
                             }
                         }
                     },
                     shape = RoundedCornerShape(12.dp),
                     singleLine = true,
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = Color.White,
-                        unfocusedContainerColor = Color.White,
+                        focusedTextColor = textPrimary,
+                        unfocusedTextColor = textPrimary,
+                        focusedPlaceholderColor = textSecondary,
+                        unfocusedPlaceholderColor = textSecondary,
+                        focusedContainerColor = inputBg,
+                        unfocusedContainerColor = inputBg,
                         focusedBorderColor = Color(0xFFE91E63),
-                        unfocusedBorderColor = Color(0xFFCED0D4)
+                        unfocusedBorderColor = if (isDarkMode) dividerColor else Color(0xFFCED0D4)
                     ),
                     modifier = Modifier
                         .fillMaxWidth()
@@ -222,8 +235,8 @@ fun AdminPageManagementView(
                             colors = FilterChipDefaults.filterChipColors(
                                 selectedContainerColor = Color(0xFFE91E63),
                                 selectedLabelColor = Color.White,
-                                containerColor = Color.White,
-                                labelColor = Color(0xFF050505)
+                                containerColor = if (isDarkMode) Color(0xFF3A3B3C) else Color.White,
+                                labelColor = textPrimary
                             ),
                             shape = RoundedCornerShape(20.dp)
                         )
@@ -244,7 +257,7 @@ fun AdminPageManagementView(
                             Icon(
                                 imageVector = Icons.Default.Flag,
                                 contentDescription = null,
-                                tint = Color(0xFFBCC0C4),
+                                tint = if (isDarkMode) Color(0xFF5A5C5E) else Color(0xFFBCC0C4),
                                 modifier = Modifier.size(56.dp)
                             )
                             Spacer(modifier = Modifier.height(12.dp))
@@ -252,12 +265,12 @@ fun AdminPageManagementView(
                                 text = "No pages found",
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = Color(0xFF65676B)
+                                color = textPrimary
                             )
                             Text(
                                 text = "When users create pages, they will appear here",
                                 fontSize = 12.sp,
-                                color = Color(0xFF8A8D91)
+                                color = textSecondary
                             )
                         }
                     }
@@ -302,10 +315,16 @@ fun AdminPageManagementView(
     deletingPage?.let { page ->
         AlertDialog(
             onDismissRequest = { deletingPage = null },
+            containerColor = bgCard,
+            titleContentColor = textPrimary,
+            textContentColor = textSecondary,
             icon = { Icon(Icons.Default.Delete, contentDescription = null, tint = Color(0xFFD32F2F)) },
-            title = { Text("Delete Page?", fontWeight = FontWeight.Bold) },
+            title = { Text("Delete Page?", fontWeight = FontWeight.Bold, color = textPrimary) },
             text = {
-                Text("Are you sure you want to permanently delete '${page.name}' from the database? This action cannot be undone.")
+                Text(
+                    "Are you sure you want to permanently delete '${page.name}' from the database? This action cannot be undone.",
+                    color = textPrimary
+                )
             },
             confirmButton = {
                 Button(
@@ -321,7 +340,7 @@ fun AdminPageManagementView(
             },
             dismissButton = {
                 OutlinedButton(onClick = { deletingPage = null }) {
-                    Text("Cancel")
+                    Text("Cancel", color = textSecondary)
                 }
             }
         )
@@ -369,6 +388,12 @@ private fun AdminPageCard(
     onManageExpiry: () -> Unit,
     onDelete: () -> Unit
 ) {
+    val isDarkMode = LocalIsDarkMode.current
+    val bgCard = if (isDarkMode) Color(0xFF242526) else Color.White
+    val textPrimary = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505)
+    val textSecondary = if (isDarkMode) Color(0xFFB0B3B8) else Color(0xFF65676B)
+    val dividerColor = if (isDarkMode) Color(0xFF3E4042) else Color(0xFFF0F2F5)
+
     val dateFormat = remember { SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.getDefault()) }
     val isVerifiedActive = page.isBadgeActive()
 
@@ -378,7 +403,7 @@ private fun AdminPageCard(
             .padding(horizontal = 16.dp, vertical = 6.dp)
             .testTag("admin_page_card_${page.id}"),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = bgCard),
         elevation = CardDefaults.cardElevation(2.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
@@ -390,7 +415,7 @@ private fun AdminPageCard(
                 // Page Avatar
                 Surface(
                     shape = CircleShape,
-                    color = Color(0xFFFCE4EC),
+                    color = if (isDarkMode) Color(0xFFE91E63).copy(alpha = 0.2f) else Color(0xFFFCE4EC),
                     modifier = Modifier.size(54.dp)
                 ) {
                     if (page.avatarUrl.isNotBlank()) {
@@ -421,7 +446,7 @@ private fun AdminPageCard(
                             text = page.name,
                             fontWeight = FontWeight.Bold,
                             fontSize = 16.sp,
-                            color = Color(0xFF050505),
+                            color = textPrimary,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
@@ -448,12 +473,12 @@ private fun AdminPageCard(
                     ) {
                         Surface(
                             shape = RoundedCornerShape(6.dp),
-                            color = Color(0xFFFCE4EC)
+                            color = if (isDarkMode) Color(0xFFE91E63).copy(alpha = 0.2f) else Color(0xFFFCE4EC)
                         ) {
                             Text(
                                 text = page.category,
                                 fontSize = 11.sp,
-                                color = Color(0xFFC2185B),
+                                color = if (isDarkMode) Color(0xFFF48FB1) else Color(0xFFC2185B),
                                 fontWeight = FontWeight.SemiBold,
                                 modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
                             )
@@ -461,12 +486,12 @@ private fun AdminPageCard(
 
                         Surface(
                             shape = RoundedCornerShape(6.dp),
-                            color = Color(0xFFE3F2FD)
+                            color = if (isDarkMode) Color(0xFF1976D2).copy(alpha = 0.2f) else Color(0xFFE3F2FD)
                         ) {
                             Text(
                                 text = "${page.followersCount} followers",
                                 fontSize = 11.sp,
-                                color = Color(0xFF1976D2),
+                                color = if (isDarkMode) Color(0xFF90CAF9) else Color(0xFF1976D2),
                                 fontWeight = FontWeight.Medium,
                                 modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
                             )
@@ -474,12 +499,12 @@ private fun AdminPageCard(
 
                         Surface(
                             shape = RoundedCornerShape(6.dp),
-                            color = Color(0xFFFFF3E0)
+                            color = if (isDarkMode) Color(0xFFE65100).copy(alpha = 0.2f) else Color(0xFFFFF3E0)
                         ) {
                             Text(
                                 text = "${page.likesCount} likes",
                                 fontSize = 11.sp,
-                                color = Color(0xFFE65100),
+                                color = if (isDarkMode) Color(0xFFFFCC80) else Color(0xFFE65100),
                                 fontWeight = FontWeight.Medium,
                                 modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
                             )
@@ -490,13 +515,17 @@ private fun AdminPageCard(
                 // Block status badge
                 Surface(
                     shape = RoundedCornerShape(8.dp),
-                    color = if (page.isBlocked) Color(0xFFFFEBEE) else Color(0xFFE8F5E9)
+                    color = if (page.isBlocked) {
+                        if (isDarkMode) Color(0xFFD32F2F).copy(alpha = 0.25f) else Color(0xFFFFEBEE)
+                    } else {
+                        if (isDarkMode) Color(0xFF2E7D32).copy(alpha = 0.25f) else Color(0xFFE8F5E9)
+                    }
                 ) {
                     Text(
                         text = if (page.isBlocked) "Blocked" else "Active",
                         fontSize = 11.sp,
                         fontWeight = FontWeight.Bold,
-                        color = if (page.isBlocked) Color(0xFFD32F2F) else Color(0xFF2E7D32),
+                        color = if (page.isBlocked) Color(0xFFD32F2F) else (if (isDarkMode) Color(0xFF81C784) else Color(0xFF2E7D32)),
                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
                     )
                 }
@@ -508,7 +537,7 @@ private fun AdminPageCard(
                 Text(
                     text = page.description,
                     fontSize = 13.sp,
-                    color = Color(0xFF333333),
+                    color = textPrimary,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -525,13 +554,13 @@ private fun AdminPageCard(
                         Text("🌐 ${page.website}", fontSize = 11.sp, color = Color(0xFF1877F2), maxLines = 1, overflow = TextOverflow.Ellipsis)
                     }
                     if (page.email.isNotBlank()) {
-                        Text("✉️ ${page.email}", fontSize = 11.sp, color = Color(0xFF65676B), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        Text("✉️ ${page.email}", fontSize = 11.sp, color = textSecondary, maxLines = 1, overflow = TextOverflow.Ellipsis)
                     }
                 }
             }
 
             Spacer(modifier = Modifier.height(10.dp))
-            Divider(color = Color(0xFFF0F2F5), thickness = 1.dp)
+            Divider(color = dividerColor, thickness = 1.dp)
             Spacer(modifier = Modifier.height(8.dp))
 
             // Metadata & Verification Expiry info
@@ -544,13 +573,13 @@ private fun AdminPageCard(
                     Text(
                         text = "Created: ${dateFormat.format(Date(page.createdAt))}",
                         fontSize = 11.sp,
-                        color = Color(0xFF8A8D91)
+                        color = textSecondary
                     )
                     if (page.creatorId.isNotBlank()) {
                         Text(
                             text = "Creator ID: ${page.creatorId}",
                             fontSize = 10.sp,
-                            color = Color(0xFF8A8D91),
+                            color = textSecondary,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
@@ -561,7 +590,11 @@ private fun AdminPageCard(
                 if (page.isVerified) {
                     Surface(
                         shape = RoundedCornerShape(8.dp),
-                        color = if (isVerifiedActive) Color(0xFFE3F2FD) else Color(0xFFFFEBEE),
+                        color = if (isVerifiedActive) {
+                            if (isDarkMode) Color(0xFF1877F2).copy(alpha = 0.25f) else Color(0xFFE3F2FD)
+                        } else {
+                            if (isDarkMode) Color(0xFFD32F2F).copy(alpha = 0.25f) else Color(0xFFFFEBEE)
+                        },
                         modifier = Modifier.clickable { onManageExpiry() }
                     ) {
                         Row(
@@ -587,7 +620,7 @@ private fun AdminPageCard(
                                 text = "Badge: $expiryText",
                                 fontSize = 11.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = if (isVerifiedActive) Color(0xFF1877F2) else Color(0xFFD32F2F)
+                                color = if (isVerifiedActive) (if (isDarkMode) Color(0xFF90CAF9) else Color(0xFF1877F2)) else Color(0xFFD32F2F)
                             )
                         }
                     }
@@ -608,9 +641,9 @@ private fun AdminPageCard(
                     contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
                     modifier = Modifier.weight(1f).height(38.dp)
                 ) {
-                    Icon(Icons.Default.Edit, contentDescription = null, modifier = Modifier.size(15.dp))
+                    Icon(Icons.Default.Edit, contentDescription = null, modifier = Modifier.size(15.dp), tint = textPrimary)
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text("Edit", fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                    Text("Edit", fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = textPrimary)
                 }
 
                 // 2. Block / Unblock
@@ -649,14 +682,14 @@ private fun AdminPageCard(
                         imageVector = Icons.Default.Verified,
                         contentDescription = null,
                         modifier = Modifier.size(15.dp),
-                        tint = if (page.isVerified) Color(0xFF1877F2) else Color(0xFF65676B)
+                        tint = if (page.isVerified) Color(0xFF1877F2) else textSecondary
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
                         text = if (page.isVerified) "Badge ON" else "Badge OFF",
                         fontSize = 12.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = if (page.isVerified) Color(0xFF1877F2) else Color(0xFF65676B)
+                        color = if (page.isVerified) Color(0xFF1877F2) else textSecondary
                     )
                 }
 
@@ -665,7 +698,7 @@ private fun AdminPageCard(
                     onClick = onDelete,
                     modifier = Modifier
                         .size(38.dp)
-                        .background(Color(0xFFFFEBEE), RoundedCornerShape(8.dp))
+                        .background(if (isDarkMode) Color(0xFFD32F2F).copy(alpha = 0.2f) else Color(0xFFFFEBEE), RoundedCornerShape(8.dp))
                 ) {
                     Icon(
                         imageVector = Icons.Default.Delete,
@@ -688,6 +721,13 @@ fun AdminEditPageDialog(
     onDismiss: () -> Unit,
     onSave: (PageItem) -> Unit
 ) {
+    val isDarkMode = LocalIsDarkMode.current
+    val bgCard = if (isDarkMode) Color(0xFF242526) else Color.White
+    val textPrimary = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505)
+    val textSecondary = if (isDarkMode) Color(0xFFB0B3B8) else Color(0xFF65676B)
+    val dividerColor = if (isDarkMode) Color(0xFF3E4042) else Color(0xFFE4E6EB)
+    val inputBg = if (isDarkMode) Color(0xFF3A3B3C) else Color.White
+
     var name by remember { mutableStateOf(page.name) }
     var category by remember { mutableStateOf(page.category) }
     var description by remember { mutableStateOf(page.description) }
@@ -701,7 +741,10 @@ fun AdminEditPageDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Edit Page Details", fontWeight = FontWeight.Bold, fontSize = 18.sp) },
+        containerColor = bgCard,
+        titleContentColor = textPrimary,
+        textContentColor = textSecondary,
+        title = { Text("Edit Page Details", fontWeight = FontWeight.Bold, fontSize = 18.sp, color = textPrimary) },
         text = {
             Column(
                 modifier = Modifier.fillMaxWidth(),
@@ -710,18 +753,34 @@ fun AdminEditPageDialog(
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
-                    label = { Text("Page Name") },
+                    label = { Text("Page Name", color = textSecondary) },
                     singleLine = true,
                     shape = RoundedCornerShape(10.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = textPrimary,
+                        unfocusedTextColor = textPrimary,
+                        focusedBorderColor = Color(0xFFE91E63),
+                        unfocusedBorderColor = dividerColor,
+                        focusedContainerColor = inputBg,
+                        unfocusedContainerColor = inputBg
+                    ),
                     modifier = Modifier.fillMaxWidth()
                 )
 
                 OutlinedTextField(
                     value = category,
                     onValueChange = { category = it },
-                    label = { Text("Category (Creator, Business, Media...)") },
+                    label = { Text("Category (Creator, Business, Media...)", color = textSecondary) },
                     singleLine = true,
                     shape = RoundedCornerShape(10.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = textPrimary,
+                        unfocusedTextColor = textPrimary,
+                        focusedBorderColor = Color(0xFFE91E63),
+                        unfocusedBorderColor = dividerColor,
+                        focusedContainerColor = inputBg,
+                        unfocusedContainerColor = inputBg
+                    ),
                     modifier = Modifier.fillMaxWidth()
                 )
 
@@ -732,19 +791,35 @@ fun AdminEditPageDialog(
                     OutlinedTextField(
                         value = followersCountStr,
                         onValueChange = { followersCountStr = it.filter { ch -> ch.isDigit() } },
-                        label = { Text("Followers Count") },
+                        label = { Text("Followers Count", color = textSecondary) },
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         shape = RoundedCornerShape(10.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = textPrimary,
+                            unfocusedTextColor = textPrimary,
+                            focusedBorderColor = Color(0xFFE91E63),
+                            unfocusedBorderColor = dividerColor,
+                            focusedContainerColor = inputBg,
+                            unfocusedContainerColor = inputBg
+                        ),
                         modifier = Modifier.weight(1f)
                     )
                     OutlinedTextField(
                         value = likesCountStr,
                         onValueChange = { likesCountStr = it.filter { ch -> ch.isDigit() } },
-                        label = { Text("Likes Count") },
+                        label = { Text("Likes Count", color = textSecondary) },
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         shape = RoundedCornerShape(10.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = textPrimary,
+                            unfocusedTextColor = textPrimary,
+                            focusedBorderColor = Color(0xFFE91E63),
+                            unfocusedBorderColor = dividerColor,
+                            focusedContainerColor = inputBg,
+                            unfocusedContainerColor = inputBg
+                        ),
                         modifier = Modifier.weight(1f)
                     )
                 }
@@ -752,36 +827,68 @@ fun AdminEditPageDialog(
                 OutlinedTextField(
                     value = avatarUrl,
                     onValueChange = { avatarUrl = it },
-                    label = { Text("Profile/Logo URL") },
+                    label = { Text("Profile/Logo URL", color = textSecondary) },
                     singleLine = true,
                     shape = RoundedCornerShape(10.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = textPrimary,
+                        unfocusedTextColor = textPrimary,
+                        focusedBorderColor = Color(0xFFE91E63),
+                        unfocusedBorderColor = dividerColor,
+                        focusedContainerColor = inputBg,
+                        unfocusedContainerColor = inputBg
+                    ),
                     modifier = Modifier.fillMaxWidth()
                 )
 
                 OutlinedTextField(
                     value = coverUrl,
                     onValueChange = { coverUrl = it },
-                    label = { Text("Cover Image URL") },
+                    label = { Text("Cover Image URL", color = textSecondary) },
                     singleLine = true,
                     shape = RoundedCornerShape(10.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = textPrimary,
+                        unfocusedTextColor = textPrimary,
+                        focusedBorderColor = Color(0xFFE91E63),
+                        unfocusedBorderColor = dividerColor,
+                        focusedContainerColor = inputBg,
+                        unfocusedContainerColor = inputBg
+                    ),
                     modifier = Modifier.fillMaxWidth()
                 )
 
                 OutlinedTextField(
                     value = website,
                     onValueChange = { website = it },
-                    label = { Text("Website URL (Optional)") },
+                    label = { Text("Website URL (Optional)", color = textSecondary) },
                     singleLine = true,
                     shape = RoundedCornerShape(10.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = textPrimary,
+                        unfocusedTextColor = textPrimary,
+                        focusedBorderColor = Color(0xFFE91E63),
+                        unfocusedBorderColor = dividerColor,
+                        focusedContainerColor = inputBg,
+                        unfocusedContainerColor = inputBg
+                    ),
                     modifier = Modifier.fillMaxWidth()
                 )
 
                 OutlinedTextField(
                     value = description,
                     onValueChange = { description = it },
-                    label = { Text("Page Description (Bio/Description)") },
+                    label = { Text("Page Description (Bio/Description)", color = textSecondary) },
                     maxLines = 3,
                     shape = RoundedCornerShape(10.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = textPrimary,
+                        unfocusedTextColor = textPrimary,
+                        focusedBorderColor = Color(0xFFE91E63),
+                        unfocusedBorderColor = dividerColor,
+                        focusedContainerColor = inputBg,
+                        unfocusedContainerColor = inputBg
+                    ),
                     modifier = Modifier.fillMaxWidth()
                 )
             }
@@ -812,7 +919,7 @@ fun AdminEditPageDialog(
         },
         dismissButton = {
             OutlinedButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text("Cancel", color = textSecondary)
             }
         }
     )
@@ -827,17 +934,27 @@ fun AdminPageBadgeDialog(
     onDismiss: () -> Unit,
     onSave: (isVerified: Boolean, badgeType: String, expiresAt: Long) -> Unit
 ) {
+    val isDarkMode = LocalIsDarkMode.current
+    val bgCard = if (isDarkMode) Color(0xFF242526) else Color.White
+    val textPrimary = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505)
+    val textSecondary = if (isDarkMode) Color(0xFFB0B3B8) else Color(0xFF65676B)
+    val rowBg = if (isDarkMode) Color(0xFF3A3B3C) else Color(0xFFF0F2F5)
+    val borderUnselected = if (isDarkMode) Color(0xFF3E4042) else Color(0xFFCED0D4)
+
     var isVerified by remember { mutableStateOf(page.isVerified) }
     var badgeType by remember { mutableStateOf(page.badgeType) }
     var validityOption by remember { mutableStateOf("LIFETIME") }
 
     AlertDialog(
         onDismissRequest = onDismiss,
+        containerColor = bgCard,
+        titleContentColor = textPrimary,
+        textContentColor = textSecondary,
         title = {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.Default.Verified, contentDescription = null, tint = Color(0xFF1877F2))
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Page Verification Badge Control", fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                Text("Page Verification Badge Control", fontWeight = FontWeight.Bold, fontSize = 18.sp, color = textPrimary)
             }
         },
         text = {
@@ -849,17 +966,17 @@ fun AdminPageBadgeDialog(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(Color(0xFFF0F2F5), RoundedCornerShape(10.dp))
+                        .background(rowBg, RoundedCornerShape(10.dp))
                         .padding(12.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Column {
-                        Text("Enable Verification Badge", fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                        Text("Enable Verification Badge", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = textPrimary)
                         Text(
                             text = if (isVerified) "Verified badge icon displayed next to page" else "Badge is disabled",
                             fontSize = 12.sp,
-                            color = Color(0xFF65676B)
+                            color = textSecondary
                         )
                     }
                     Switch(
@@ -874,17 +991,19 @@ fun AdminPageBadgeDialog(
 
                 if (isVerified) {
                     // Badge Color Type
-                    Text("Badge Type & Color:", fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+                    Text("Badge Type & Color:", fontWeight = FontWeight.SemiBold, fontSize = 14.sp, color = textPrimary)
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
                         Surface(
                             shape = RoundedCornerShape(10.dp),
-                            color = if (badgeType == "BLUE") Color(0xFFE3F2FD) else Color.White,
+                            color = if (badgeType == "BLUE") {
+                                if (isDarkMode) Color(0xFF1877F2).copy(alpha = 0.25f) else Color(0xFFE3F2FD)
+                            } else rowBg,
                             border = androidx.compose.foundation.BorderStroke(
                                 1.5.dp,
-                                if (badgeType == "BLUE") Color(0xFF1877F2) else Color(0xFFCED0D4)
+                                if (badgeType == "BLUE") Color(0xFF1877F2) else borderUnselected
                             ),
                             modifier = Modifier
                                 .weight(1f)
@@ -904,10 +1023,12 @@ fun AdminPageBadgeDialog(
 
                         Surface(
                             shape = RoundedCornerShape(10.dp),
-                            color = if (badgeType == "GREEN") Color(0xFFE8F5E9) else Color.White,
+                            color = if (badgeType == "GREEN") {
+                                if (isDarkMode) Color(0xFF2E7D32).copy(alpha = 0.25f) else Color(0xFFE8F5E9)
+                            } else rowBg,
                             border = androidx.compose.foundation.BorderStroke(
                                 1.5.dp,
-                                if (badgeType == "GREEN") Color(0xFF2E7D32) else Color(0xFFCED0D4)
+                                if (badgeType == "GREEN") Color(0xFF2E7D32) else borderUnselected
                             ),
                             modifier = Modifier
                                 .weight(1f)
@@ -921,13 +1042,13 @@ fun AdminPageBadgeDialog(
                             ) {
                                 VerificationBadge(size = 20.dp, show = true)
                                 Spacer(modifier = Modifier.width(6.dp))
-                                Text("Green Badge", fontWeight = FontWeight.Bold, fontSize = 13.sp, color = Color(0xFF2E7D32))
+                                Text("Green Badge", fontWeight = FontWeight.Bold, fontSize = 13.sp, color = if (isDarkMode) Color(0xFF81C784) else Color(0xFF2E7D32))
                             }
                         }
                     }
 
                     // Expiry options
-                    Text("Select Validity:", fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+                    Text("Select Validity:", fontWeight = FontWeight.SemiBold, fontSize = 14.sp, color = textPrimary)
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(6.dp)
@@ -941,7 +1062,7 @@ fun AdminPageBadgeDialog(
                             val isSelected = validityOption == key
                             Surface(
                                 shape = RoundedCornerShape(8.dp),
-                                color = if (isSelected) Color(0xFF1877F2) else Color(0xFFF0F2F5),
+                                color = if (isSelected) Color(0xFF1877F2) else rowBg,
                                 modifier = Modifier
                                     .weight(1f)
                                     .clickable { validityOption = key }
@@ -950,7 +1071,7 @@ fun AdminPageBadgeDialog(
                                     text = label,
                                     fontSize = 12.sp,
                                     fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                                    color = if (isSelected) Color.White else Color(0xFF050505),
+                                    color = if (isSelected) Color.White else textPrimary,
                                     textAlign = androidx.compose.ui.text.style.TextAlign.Center,
                                     modifier = Modifier.padding(vertical = 8.dp)
                                 )
@@ -980,7 +1101,7 @@ fun AdminPageBadgeDialog(
         },
         dismissButton = {
             OutlinedButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text("Cancel", color = textSecondary)
             }
         }
     )

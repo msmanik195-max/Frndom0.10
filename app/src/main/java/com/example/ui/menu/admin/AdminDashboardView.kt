@@ -111,6 +111,7 @@ import com.example.data.repository.GroupPageRepository
 import com.example.data.repository.PostRepository
 import com.example.data.repository.UserRepository
 import com.example.ui.maintenance.MaintenanceConfigDialog
+import com.example.ui.theme.LocalIsDarkMode
 import kotlinx.coroutines.launch
 import java.text.NumberFormat
 import java.util.Locale
@@ -144,6 +145,18 @@ fun AdminDashboardView(
     val adminRepo = remember { AdminRequestRepository.getInstance(context) }
     val adRepo = remember { AdvertisementRepository.getInstance(context) }
     val scope = rememberCoroutineScope()
+
+    val isDarkMode = LocalIsDarkMode.current
+    val bgScreen = if (isDarkMode) Color(0xFF18191A) else Color(0xFFF0F2F5)
+    val bgCard = if (isDarkMode) Color(0xFF242526) else Color.White
+    val textPrimary = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505)
+    val textSecondary = if (isDarkMode) Color(0xFFB0B3B8) else Color(0xFF65676B)
+    val dividerColor = if (isDarkMode) Color(0xFF3A3B3C) else Color(0xFFE4E6EB)
+    val drawerItemColors = NavigationDrawerItemDefaults.colors(
+        unselectedTextColor = textPrimary,
+        selectedTextColor = Color(0xFF1877F2),
+        selectedContainerColor = if (isDarkMode) Color(0xFF1877F2).copy(alpha = 0.2f) else Color(0xFFE7F3FF)
+    )
 
     // Real-time Data Sources
     val users by userRepository.getAllUsersFlow().collectAsState(initial = emptyList())
@@ -287,7 +300,7 @@ fun AdminDashboardView(
                 drawerContent = {
                     ModalDrawerSheet(
                         modifier = Modifier.width(310.dp),
-                        drawerContainerColor = Color.White
+                        drawerContainerColor = bgCard
                     ) {
                         // Admin Drawer Header
                         Column(
@@ -339,10 +352,7 @@ fun AdminDashboardView(
                             onClick = {
                                 scope.launch { drawerState.close() }
                             },
-                            colors = NavigationDrawerItemDefaults.colors(
-                                selectedContainerColor = Color(0xFFE7F3FF),
-                                selectedTextColor = Color(0xFF1877F2)
-                            ),
+                            colors = drawerItemColors,
                             modifier = Modifier.padding(horizontal = 12.dp, vertical = 2.dp)
                         )
 
@@ -353,13 +363,13 @@ fun AdminDashboardView(
                             badge = {
                                 Surface(
                                     shape = RoundedCornerShape(10.dp),
-                                    color = Color(0xFFE8F5E9)
+                                    color = if (isDarkMode) Color(0xFF008937).copy(alpha = 0.2f) else Color(0xFFE8F5E9)
                                 ) {
                                     Text(
                                         text = "$totalUsersCount",
                                         fontSize = 11.sp,
                                         fontWeight = FontWeight.Bold,
-                                        color = Color(0xFF008937),
+                                        color = if (isDarkMode) Color(0xFF81C784) else Color(0xFF008937),
                                         modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
                                     )
                                 }
@@ -371,6 +381,7 @@ fun AdminDashboardView(
                                     currentAdminScreen = AdminActiveScreen.USER_MANAGEMENT
                                 }
                             },
+                            colors = drawerItemColors,
                             modifier = Modifier.padding(horizontal = 12.dp, vertical = 2.dp)
                         )
 
@@ -381,7 +392,7 @@ fun AdminDashboardView(
                             badge = {
                                 Surface(
                                     shape = RoundedCornerShape(10.dp),
-                                    color = Color(0xFFE7F3FF)
+                                    color = if (isDarkMode) Color(0xFF1877F2).copy(alpha = 0.2f) else Color(0xFFE7F3FF)
                                 ) {
                                     Text(
                                         text = "$totalGroupsCount",
@@ -399,6 +410,7 @@ fun AdminDashboardView(
                                     currentAdminScreen = AdminActiveScreen.GROUP_MANAGEMENT
                                 }
                             },
+                            colors = drawerItemColors,
                             modifier = Modifier.padding(horizontal = 12.dp, vertical = 2.dp)
                         )
 
@@ -409,7 +421,7 @@ fun AdminDashboardView(
                             badge = {
                                 Surface(
                                     shape = RoundedCornerShape(10.dp),
-                                    color = Color(0xFFFCE4EC)
+                                    color = if (isDarkMode) Color(0xFFE91E63).copy(alpha = 0.2f) else Color(0xFFFCE4EC)
                                 ) {
                                     Text(
                                         text = "$totalPagesCount",
@@ -427,10 +439,11 @@ fun AdminDashboardView(
                                     currentAdminScreen = AdminActiveScreen.PAGE_MANAGEMENT
                                 }
                             },
+                            colors = drawerItemColors,
                             modifier = Modifier.padding(horizontal = 12.dp, vertical = 2.dp)
                         )
 
-                        Divider(modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp), color = Color(0xFFE4E6EB))
+                        Divider(modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp), color = dividerColor)
 
                         // 3. Deposit Requests
                         NavigationDrawerItem(
@@ -459,6 +472,7 @@ fun AdminDashboardView(
                                     currentAdminScreen = AdminActiveScreen.DEPOSIT_REQUESTS
                                 }
                             },
+                            colors = drawerItemColors,
                             modifier = Modifier.padding(horizontal = 12.dp, vertical = 2.dp)
                         )
 
@@ -489,6 +503,7 @@ fun AdminDashboardView(
                                     currentAdminScreen = AdminActiveScreen.WITHDRAW_REQUESTS
                                 }
                             },
+                            colors = drawerItemColors,
                             modifier = Modifier.padding(horizontal = 12.dp, vertical = 2.dp)
                         )
 
@@ -519,6 +534,7 @@ fun AdminDashboardView(
                                     currentAdminScreen = AdminActiveScreen.VERIFICATION_REQUESTS
                                 }
                             },
+                            colors = drawerItemColors,
                             modifier = Modifier.padding(horizontal = 12.dp, vertical = 2.dp)
                         )
 
@@ -549,6 +565,7 @@ fun AdminDashboardView(
                                     currentAdminScreen = AdminActiveScreen.MONETIZATION_REQUESTS
                                 }
                             },
+                            colors = drawerItemColors,
                             modifier = Modifier.padding(horizontal = 12.dp, vertical = 2.dp)
                         )
 
@@ -579,10 +596,11 @@ fun AdminDashboardView(
                                     currentAdminScreen = AdminActiveScreen.AD_MANAGEMENT
                                 }
                             },
+                            colors = drawerItemColors,
                             modifier = Modifier.padding(horizontal = 12.dp, vertical = 2.dp)
                         )
 
-                        Divider(modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp), color = Color(0xFFE4E6EB))
+                        Divider(modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp), color = dividerColor)
 
                         // 7. Payment Methods
                         NavigationDrawerItem(
@@ -595,6 +613,7 @@ fun AdminDashboardView(
                                     currentAdminScreen = AdminActiveScreen.PAYMENT_METHODS
                                 }
                             },
+                            colors = drawerItemColors,
                             modifier = Modifier.padding(horizontal = 12.dp, vertical = 2.dp)
                         )
 
@@ -609,6 +628,7 @@ fun AdminDashboardView(
                                     onServerSettingsClick()
                                 }
                             },
+                            colors = drawerItemColors,
                             modifier = Modifier.padding(horizontal = 12.dp, vertical = 2.dp)
                         )
 
@@ -623,6 +643,7 @@ fun AdminDashboardView(
                                     showChangePinDialog = true
                                 }
                             },
+                            colors = drawerItemColors,
                             modifier = Modifier.padding(horizontal = 12.dp, vertical = 2.dp)
                         )
 
@@ -638,13 +659,13 @@ fun AdminDashboardView(
                                     Text("Maintenance Mode", fontWeight = FontWeight.Medium)
                                     Surface(
                                         shape = RoundedCornerShape(8.dp),
-                                        color = if (maintenanceConfig.isEnabled) Color(0xFFFFEBEE) else Color(0xFFE8F5E9)
+                                        color = if (maintenanceConfig.isEnabled) Color(0xFFFFEBEE) else if (isDarkMode) Color(0xFF008937).copy(alpha = 0.2f) else Color(0xFFE8F5E9)
                                     ) {
                                         Text(
                                             text = if (maintenanceConfig.isEnabled) "ON" else "OFF",
                                             fontSize = 11.sp,
                                             fontWeight = FontWeight.Bold,
-                                            color = if (maintenanceConfig.isEnabled) Color(0xFFE53935) else Color(0xFF008937),
+                                            color = if (maintenanceConfig.isEnabled) Color(0xFFE53935) else if (isDarkMode) Color(0xFF81C784) else Color(0xFF008937),
                                             modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
                                         )
                                     }
@@ -657,6 +678,7 @@ fun AdminDashboardView(
                                     showMaintenanceConfigDialog = true
                                 }
                             },
+                            colors = drawerItemColors,
                             modifier = Modifier.padding(horizontal = 12.dp, vertical = 2.dp)
                         )
 
@@ -671,6 +693,7 @@ fun AdminDashboardView(
                                     currentAdminScreen = AdminActiveScreen.SETTINGS
                                 }
                             },
+                            colors = drawerItemColors,
                             modifier = Modifier.padding(horizontal = 12.dp, vertical = 2.dp)
                         )
                         Spacer(modifier = Modifier.height(16.dp))
@@ -687,7 +710,7 @@ fun AdminDashboardView(
                                         text = "Admin Dashboard",
                                         fontWeight = FontWeight.ExtraBold,
                                         fontSize = 20.sp,
-                                        color = Color(0xFF050505)
+                                        color = textPrimary
                                     )
                                     Text(
                                         text = "Live Real-Time Monitoring",
@@ -719,7 +742,7 @@ fun AdminDashboardView(
                                         Icon(
                                             imageVector = Icons.Default.Menu,
                                             contentDescription = "Admin Menu",
-                                            tint = Color(0xFF050505),
+                                            tint = textPrimary,
                                             modifier = Modifier.size(26.dp)
                                         )
                                     }
@@ -743,14 +766,14 @@ fun AdminDashboardView(
                                     Icon(
                                         imageVector = Icons.Default.ArrowBack,
                                         contentDescription = "Back",
-                                        tint = Color(0xFF050505)
+                                        tint = textPrimary
                                     )
                                 }
                             },
-                            colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
+                            colors = TopAppBarDefaults.topAppBarColors(containerColor = bgCard)
                         )
                     },
-                    containerColor = Color(0xFFF0F2F5),
+                    containerColor = bgScreen,
                     modifier = modifier.testTag("admin_dashboard_screen")
                 ) { innerPadding ->
                     LazyVerticalGrid(
@@ -899,7 +922,7 @@ fun AdminDashboardView(
                                     .testTag("admin_maintenance_mode_banner"),
                                 shape = RoundedCornerShape(14.dp),
                                 colors = CardDefaults.cardColors(
-                                    containerColor = if (maintenanceConfig.isEnabled) Color(0xFFD32F2F) else Color.White
+                                    containerColor = if (maintenanceConfig.isEnabled) Color(0xFFD32F2F) else bgCard
                                 ),
                                 elevation = CardDefaults.cardElevation(2.dp)
                             ) {
@@ -920,7 +943,7 @@ fun AdminDashboardView(
                                         ) {
                                             Surface(
                                                 shape = CircleShape,
-                                                color = if (maintenanceConfig.isEnabled) Color.White.copy(alpha = 0.25f) else Color(0xFFFFF3E0),
+                                                color = if (maintenanceConfig.isEnabled) Color.White.copy(alpha = 0.25f) else if (isDarkMode) Color(0xFFE65100).copy(alpha = 0.2f) else Color(0xFFFFF3E0),
                                                 modifier = Modifier.size(42.dp)
                                             ) {
                                                 Box(contentAlignment = Alignment.Center) {
@@ -938,12 +961,12 @@ fun AdminDashboardView(
                                                     text = "Maintenance Mode",
                                                     fontWeight = FontWeight.Bold,
                                                     fontSize = 15.sp,
-                                                    color = if (maintenanceConfig.isEnabled) Color.White else Color(0xFF1C1E21)
+                                                    color = if (maintenanceConfig.isEnabled) Color.White else textPrimary
                                                 )
                                                 Text(
                                                     text = if (maintenanceConfig.isEnabled) "ACTIVE • App locked for users" else "App is online & accessible",
                                                     fontSize = 12.sp,
-                                                    color = if (maintenanceConfig.isEnabled) Color.White.copy(alpha = 0.9f) else Color(0xFF65676B)
+                                                    color = if (maintenanceConfig.isEnabled) Color.White.copy(alpha = 0.9f) else textSecondary
                                                 )
                                             }
                                         }
@@ -1012,7 +1035,7 @@ fun AdminDashboardView(
                                 text = "User & Community Metrics",
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = Color(0xFF050505),
+                                color = textPrimary,
                                 modifier = Modifier.padding(top = 6.dp, bottom = 2.dp)
                             )
                         }
@@ -1101,7 +1124,7 @@ fun AdminDashboardView(
                                 text = "Engagement & Content Metrics",
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = Color(0xFF050505),
+                                color = textPrimary,
                                 modifier = Modifier.padding(top = 10.dp, bottom = 2.dp)
                             )
                         }
@@ -1185,7 +1208,7 @@ fun AdminDashboardView(
                                 text = "Requests & Wallet Pipelines",
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = Color(0xFF050505),
+                                color = textPrimary,
                                 modifier = Modifier.padding(top = 10.dp, bottom = 2.dp)
                             )
                         }
@@ -1268,7 +1291,7 @@ fun AdminDashboardView(
                                 text = "Real-Time Performance Graphs",
                                 fontSize = 18.sp,
                                 fontWeight = FontWeight.ExtraBold,
-                                color = Color(0xFF050505),
+                                color = textPrimary,
                                 modifier = Modifier.padding(top = 16.dp, bottom = 4.dp)
                             )
                         }
@@ -1315,7 +1338,7 @@ fun AdminDashboardView(
                                 text = "Quick Navigation",
                                 fontSize = 18.sp,
                                 fontWeight = FontWeight.ExtraBold,
-                                color = Color(0xFF050505),
+                                color = textPrimary,
                                 modifier = Modifier.padding(top = 16.dp, bottom = 4.dp)
                             )
                         }
@@ -1338,7 +1361,7 @@ fun AdminDashboardView(
                                 Card(
                                     modifier = Modifier.fillMaxWidth().clickable { currentAdminScreen = screen },
                                     shape = RoundedCornerShape(12.dp),
-                                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                                    colors = CardDefaults.cardColors(containerColor = bgCard),
                                     elevation = CardDefaults.cardElevation(1.dp)
                                 ) {
                                     Row(
@@ -1347,7 +1370,7 @@ fun AdminDashboardView(
                                     ) {
                                         Icon(icon, contentDescription = title, tint = Color(0xFF1877F2), modifier = Modifier.size(24.dp))
                                         Spacer(modifier = Modifier.width(8.dp))
-                                        Text(title, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+                                        Text(title, fontWeight = FontWeight.SemiBold, fontSize = 14.sp, color = textPrimary)
                                     }
                                 }
                             }
@@ -1375,12 +1398,18 @@ fun AdminMetricCard(
     onClick: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
+    val isDarkMode = LocalIsDarkMode.current
+    val cardBg = if (isDarkMode) Color(0xFF242526) else Color.White
+    val textPrimary = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505)
+    val textSecondary = if (isDarkMode) Color(0xFFB0B3B8) else Color(0xFF65676B)
+    val actualIconBg = if (isDarkMode) iconTint.copy(alpha = 0.2f) else iconBg
+
     Card(
         modifier = modifier
             .fillMaxWidth()
             .then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier),
         shape = RoundedCornerShape(14.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = cardBg),
         elevation = CardDefaults.cardElevation(1.dp)
     ) {
         Column(modifier = Modifier.padding(14.dp)) {
@@ -1391,7 +1420,7 @@ fun AdminMetricCard(
             ) {
                 Surface(
                     shape = RoundedCornerShape(10.dp),
-                    color = iconBg,
+                    color = actualIconBg,
                     modifier = Modifier.size(38.dp)
                 ) {
                     Box(contentAlignment = Alignment.Center) {
@@ -1419,14 +1448,14 @@ fun AdminMetricCard(
                 text = count,
                 fontSize = 22.sp,
                 fontWeight = FontWeight.ExtraBold,
-                color = Color(0xFF050505)
+                color = textPrimary
             )
 
             Text(
                 text = title,
                 fontSize = 13.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFF050505),
+                color = textPrimary,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
@@ -1434,7 +1463,7 @@ fun AdminMetricCard(
             Text(
                 text = subtitle,
                 fontSize = 11.sp,
-                color = Color(0xFF65676B),
+                color = textSecondary,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
@@ -1453,10 +1482,16 @@ fun AdminUserDistributionGraph(
     blockedUsers: Int,
     monetizedUsers: Int
 ) {
+    val isDarkMode = LocalIsDarkMode.current
+    val cardBg = if (isDarkMode) Color(0xFF242526) else Color.White
+    val textPrimary = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505)
+    val textSecondary = if (isDarkMode) Color(0xFFB0B3B8) else Color(0xFF65676B)
+    val guideLineColor = if (isDarkMode) Color(0xFF3A3B3C) else Color(0xFFF0F2F5)
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(14.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = cardBg),
         elevation = CardDefaults.cardElevation(1.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
@@ -1470,17 +1505,17 @@ fun AdminUserDistributionGraph(
                         text = "1. User Community Breakdown",
                         fontSize = 15.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF050505)
+                        color = textPrimary
                     )
                     Text(
                         text = "Distribution across total $totalUsers registered users",
                         fontSize = 12.sp,
-                        color = Color(0xFF65676B)
+                        color = textSecondary
                     )
                 }
                 Surface(
                     shape = RoundedCornerShape(6.dp),
-                    color = Color(0xFFE7F3FF)
+                    color = if (isDarkMode) Color(0xFF1877F2).copy(alpha = 0.2f) else Color(0xFFE7F3FF)
                 ) {
                     Text(
                         text = "LIVE",
@@ -1518,7 +1553,7 @@ fun AdminUserDistributionGraph(
                 for (i in 0..lines) {
                     val y = size.height * (i.toFloat() / lines)
                     drawLine(
-                        color = Color(0xFFF0F2F5),
+                        color = guideLineColor,
                         start = Offset(0f, y),
                         end = Offset(size.width, y),
                         strokeWidth = 1f
@@ -1568,10 +1603,15 @@ fun AdminContentMediaGraph(
     comments: Int,
     messages: Int
 ) {
+    val isDarkMode = LocalIsDarkMode.current
+    val cardBg = if (isDarkMode) Color(0xFF242526) else Color.White
+    val textPrimary = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505)
+    val textSecondary = if (isDarkMode) Color(0xFFB0B3B8) else Color(0xFF65676B)
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(14.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = cardBg),
         elevation = CardDefaults.cardElevation(1.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
@@ -1585,23 +1625,23 @@ fun AdminContentMediaGraph(
                         text = "2. Media & Social Traffic",
                         fontSize = 15.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF050505)
+                        color = textPrimary
                     )
                     Text(
                         text = "Images, Videos, Texts, Comments & Messages",
                         fontSize = 12.sp,
-                        color = Color(0xFF65676B)
+                        color = textSecondary
                     )
                 }
                 Surface(
                     shape = RoundedCornerShape(6.dp),
-                    color = Color(0xFFEDE7F6)
+                    color = if (isDarkMode) Color(0xFF673AB7).copy(alpha = 0.2f) else Color(0xFFEDE7F6)
                 ) {
                     Text(
                         text = "REAL-TIME",
                         fontSize = 10.sp,
                         fontWeight = FontWeight.ExtraBold,
-                        color = Color(0xFF673AB7),
+                        color = Color(0xFF9C27B0),
                         modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
                     )
                 }
@@ -1612,11 +1652,11 @@ fun AdminContentMediaGraph(
             val maxCount = maxOf(imagePosts, videoPosts, textPosts, comments, messages, 1).toFloat()
 
             val rows = listOf(
-                Pair("Photos ($imagePosts)", Triple(imagePosts, Color(0xFFE91E63), Color(0xFFFCE4EC))),
-                Pair("Videos ($videoPosts)", Triple(videoPosts, Color(0xFF03A9F4), Color(0xFFE1F5FE))),
-                Pair("Texts ($textPosts)", Triple(textPosts, Color(0xFF9C27B0), Color(0xFFF3E5F5))),
-                Pair("Comments ($comments)", Triple(comments, Color(0xFFFF9800), Color(0xFFFFF3E0))),
-                Pair("Messages ($messages)", Triple(messages, Color(0xFF00BCD4), Color(0xFFE0F7FA)))
+                Pair("Photos ($imagePosts)", Triple(imagePosts, Color(0xFFE91E63), if (isDarkMode) Color(0xFFE91E63).copy(alpha = 0.15f) else Color(0xFFFCE4EC))),
+                Pair("Videos ($videoPosts)", Triple(videoPosts, Color(0xFF03A9F4), if (isDarkMode) Color(0xFF03A9F4).copy(alpha = 0.15f) else Color(0xFFE1F5FE))),
+                Pair("Texts ($textPosts)", Triple(textPosts, Color(0xFF9C27B0), if (isDarkMode) Color(0xFF9C27B0).copy(alpha = 0.15f) else Color(0xFFF3E5F5))),
+                Pair("Comments ($comments)", Triple(comments, Color(0xFFFF9800), if (isDarkMode) Color(0xFFFF9800).copy(alpha = 0.15f) else Color(0xFFFFF3E0))),
+                Pair("Messages ($messages)", Triple(messages, Color(0xFF00BCD4), if (isDarkMode) Color(0xFF00BCD4).copy(alpha = 0.15f) else Color(0xFFE0F7FA)))
             )
 
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -1629,7 +1669,7 @@ fun AdminContentMediaGraph(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            Text(text = label, fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF050505))
+                            Text(text = label, fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = textPrimary)
                             Text(text = "$valCount", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = color)
                         }
                         Spacer(modifier = Modifier.height(4.dp))
@@ -1667,10 +1707,15 @@ fun AdminFinancialPipelineGraph(
     totalDeposits: Int,
     totalWithdraws: Int
 ) {
+    val isDarkMode = LocalIsDarkMode.current
+    val cardBg = if (isDarkMode) Color(0xFF242526) else Color.White
+    val textPrimary = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505)
+    val textSecondary = if (isDarkMode) Color(0xFFB0B3B8) else Color(0xFF65676B)
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(14.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = cardBg),
         elevation = CardDefaults.cardElevation(1.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
@@ -1684,17 +1729,17 @@ fun AdminFinancialPipelineGraph(
                         text = "3. Financial & Request Pipelines",
                         fontSize = 15.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF050505)
+                        color = textPrimary
                     )
                     Text(
                         text = "Pending deposits, withdrawals & verification queues",
                         fontSize = 12.sp,
-                        color = Color(0xFF65676B)
+                        color = textSecondary
                     )
                 }
                 Surface(
                     shape = RoundedCornerShape(6.dp),
-                    color = Color(0xFFFFF3E0)
+                    color = if (isDarkMode) Color(0xFFE65100).copy(alpha = 0.2f) else Color(0xFFFFF3E0)
                 ) {
                     Text(
                         text = "PIPELINE",
@@ -1763,6 +1808,10 @@ fun StatBadgeItem(
     value: String,
     color: Color
 ) {
+    val isDarkMode = LocalIsDarkMode.current
+    val textPrimary = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505)
+    val textSecondary = if (isDarkMode) Color(0xFFB0B3B8) else Color(0xFF65676B)
+
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Surface(
             shape = CircleShape,
@@ -1770,7 +1819,7 @@ fun StatBadgeItem(
             modifier = Modifier.size(8.dp)
         ) {}
         Spacer(modifier = Modifier.height(2.dp))
-        Text(text = value, fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Color(0xFF050505))
-        Text(text = label, fontSize = 10.sp, color = Color(0xFF65676B))
+        Text(text = value, fontSize = 11.sp, fontWeight = FontWeight.Bold, color = textPrimary)
+        Text(text = label, fontSize = 10.sp, color = textSecondary)
     }
 }

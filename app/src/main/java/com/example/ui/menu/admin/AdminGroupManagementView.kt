@@ -32,6 +32,7 @@ import coil.compose.AsyncImage
 import com.example.data.model.GroupItem
 import com.example.data.repository.GroupPageRepository
 import com.example.ui.components.VerificationBadge
+import com.example.ui.theme.LocalIsDarkMode
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -49,6 +50,14 @@ fun AdminGroupManagementView(
     onBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val isDarkMode = LocalIsDarkMode.current
+    val bgScreen = if (isDarkMode) Color(0xFF18191A) else Color(0xFFF0F2F5)
+    val bgCard = if (isDarkMode) Color(0xFF242526) else Color.White
+    val textPrimary = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505)
+    val textSecondary = if (isDarkMode) Color(0xFFB0B3B8) else Color(0xFF65676B)
+    val dividerColor = if (isDarkMode) Color(0xFF3E4042) else Color(0xFFE4E6EB)
+    val inputBg = if (isDarkMode) Color(0xFF3A3B3C) else Color.White
+
     val context = LocalContext.current
     val repository = remember { GroupPageRepository(context) }
     val allGroups by repository.groupsFlow.collectAsState()
@@ -98,7 +107,7 @@ fun AdminGroupManagementView(
                                 text = "Group Management",
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 18.sp,
-                                color = Color(0xFF050505)
+                                color = textPrimary
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                             Surface(
@@ -117,7 +126,7 @@ fun AdminGroupManagementView(
                         Text(
                             text = "Manage and oversee all user groups",
                             fontSize = 11.sp,
-                            color = Color(0xFF65676B)
+                            color = textSecondary
                         )
                     }
                 },
@@ -126,14 +135,14 @@ fun AdminGroupManagementView(
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
                             contentDescription = "Back",
-                            tint = Color(0xFF050505)
+                            tint = textPrimary
                         )
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = bgCard)
             )
         },
-        containerColor = Color(0xFFF0F2F5),
+        containerColor = bgScreen,
         modifier = modifier.testTag("admin_group_management_screen")
     ) { paddingValues ->
         LazyColumn(
@@ -149,7 +158,7 @@ fun AdminGroupManagementView(
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp, vertical = 8.dp),
                     shape = RoundedCornerShape(14.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    colors = CardDefaults.cardColors(containerColor = bgCard),
                     elevation = CardDefaults.cardElevation(2.dp)
                 ) {
                     Row(
@@ -159,9 +168,9 @@ fun AdminGroupManagementView(
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         AdminStatMiniItem(title = "Total Groups", value = "$totalCount", color = Color(0xFF1877F2))
-                        AdminStatMiniItem(title = "Active", value = "$activeCount", color = Color(0xFF2E7D32))
+                        AdminStatMiniItem(title = "Active", value = "$activeCount", color = if (isDarkMode) Color(0xFF81C784) else Color(0xFF2E7D32))
                         AdminStatMiniItem(title = "Blocked", value = "$blockedCount", color = Color(0xFFD32F2F))
-                        AdminStatMiniItem(title = "Verified", value = "$verifiedCount", color = Color(0xFF00897B))
+                        AdminStatMiniItem(title = "Verified", value = "$verifiedCount", color = if (isDarkMode) Color(0xFF4DB6AC) else Color(0xFF00897B))
                     }
                 }
             }
@@ -171,24 +180,28 @@ fun AdminGroupManagementView(
                 OutlinedTextField(
                     value = searchQuery,
                     onValueChange = { searchQuery = it },
-                    placeholder = { Text("Search by group name, category, ID...", fontSize = 14.sp) },
+                    placeholder = { Text("Search by group name, category, ID...", fontSize = 14.sp, color = textSecondary) },
                     leadingIcon = {
-                        Icon(Icons.Default.Search, contentDescription = "Search", tint = Color(0xFF65676B))
+                        Icon(Icons.Default.Search, contentDescription = "Search", tint = textSecondary)
                     },
                     trailingIcon = {
                         if (searchQuery.isNotEmpty()) {
                             IconButton(onClick = { searchQuery = "" }) {
-                                Icon(Icons.Default.Clear, contentDescription = "Clear", tint = Color(0xFF65676B))
+                                Icon(Icons.Default.Clear, contentDescription = "Clear", tint = textSecondary)
                             }
                         }
                     },
                     shape = RoundedCornerShape(12.dp),
                     singleLine = true,
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = Color.White,
-                        unfocusedContainerColor = Color.White,
+                        focusedTextColor = textPrimary,
+                        unfocusedTextColor = textPrimary,
+                        focusedPlaceholderColor = textSecondary,
+                        unfocusedPlaceholderColor = textSecondary,
+                        focusedContainerColor = inputBg,
+                        unfocusedContainerColor = inputBg,
                         focusedBorderColor = Color(0xFF1877F2),
-                        unfocusedBorderColor = Color(0xFFCED0D4)
+                        unfocusedBorderColor = if (isDarkMode) dividerColor else Color(0xFFCED0D4)
                     ),
                     modifier = Modifier
                         .fillMaxWidth()
@@ -220,8 +233,8 @@ fun AdminGroupManagementView(
                             colors = FilterChipDefaults.filterChipColors(
                                 selectedContainerColor = Color(0xFF1877F2),
                                 selectedLabelColor = Color.White,
-                                containerColor = Color.White,
-                                labelColor = Color(0xFF050505)
+                                containerColor = if (isDarkMode) Color(0xFF3A3B3C) else Color.White,
+                                labelColor = textPrimary
                             ),
                             shape = RoundedCornerShape(20.dp)
                         )
@@ -242,7 +255,7 @@ fun AdminGroupManagementView(
                             Icon(
                                 imageVector = Icons.Default.Group,
                                 contentDescription = null,
-                                tint = Color(0xFFBCC0C4),
+                                tint = if (isDarkMode) Color(0xFF5A5C5E) else Color(0xFFBCC0C4),
                                 modifier = Modifier.size(56.dp)
                             )
                             Spacer(modifier = Modifier.height(12.dp))
@@ -250,12 +263,12 @@ fun AdminGroupManagementView(
                                 text = "No groups found",
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = Color(0xFF65676B)
+                                color = textPrimary
                             )
                             Text(
                                 text = "When users create groups, they will appear here",
                                 fontSize = 12.sp,
-                                color = Color(0xFF8A8D91)
+                                color = textSecondary
                             )
                         }
                     }
@@ -300,10 +313,16 @@ fun AdminGroupManagementView(
     deletingGroup?.let { group ->
         AlertDialog(
             onDismissRequest = { deletingGroup = null },
+            containerColor = bgCard,
+            titleContentColor = textPrimary,
+            textContentColor = textSecondary,
             icon = { Icon(Icons.Default.Delete, contentDescription = null, tint = Color(0xFFD32F2F)) },
-            title = { Text("Delete Group?", fontWeight = FontWeight.Bold) },
+            title = { Text("Delete Group?", fontWeight = FontWeight.Bold, color = textPrimary) },
             text = {
-                Text("Are you sure you want to permanently delete '${group.name}' from the database? This action cannot be undone.")
+                Text(
+                    "Are you sure you want to permanently delete '${group.name}' from the database? This action cannot be undone.",
+                    color = textPrimary
+                )
             },
             confirmButton = {
                 Button(
@@ -319,7 +338,7 @@ fun AdminGroupManagementView(
             },
             dismissButton = {
                 OutlinedButton(onClick = { deletingGroup = null }) {
-                    Text("Cancel")
+                    Text("Cancel", color = textSecondary)
                 }
             }
         )
@@ -367,6 +386,12 @@ private fun AdminGroupCard(
     onManageExpiry: () -> Unit,
     onDelete: () -> Unit
 ) {
+    val isDarkMode = LocalIsDarkMode.current
+    val bgCard = if (isDarkMode) Color(0xFF242526) else Color.White
+    val textPrimary = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505)
+    val textSecondary = if (isDarkMode) Color(0xFFB0B3B8) else Color(0xFF65676B)
+    val dividerColor = if (isDarkMode) Color(0xFF3E4042) else Color(0xFFF0F2F5)
+
     val dateFormat = remember { SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.getDefault()) }
     val isVerifiedActive = group.isBadgeActive()
 
@@ -376,7 +401,7 @@ private fun AdminGroupCard(
             .padding(horizontal = 16.dp, vertical = 6.dp)
             .testTag("admin_group_card_${group.id}"),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = bgCard),
         elevation = CardDefaults.cardElevation(2.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
@@ -388,7 +413,7 @@ private fun AdminGroupCard(
                 // Group Cover / Avatar
                 Surface(
                     shape = RoundedCornerShape(12.dp),
-                    color = Color(0xFFE4E6EB),
+                    color = if (isDarkMode) Color(0xFF3A3B3C) else Color(0xFFE4E6EB),
                     modifier = Modifier.size(54.dp)
                 ) {
                     if (group.coverUrl.isNotBlank()) {
@@ -419,7 +444,7 @@ private fun AdminGroupCard(
                             text = group.name,
                             fontWeight = FontWeight.Bold,
                             fontSize = 16.sp,
-                            color = Color(0xFF050505),
+                            color = textPrimary,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
@@ -446,12 +471,12 @@ private fun AdminGroupCard(
                     ) {
                         Surface(
                             shape = RoundedCornerShape(6.dp),
-                            color = Color(0xFFF0F2F5)
+                            color = if (isDarkMode) Color(0xFF3A3B3C) else Color(0xFFF0F2F5)
                         ) {
                             Text(
                                 text = group.privacy,
                                 fontSize = 11.sp,
-                                color = Color(0xFF65676B),
+                                color = textSecondary,
                                 fontWeight = FontWeight.Medium,
                                 modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
                             )
@@ -459,12 +484,12 @@ private fun AdminGroupCard(
 
                         Surface(
                             shape = RoundedCornerShape(6.dp),
-                            color = Color(0xFFE8F5E9)
+                            color = if (isDarkMode) Color(0xFF2E7D32).copy(alpha = 0.25f) else Color(0xFFE8F5E9)
                         ) {
                             Text(
                                 text = "${group.membersCount} members",
                                 fontSize = 11.sp,
-                                color = Color(0xFF2E7D32),
+                                color = if (isDarkMode) Color(0xFF81C784) else Color(0xFF2E7D32),
                                 fontWeight = FontWeight.SemiBold,
                                 modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
                             )
@@ -472,12 +497,12 @@ private fun AdminGroupCard(
 
                         Surface(
                             shape = RoundedCornerShape(6.dp),
-                            color = Color(0xFFEDE7F6)
+                            color = if (isDarkMode) Color(0xFF5E35B1).copy(alpha = 0.25f) else Color(0xFFEDE7F6)
                         ) {
                             Text(
                                 text = group.category,
                                 fontSize = 11.sp,
-                                color = Color(0xFF5E35B1),
+                                color = if (isDarkMode) Color(0xFFB39DDB) else Color(0xFF5E35B1),
                                 fontWeight = FontWeight.Medium,
                                 modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
                             )
@@ -488,13 +513,17 @@ private fun AdminGroupCard(
                 // Block status badge
                 Surface(
                     shape = RoundedCornerShape(8.dp),
-                    color = if (group.isBlocked) Color(0xFFFFEBEE) else Color(0xFFE8F5E9)
+                    color = if (group.isBlocked) {
+                        if (isDarkMode) Color(0xFFD32F2F).copy(alpha = 0.25f) else Color(0xFFFFEBEE)
+                    } else {
+                        if (isDarkMode) Color(0xFF2E7D32).copy(alpha = 0.25f) else Color(0xFFE8F5E9)
+                    }
                 ) {
                     Text(
                         text = if (group.isBlocked) "Blocked" else "Active",
                         fontSize = 11.sp,
                         fontWeight = FontWeight.Bold,
-                        color = if (group.isBlocked) Color(0xFFD32F2F) else Color(0xFF2E7D32),
+                        color = if (group.isBlocked) Color(0xFFD32F2F) else (if (isDarkMode) Color(0xFF81C784) else Color(0xFF2E7D32)),
                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
                     )
                 }
@@ -506,14 +535,14 @@ private fun AdminGroupCard(
                 Text(
                     text = group.description,
                     fontSize = 13.sp,
-                    color = Color(0xFF333333),
+                    color = textPrimary,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
             }
 
             Spacer(modifier = Modifier.height(10.dp))
-            Divider(color = Color(0xFFF0F2F5), thickness = 1.dp)
+            Divider(color = dividerColor, thickness = 1.dp)
             Spacer(modifier = Modifier.height(8.dp))
 
             // Metadata & Verification Expiry info
@@ -526,13 +555,13 @@ private fun AdminGroupCard(
                     Text(
                         text = "Created: ${dateFormat.format(Date(group.createdAt))}",
                         fontSize = 11.sp,
-                        color = Color(0xFF8A8D91)
+                        color = textSecondary
                     )
                     if (group.creatorId.isNotBlank()) {
                         Text(
                             text = "Creator ID: ${group.creatorId}",
                             fontSize = 10.sp,
-                            color = Color(0xFF8A8D91),
+                            color = textSecondary,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
@@ -543,7 +572,11 @@ private fun AdminGroupCard(
                 if (group.isVerified) {
                     Surface(
                         shape = RoundedCornerShape(8.dp),
-                        color = if (isVerifiedActive) Color(0xFFE3F2FD) else Color(0xFFFFEBEE),
+                        color = if (isVerifiedActive) {
+                            if (isDarkMode) Color(0xFF1877F2).copy(alpha = 0.25f) else Color(0xFFE3F2FD)
+                        } else {
+                            if (isDarkMode) Color(0xFFD32F2F).copy(alpha = 0.25f) else Color(0xFFFFEBEE)
+                        },
                         modifier = Modifier.clickable { onManageExpiry() }
                     ) {
                         Row(
@@ -631,14 +664,14 @@ private fun AdminGroupCard(
                         imageVector = Icons.Default.Verified,
                         contentDescription = null,
                         modifier = Modifier.size(15.dp),
-                        tint = if (group.isVerified) Color(0xFF1877F2) else Color(0xFF65676B)
+                        tint = if (group.isVerified) Color(0xFF1877F2) else textSecondary
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
                         text = if (group.isVerified) "Badge ON" else "Badge OFF",
                         fontSize = 12.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = if (group.isVerified) Color(0xFF1877F2) else Color(0xFF65676B)
+                        color = if (group.isVerified) Color(0xFF1877F2) else textSecondary
                     )
                 }
 
@@ -647,7 +680,10 @@ private fun AdminGroupCard(
                     onClick = onDelete,
                     modifier = Modifier
                         .size(38.dp)
-                        .background(Color(0xFFFFEBEE), RoundedCornerShape(8.dp))
+                        .background(
+                            if (isDarkMode) Color(0xFFD32F2F).copy(alpha = 0.25f) else Color(0xFFFFEBEE),
+                            RoundedCornerShape(8.dp)
+                        )
                 ) {
                     Icon(
                         imageVector = Icons.Default.Delete,
@@ -670,6 +706,13 @@ fun AdminEditGroupDialog(
     onDismiss: () -> Unit,
     onSave: (GroupItem) -> Unit
 ) {
+    val isDarkMode = LocalIsDarkMode.current
+    val bgCard = if (isDarkMode) Color(0xFF242526) else Color.White
+    val textPrimary = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505)
+    val textSecondary = if (isDarkMode) Color(0xFFB0B3B8) else Color(0xFF65676B)
+    val dividerColor = if (isDarkMode) Color(0xFF3E4042) else Color(0xFFE4E6EB)
+    val inputBg = if (isDarkMode) Color(0xFF3A3B3C) else Color.White
+
     var name by remember { mutableStateOf(group.name) }
     var category by remember { mutableStateOf(group.category) }
     var privacy by remember { mutableStateOf(group.privacy) }
@@ -679,7 +722,10 @@ fun AdminEditGroupDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Edit Group Details", fontWeight = FontWeight.Bold, fontSize = 18.sp) },
+        containerColor = bgCard,
+        titleContentColor = textPrimary,
+        textContentColor = textSecondary,
+        title = { Text("Edit Group Details", fontWeight = FontWeight.Bold, fontSize = 18.sp, color = textPrimary) },
         text = {
             Column(
                 modifier = Modifier.fillMaxWidth(),
@@ -688,18 +734,34 @@ fun AdminEditGroupDialog(
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
-                    label = { Text("Group Name") },
+                    label = { Text("Group Name", color = textSecondary) },
                     singleLine = true,
                     shape = RoundedCornerShape(10.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = textPrimary,
+                        unfocusedTextColor = textPrimary,
+                        focusedBorderColor = Color(0xFF1877F2),
+                        unfocusedBorderColor = dividerColor,
+                        focusedContainerColor = inputBg,
+                        unfocusedContainerColor = inputBg
+                    ),
                     modifier = Modifier.fillMaxWidth()
                 )
 
                 OutlinedTextField(
                     value = category,
                     onValueChange = { category = it },
-                    label = { Text("Category") },
+                    label = { Text("Category", color = textSecondary) },
                     singleLine = true,
                     shape = RoundedCornerShape(10.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = textPrimary,
+                        unfocusedTextColor = textPrimary,
+                        focusedBorderColor = Color(0xFF1877F2),
+                        unfocusedBorderColor = dividerColor,
+                        focusedContainerColor = inputBg,
+                        unfocusedContainerColor = inputBg
+                    ),
                     modifier = Modifier.fillMaxWidth()
                 )
 
@@ -710,18 +772,34 @@ fun AdminEditGroupDialog(
                     OutlinedTextField(
                         value = privacy,
                         onValueChange = { privacy = it },
-                        label = { Text("Privacy (Public/Private)") },
+                        label = { Text("Privacy (Public/Private)", color = textSecondary) },
                         singleLine = true,
                         shape = RoundedCornerShape(10.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = textPrimary,
+                            unfocusedTextColor = textPrimary,
+                            focusedBorderColor = Color(0xFF1877F2),
+                            unfocusedBorderColor = dividerColor,
+                            focusedContainerColor = inputBg,
+                            unfocusedContainerColor = inputBg
+                        ),
                         modifier = Modifier.weight(1f)
                     )
                     OutlinedTextField(
                         value = membersCountStr,
                         onValueChange = { membersCountStr = it.filter { ch -> ch.isDigit() } },
-                        label = { Text("Members Count") },
+                        label = { Text("Members Count", color = textSecondary) },
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         shape = RoundedCornerShape(10.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = textPrimary,
+                            unfocusedTextColor = textPrimary,
+                            focusedBorderColor = Color(0xFF1877F2),
+                            unfocusedBorderColor = dividerColor,
+                            focusedContainerColor = inputBg,
+                            unfocusedContainerColor = inputBg
+                        ),
                         modifier = Modifier.weight(1f)
                     )
                 }
@@ -729,18 +807,34 @@ fun AdminEditGroupDialog(
                 OutlinedTextField(
                     value = coverUrl,
                     onValueChange = { coverUrl = it },
-                    label = { Text("Cover Image URL") },
+                    label = { Text("Cover Image URL", color = textSecondary) },
                     singleLine = true,
                     shape = RoundedCornerShape(10.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = textPrimary,
+                        unfocusedTextColor = textPrimary,
+                        focusedBorderColor = Color(0xFF1877F2),
+                        unfocusedBorderColor = dividerColor,
+                        focusedContainerColor = inputBg,
+                        unfocusedContainerColor = inputBg
+                    ),
                     modifier = Modifier.fillMaxWidth()
                 )
 
                 OutlinedTextField(
                     value = description,
                     onValueChange = { description = it },
-                    label = { Text("Description / Rules") },
+                    label = { Text("Description / Rules", color = textSecondary) },
                     maxLines = 3,
                     shape = RoundedCornerShape(10.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = textPrimary,
+                        unfocusedTextColor = textPrimary,
+                        focusedBorderColor = Color(0xFF1877F2),
+                        unfocusedBorderColor = dividerColor,
+                        focusedContainerColor = inputBg,
+                        unfocusedContainerColor = inputBg
+                    ),
                     modifier = Modifier.fillMaxWidth()
                 )
             }
@@ -767,7 +861,7 @@ fun AdminEditGroupDialog(
         },
         dismissButton = {
             OutlinedButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text("Cancel", color = textSecondary)
             }
         }
     )
@@ -782,17 +876,27 @@ fun AdminGroupBadgeDialog(
     onDismiss: () -> Unit,
     onSave: (isVerified: Boolean, badgeType: String, expiresAt: Long) -> Unit
 ) {
+    val isDarkMode = LocalIsDarkMode.current
+    val bgCard = if (isDarkMode) Color(0xFF242526) else Color.White
+    val textPrimary = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505)
+    val textSecondary = if (isDarkMode) Color(0xFFB0B3B8) else Color(0xFF65676B)
+    val rowBg = if (isDarkMode) Color(0xFF3A3B3C) else Color(0xFFF0F2F5)
+    val borderUnselected = if (isDarkMode) Color(0xFF3E4042) else Color(0xFFCED0D4)
+
     var isVerified by remember { mutableStateOf(group.isVerified) }
     var badgeType by remember { mutableStateOf(group.badgeType) }
     var validityOption by remember { mutableStateOf("LIFETIME") } // LIFETIME, 30_DAYS, 90_DAYS, 365_DAYS
 
     AlertDialog(
         onDismissRequest = onDismiss,
+        containerColor = bgCard,
+        titleContentColor = textPrimary,
+        textContentColor = textSecondary,
         title = {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.Default.Verified, contentDescription = null, tint = Color(0xFF1877F2))
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Verification Badge Control", fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                Text("Verification Badge Control", fontWeight = FontWeight.Bold, fontSize = 18.sp, color = textPrimary)
             }
         },
         text = {
@@ -804,17 +908,17 @@ fun AdminGroupBadgeDialog(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(Color(0xFFF0F2F5), RoundedCornerShape(10.dp))
+                        .background(rowBg, RoundedCornerShape(10.dp))
                         .padding(12.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Column {
-                        Text("Enable Verification Badge", fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                        Text("Enable Verification Badge", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = textPrimary)
                         Text(
                             text = if (isVerified) "Verified badge icon displayed next to group" else "Badge is disabled",
                             fontSize = 12.sp,
-                            color = Color(0xFF65676B)
+                            color = textSecondary
                         )
                     }
                     Switch(
@@ -829,17 +933,19 @@ fun AdminGroupBadgeDialog(
 
                 if (isVerified) {
                     // Badge Color Type
-                    Text("Badge Type & Color:", fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+                    Text("Badge Type & Color:", fontWeight = FontWeight.SemiBold, fontSize = 14.sp, color = textPrimary)
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
                         Surface(
                             shape = RoundedCornerShape(10.dp),
-                            color = if (badgeType == "BLUE") Color(0xFFE3F2FD) else Color.White,
+                            color = if (badgeType == "BLUE") {
+                                if (isDarkMode) Color(0xFF1877F2).copy(alpha = 0.25f) else Color(0xFFE3F2FD)
+                            } else rowBg,
                             border = androidx.compose.foundation.BorderStroke(
                                 1.5.dp,
-                                if (badgeType == "BLUE") Color(0xFF1877F2) else Color(0xFFCED0D4)
+                                if (badgeType == "BLUE") Color(0xFF1877F2) else borderUnselected
                             ),
                             modifier = Modifier
                                 .weight(1f)
@@ -859,10 +965,12 @@ fun AdminGroupBadgeDialog(
 
                         Surface(
                             shape = RoundedCornerShape(10.dp),
-                            color = if (badgeType == "GREEN") Color(0xFFE8F5E9) else Color.White,
+                            color = if (badgeType == "GREEN") {
+                                if (isDarkMode) Color(0xFF2E7D32).copy(alpha = 0.25f) else Color(0xFFE8F5E9)
+                            } else rowBg,
                             border = androidx.compose.foundation.BorderStroke(
                                 1.5.dp,
-                                if (badgeType == "GREEN") Color(0xFF2E7D32) else Color(0xFFCED0D4)
+                                if (badgeType == "GREEN") Color(0xFF2E7D32) else borderUnselected
                             ),
                             modifier = Modifier
                                 .weight(1f)
@@ -876,13 +984,13 @@ fun AdminGroupBadgeDialog(
                             ) {
                                 VerificationBadge(size = 20.dp, show = true)
                                 Spacer(modifier = Modifier.width(6.dp))
-                                Text("Green Badge", fontWeight = FontWeight.Bold, fontSize = 13.sp, color = Color(0xFF2E7D32))
+                                Text("Green Badge", fontWeight = FontWeight.Bold, fontSize = 13.sp, color = if (isDarkMode) Color(0xFF81C784) else Color(0xFF2E7D32))
                             }
                         }
                     }
 
                     // Expiry options
-                    Text("Select Validity:", fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+                    Text("Select Validity:", fontWeight = FontWeight.SemiBold, fontSize = 14.sp, color = textPrimary)
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(6.dp)
@@ -896,7 +1004,7 @@ fun AdminGroupBadgeDialog(
                             val isSelected = validityOption == key
                             Surface(
                                 shape = RoundedCornerShape(8.dp),
-                                color = if (isSelected) Color(0xFF1877F2) else Color(0xFFF0F2F5),
+                                color = if (isSelected) Color(0xFF1877F2) else rowBg,
                                 modifier = Modifier
                                     .weight(1f)
                                     .clickable { validityOption = key }
@@ -905,7 +1013,7 @@ fun AdminGroupBadgeDialog(
                                     text = label,
                                     fontSize = 12.sp,
                                     fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                                    color = if (isSelected) Color.White else Color(0xFF050505),
+                                    color = if (isSelected) Color.White else textPrimary,
                                     textAlign = androidx.compose.ui.text.style.TextAlign.Center,
                                     modifier = Modifier.padding(vertical = 8.dp)
                                 )
@@ -935,7 +1043,7 @@ fun AdminGroupBadgeDialog(
         },
         dismissButton = {
             OutlinedButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text("Cancel", color = textSecondary)
             }
         }
     )
@@ -952,16 +1060,26 @@ fun AdminBadgeExpiryDialog(
     onAdjustDays: (Int) -> Unit,
     onSetCustomExpiry: (Long) -> Unit
 ) {
+    val isDarkMode = LocalIsDarkMode.current
+    val bgCard = if (isDarkMode) Color(0xFF242526) else Color.White
+    val textPrimary = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505)
+    val textSecondary = if (isDarkMode) Color(0xFFB0B3B8) else Color(0xFF65676B)
+    val dividerColor = if (isDarkMode) Color(0xFF3E4042) else Color(0xFFE4E6EB)
+    val inputBg = if (isDarkMode) Color(0xFF3A3B3C) else Color.White
+
     val dateFormat = remember { SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.getDefault()) }
     var customDaysText by remember { mutableStateOf("") }
 
     AlertDialog(
         onDismissRequest = onDismiss,
+        containerColor = bgCard,
+        titleContentColor = textPrimary,
+        textContentColor = textSecondary,
         title = {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.Default.AccessTime, contentDescription = null, tint = Color(0xFF00897B))
                 Spacer(modifier = Modifier.width(8.dp))
-                Text(title, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                Text(title, fontWeight = FontWeight.Bold, fontSize = 18.sp, color = textPrimary)
             }
         },
         text = {
@@ -972,22 +1090,26 @@ fun AdminBadgeExpiryDialog(
                 // Current status
                 Surface(
                     shape = RoundedCornerShape(10.dp),
-                    color = Color(0xFFE0F2F1),
+                    color = if (isDarkMode) Color(0xFF00897B).copy(alpha = 0.25f) else Color(0xFFE0F2F1),
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Column(modifier = Modifier.padding(12.dp)) {
-                        Text("Current Verification Expiry:", fontSize = 12.sp, color = Color(0xFF004D40))
+                        Text(
+                            "Current Verification Expiry:",
+                            fontSize = 12.sp,
+                            color = if (isDarkMode) Color(0xFF80CBC4) else Color(0xFF004D40)
+                        )
                         Text(
                             text = if (currentExpiry == 0L) "Lifetime (No expiration)"
                             else dateFormat.format(Date(currentExpiry)),
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF004D40)
+                            color = if (isDarkMode) Color(0xFFE0F2F1) else Color(0xFF004D40)
                         )
                     }
                 }
 
-                Text("Quick Add Expiry:", fontWeight = FontWeight.SemiBold, fontSize = 13.sp)
+                Text("Quick Add Expiry:", fontWeight = FontWeight.SemiBold, fontSize = 13.sp, color = textPrimary)
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(6.dp)
@@ -1010,7 +1132,7 @@ fun AdminBadgeExpiryDialog(
                     }
                 }
 
-                Text("Reduce or Lifetime Expiry:", fontWeight = FontWeight.SemiBold, fontSize = 13.sp)
+                Text("Reduce or Lifetime Expiry:", fontWeight = FontWeight.SemiBold, fontSize = 13.sp, color = textPrimary)
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(6.dp)
@@ -1043,7 +1165,7 @@ fun AdminBadgeExpiryDialog(
                 }
 
                 // Custom Days Input
-                Text("Add Custom Days:", fontWeight = FontWeight.SemiBold, fontSize = 13.sp)
+                Text("Add Custom Days:", fontWeight = FontWeight.SemiBold, fontSize = 13.sp, color = textPrimary)
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -1052,10 +1174,18 @@ fun AdminBadgeExpiryDialog(
                     OutlinedTextField(
                         value = customDaysText,
                         onValueChange = { customDaysText = it.filter { ch -> ch.isDigit() } },
-                        placeholder = { Text("Enter number of days (e.g., 45)") },
+                        placeholder = { Text("Enter number of days (e.g., 45)", color = textSecondary) },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         singleLine = true,
                         shape = RoundedCornerShape(8.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = textPrimary,
+                            unfocusedTextColor = textPrimary,
+                            focusedBorderColor = Color(0xFF00897B),
+                            unfocusedBorderColor = dividerColor,
+                            focusedContainerColor = inputBg,
+                            unfocusedContainerColor = inputBg
+                        ),
                         modifier = Modifier.weight(1f)
                     )
                     Button(
@@ -1078,7 +1208,7 @@ fun AdminBadgeExpiryDialog(
         confirmButton = {},
         dismissButton = {
             OutlinedButton(onClick = onDismiss) {
-                Text("Close")
+                Text("Close", color = textSecondary)
             }
         }
     )
@@ -1090,8 +1220,10 @@ fun AdminStatMiniItem(
     value: String,
     color: Color
 ) {
+    val isDarkMode = LocalIsDarkMode.current
+    val textSecondary = if (isDarkMode) Color(0xFFB0B3B8) else Color(0xFF65676B)
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Text(text = value, fontSize = 17.sp, fontWeight = FontWeight.Bold, color = color)
-        Text(text = title, fontSize = 11.sp, color = Color(0xFF65676B))
+        Text(text = title, fontSize = 11.sp, color = textSecondary)
     }
 }

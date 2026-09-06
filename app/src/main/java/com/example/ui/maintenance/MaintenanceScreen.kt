@@ -66,6 +66,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.example.data.model.MaintenanceConfig
 import com.example.ui.menu.admin.AdminPinEntryDialog
+import com.example.ui.theme.LocalIsDarkMode
 
 /**
  * Full-screen blocking Maintenance overlay when maintenance mode is active.
@@ -78,6 +79,12 @@ fun MaintenanceScreen(
     onAdminDashboardBypass: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val isDarkMode = LocalIsDarkMode.current
+    val bgCard = if (isDarkMode) Color(0xFF242526) else Color.White
+    val textPrimary = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505)
+    val textSecondary = if (isDarkMode) Color(0xFFB0B3B8) else Color(0xFF65676B)
+    val dividerColor = if (isDarkMode) Color(0xFF3E4042) else Color(0xFFE4E6EB)
+
     var showAdminAuthDialog by remember { mutableStateOf(false) }
     var showAdminActionSheet by remember { mutableStateOf(false) }
 
@@ -95,6 +102,9 @@ fun MaintenanceScreen(
     if (showAdminActionSheet) {
         AlertDialog(
             onDismissRequest = { showAdminActionSheet = false },
+            containerColor = bgCard,
+            titleContentColor = textPrimary,
+            textContentColor = textSecondary,
             icon = {
                 Icon(
                     imageVector = Icons.Default.AdminPanelSettings,
@@ -108,6 +118,7 @@ fun MaintenanceScreen(
                     text = "Admin Controls",
                     fontWeight = FontWeight.Bold,
                     fontSize = 18.sp,
+                    color = textPrimary,
                     textAlign = TextAlign.Center
                 )
             },
@@ -119,7 +130,7 @@ fun MaintenanceScreen(
                     Text(
                         text = "You are authenticated as Admin. What would you like to do?",
                         fontSize = 14.sp,
-                        color = Color(0xFF65676B)
+                        color = textSecondary
                     )
 
                     Button(
@@ -147,16 +158,16 @@ fun MaintenanceScreen(
                         shape = RoundedCornerShape(10.dp),
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Icon(imageVector = Icons.Default.Security, contentDescription = null, modifier = Modifier.size(18.dp))
+                        Icon(imageVector = Icons.Default.Security, contentDescription = null, modifier = Modifier.size(18.dp), tint = textPrimary)
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Open Admin Dashboard", fontWeight = FontWeight.SemiBold)
+                        Text("Open Admin Dashboard", fontWeight = FontWeight.SemiBold, color = textPrimary)
                     }
                 }
             },
             confirmButton = {},
             dismissButton = {
                 TextButton(onClick = { showAdminActionSheet = false }) {
-                    Text("Close")
+                    Text("Close", color = textSecondary)
                 }
             }
         )
@@ -345,6 +356,13 @@ fun MaintenanceConfigDialog(
     onSave: (title: String, description: String) -> Unit,
     onDismiss: () -> Unit
 ) {
+    val isDarkMode = LocalIsDarkMode.current
+    val bgCard = if (isDarkMode) Color(0xFF242526) else Color.White
+    val textPrimary = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505)
+    val textSecondary = if (isDarkMode) Color(0xFFB0B3B8) else Color(0xFF65676B)
+    val dividerColor = if (isDarkMode) Color(0xFF3E4042) else Color(0xFFE4E6EB)
+    val inputBg = if (isDarkMode) Color(0xFF3A3B3C) else Color.White
+
     var title by remember { mutableStateOf(if (initialConfig.title.isNotBlank()) initialConfig.title else "Maintenance") }
     var description by remember { mutableStateOf(initialConfig.description) }
     var errorText by remember { mutableStateOf<String?>(null) }
@@ -358,7 +376,7 @@ fun MaintenanceConfigDialog(
                 .fillMaxWidth(0.92f)
                 .padding(16.dp),
             shape = RoundedCornerShape(20.dp),
-            color = Color.White,
+            color = bgCard,
             shadowElevation = 10.dp
         ) {
             Column(
@@ -374,14 +392,14 @@ fun MaintenanceConfigDialog(
                 ) {
                     Surface(
                         shape = CircleShape,
-                        color = Color(0xFFFFF3E0),
+                        color = Color(0xFFFFF3E0).copy(alpha = if (isDarkMode) 0.2f else 1f),
                         modifier = Modifier.size(42.dp)
                     ) {
                         Box(contentAlignment = Alignment.Center) {
                             Icon(
                                 imageVector = Icons.Default.Construction,
                                 contentDescription = null,
-                                tint = Color(0xFFE65100),
+                                tint = if (isDarkMode) Color(0xFFFFB74D) else Color(0xFFE65100),
                                 modifier = Modifier.size(24.dp)
                             )
                         }
@@ -392,17 +410,17 @@ fun MaintenanceConfigDialog(
                             text = "Maintenance Mode",
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF1C1E21)
+                            color = textPrimary
                         )
                         Text(
                             text = "Enable system maintenance for all users",
                             fontSize = 12.sp,
-                            color = Color(0xFF65676B)
+                            color = textSecondary
                         )
                     }
                 }
 
-                Divider(color = Color(0xFFE4E6EB))
+                Divider(color = dividerColor)
 
                 // Title Input
                 Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -410,7 +428,7 @@ fun MaintenanceConfigDialog(
                         text = "Title",
                         fontSize = 13.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = Color(0xFF1C1E21)
+                        color = textPrimary
                     )
                     OutlinedTextField(
                         value = title,
@@ -418,13 +436,17 @@ fun MaintenanceConfigDialog(
                             title = it
                             errorText = null
                         },
-                        placeholder = { Text("Maintenance") },
+                        placeholder = { Text("Maintenance", color = textSecondary) },
                         singleLine = true,
                         shape = RoundedCornerShape(10.dp),
                         modifier = Modifier.fillMaxWidth(),
                         colors = OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = textPrimary,
+                            unfocusedTextColor = textPrimary,
                             focusedBorderColor = Color(0xFF0866FF),
-                            unfocusedBorderColor = Color(0xFFCED0D4)
+                            unfocusedBorderColor = dividerColor,
+                            focusedContainerColor = inputBg,
+                            unfocusedContainerColor = inputBg
                         )
                     )
                 }
@@ -435,7 +457,7 @@ fun MaintenanceConfigDialog(
                         text = "Maintenance Description",
                         fontSize = 13.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = Color(0xFF1C1E21)
+                        color = textPrimary
                     )
                     OutlinedTextField(
                         value = description,
@@ -444,15 +466,19 @@ fun MaintenanceConfigDialog(
                             errorText = null
                         },
                         placeholder = {
-                            Text("Provide detailed maintenance info... e.g. Server upgrade or new feature updates in progress.")
+                            Text("Provide detailed maintenance info... e.g. Server upgrade or new feature updates in progress.", color = textSecondary)
                         },
                         minLines = 4,
                         maxLines = 6,
                         shape = RoundedCornerShape(10.dp),
                         modifier = Modifier.fillMaxWidth(),
                         colors = OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = textPrimary,
+                            unfocusedTextColor = textPrimary,
                             focusedBorderColor = Color(0xFF0866FF),
-                            unfocusedBorderColor = Color(0xFFCED0D4)
+                            unfocusedBorderColor = dividerColor,
+                            focusedContainerColor = inputBg,
+                            unfocusedContainerColor = inputBg
                         )
                     )
                 }
@@ -469,7 +495,7 @@ fun MaintenanceConfigDialog(
                 // Info Note
                 Surface(
                     shape = RoundedCornerShape(10.dp),
-                    color = Color(0xFFFFF8E1),
+                    color = if (isDarkMode) Color(0xFFFFA000).copy(alpha = 0.15f) else Color(0xFFFFF8E1),
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Row(
@@ -480,13 +506,13 @@ fun MaintenanceConfigDialog(
                         Icon(
                             imageVector = Icons.Default.Warning,
                             contentDescription = null,
-                            tint = Color(0xFFF57C00),
+                            tint = if (isDarkMode) Color(0xFFFFB74D) else Color(0xFFF57C00),
                             modifier = Modifier.size(18.dp)
                         )
                         Text(
                             text = "Clicking Save will immediately enable maintenance mode for all general users and display this notice.",
                             fontSize = 12.sp,
-                            color = Color(0xFF5D4037),
+                            color = if (isDarkMode) Color(0xFFFFCC80) else Color(0xFF5D4037),
                             lineHeight = 16.sp
                         )
                     }
@@ -504,7 +530,7 @@ fun MaintenanceConfigDialog(
                             .weight(1f)
                             .height(44.dp)
                     ) {
-                        Text("Cancel", color = Color(0xFF65676B))
+                        Text("Cancel", color = textSecondary)
                     }
 
                     Button(

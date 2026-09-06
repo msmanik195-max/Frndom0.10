@@ -28,6 +28,7 @@ import com.example.data.model.AdvertisementItem
 import com.example.data.repository.AdvertisementRepository
 import com.example.data.repository.UserRepository
 import com.example.data.repository.WalletRepository
+import com.example.ui.theme.LocalIsDarkMode
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -38,6 +39,14 @@ fun AdminAdDetailView(
     onBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val isDarkMode = LocalIsDarkMode.current
+    val bgScreen = if (isDarkMode) Color(0xFF18191A) else Color(0xFFF0F2F5)
+    val bgCard = if (isDarkMode) Color(0xFF242526) else Color.White
+    val textPrimary = if (isDarkMode) Color(0xFFE4E6EB) else Color(0xFF050505)
+    val textSecondary = if (isDarkMode) Color(0xFFB0B3B8) else Color(0xFF65676B)
+    val dividerColor = if (isDarkMode) Color(0xFF3E4042) else Color(0xFFE4E6EB)
+    val inputBg = if (isDarkMode) Color(0xFF3A3B3C) else Color.White
+
     val context = LocalContext.current
     val adRepo = remember { AdvertisementRepository.getInstance(context) }
     val walletRepo = remember { WalletRepository.getInstance(context) }
@@ -55,17 +64,18 @@ fun AdminAdDetailView(
         Scaffold(
             topBar = {
                 TopAppBar(
-                    title = { Text("Ad Details") },
+                    title = { Text("Ad Details", color = textPrimary) },
                     navigationIcon = {
                         IconButton(onClick = onBack) {
-                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = textPrimary)
                         }
-                    }
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(containerColor = bgCard)
                 )
             }
         ) { padding ->
-            Box(modifier = Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
-                Text("Ad not found or has been deleted.")
+            Box(modifier = Modifier.fillMaxSize().background(bgScreen).padding(padding), contentAlignment = Alignment.Center) {
+                Text("Ad not found or has been deleted.", color = textSecondary)
             }
         }
         return
@@ -79,12 +89,12 @@ fun AdminAdDetailView(
     val dateFormat = SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.getDefault())
 
     val (statusLabel, statusBg, statusColor) = when (ad.status) {
-        "RUNNING" -> Triple("RUNNING", Color(0xFFE8F5E9), Color(0xFF2E7D32))
-        "PAUSED" -> Triple("PAUSED", Color(0xFFFFF3E0), Color(0xFFE65100))
-        "PENDING" -> Triple("PENDING", Color(0xFFE3F2FD), Color(0xFF1565C0))
-        "COMPLETED" -> Triple("COMPLETED", Color(0xFFECEFF1), Color(0xFF455A64))
-        "REJECTED" -> Triple("REJECTED", Color(0xFFFFEBEE), Color(0xFFC62828))
-        else -> Triple(ad.status, Color(0xFFF5F5F5), Color(0xFF616161))
+        "RUNNING" -> Triple("RUNNING", if (isDarkMode) Color(0xFF2E7D32).copy(alpha = 0.25f) else Color(0xFFE8F5E9), if (isDarkMode) Color(0xFF81C784) else Color(0xFF2E7D32))
+        "PAUSED" -> Triple("PAUSED", if (isDarkMode) Color(0xFFE65100).copy(alpha = 0.25f) else Color(0xFFFFF3E0), if (isDarkMode) Color(0xFFFFB74D) else Color(0xFFE65100))
+        "PENDING" -> Triple("PENDING", if (isDarkMode) Color(0xFF1565C0).copy(alpha = 0.25f) else Color(0xFFE3F2FD), if (isDarkMode) Color(0xFF90CAF9) else Color(0xFF1565C0))
+        "COMPLETED" -> Triple("COMPLETED", if (isDarkMode) Color(0xFF455A64).copy(alpha = 0.25f) else Color(0xFFECEFF1), if (isDarkMode) Color(0xFFB0BEC5) else Color(0xFF455A64))
+        "REJECTED" -> Triple("REJECTED", if (isDarkMode) Color(0xFFC62828).copy(alpha = 0.25f) else Color(0xFFFFEBEE), if (isDarkMode) Color(0xFFEF9A9A) else Color(0xFFC62828))
+        else -> Triple(ad.status, if (isDarkMode) Color(0xFF616161).copy(alpha = 0.25f) else Color(0xFFF5F5F5), if (isDarkMode) Color(0xFFBDBDBD) else Color(0xFF616161))
     }
 
     Scaffold(
@@ -99,7 +109,7 @@ fun AdminAdDetailView(
                             text = "Advertisement Details",
                             fontWeight = FontWeight.Bold,
                             fontSize = 18.sp,
-                            color = Color(0xFF050505)
+                            color = textPrimary
                         )
                         Text(
                             text = "Campaign ID: #${ad.id.take(8)}",
@@ -113,7 +123,7 @@ fun AdminAdDetailView(
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Back",
-                            tint = Color(0xFF050505)
+                            tint = textPrimary
                         )
                     }
                 },
@@ -130,13 +140,13 @@ fun AdminAdDetailView(
                         Text("Action", fontWeight = FontWeight.Bold, fontSize = 13.sp)
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = bgCard)
             )
         },
         bottomBar = {
             // Action button bar at bottom
             Surface(
-                color = Color.White,
+                color = bgCard,
                 shadowElevation = 8.dp,
                 modifier = Modifier.fillMaxWidth()
             ) {
@@ -197,7 +207,7 @@ fun AdminAdDetailView(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color(0xFFF0F2F5))
+                .background(bgScreen)
                 .padding(innerPadding)
                 .verticalScroll(rememberScrollState())
                 .padding(14.dp),
@@ -206,7 +216,7 @@ fun AdminAdDetailView(
             // 1. Status Card
             Card(
                 shape = RoundedCornerShape(12.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White),
+                colors = CardDefaults.cardColors(containerColor = bgCard),
                 elevation = CardDefaults.cardElevation(1.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
@@ -218,7 +228,7 @@ fun AdminAdDetailView(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Column {
-                        Text(text = "Current Status", fontSize = 12.sp, color = Color(0xFF65676B))
+                        Text(text = "Current Status", fontSize = 12.sp, color = textSecondary)
                         Spacer(modifier = Modifier.height(4.dp))
                         Surface(
                             shape = RoundedCornerShape(20.dp),
@@ -243,7 +253,7 @@ fun AdminAdDetailView(
                     }
 
                     Column(horizontalAlignment = Alignment.End) {
-                        Text(text = "Total Deducted", fontSize = 12.sp, color = Color(0xFF65676B))
+                        Text(text = "Total Deducted", fontSize = 12.sp, color = textSecondary)
                         Text(
                             text = "BDT ${String.format(Locale.US, "%.2f", ad.totalBudget)}",
                             fontSize = 20.sp,
@@ -257,7 +267,7 @@ fun AdminAdDetailView(
             // 2. Advertiser Information Card
             Card(
                 shape = RoundedCornerShape(12.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White),
+                colors = CardDefaults.cardColors(containerColor = bgCard),
                 elevation = CardDefaults.cardElevation(1.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
@@ -269,7 +279,7 @@ fun AdminAdDetailView(
                             text = "Advertiser Details",
                             fontWeight = FontWeight.Bold,
                             fontSize = 15.sp,
-                            color = Color(0xFF050505)
+                            color = textPrimary
                         )
                     }
 
@@ -308,35 +318,35 @@ fun AdminAdDetailView(
                                 text = advertiserProfile?.fullName.orEmpty().ifBlank { ad.userName },
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 16.sp,
-                                color = Color(0xFF050505)
+                                color = textPrimary
                             )
                             Text(
                                 text = "User ID: ${ad.userId.ifBlank { "N/A" }}",
                                 fontSize = 12.sp,
-                                color = Color(0xFF65676B)
+                                color = textSecondary
                             )
                         }
                     }
 
                     Spacer(modifier = Modifier.height(10.dp))
-                    Divider(color = Color(0xFFE4E6EB))
+                    Divider(color = dividerColor)
                     Spacer(modifier = Modifier.height(10.dp))
 
                     val email = advertiserProfile?.email.orEmpty().ifBlank { ad.userEmail }.ifBlank { "Not provided" }
                     val phone = advertiserProfile?.phoneNumber.orEmpty().ifBlank { advertiserProfile?.contactPhone.orEmpty() }.ifBlank { ad.userPhone }.ifBlank { "Not provided" }
 
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                        Text("Email:", fontSize = 13.sp, color = Color(0xFF65676B))
-                        Text(email, fontSize = 13.sp, fontWeight = FontWeight.Medium, color = Color(0xFF050505))
+                        Text("Email:", fontSize = 13.sp, color = textSecondary)
+                        Text(email, fontSize = 13.sp, fontWeight = FontWeight.Medium, color = textPrimary)
                     }
                     Spacer(modifier = Modifier.height(6.dp))
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                        Text("Phone:", fontSize = 13.sp, color = Color(0xFF65676B))
-                        Text(phone, fontSize = 13.sp, fontWeight = FontWeight.Medium, color = Color(0xFF050505))
+                        Text("Phone:", fontSize = 13.sp, color = textSecondary)
+                        Text(phone, fontSize = 13.sp, fontWeight = FontWeight.Medium, color = textPrimary)
                     }
                     Spacer(modifier = Modifier.height(6.dp))
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                        Text("Wallet Status:", fontSize = 13.sp, color = Color(0xFF65676B))
+                        Text("Wallet Status:", fontSize = 13.sp, color = textSecondary)
                         Text("Active & Deducted", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Color(0xFF008937))
                     }
                 }
@@ -345,7 +355,7 @@ fun AdminAdDetailView(
             // 3. Campaign & Creative Details Card
             Card(
                 shape = RoundedCornerShape(12.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White),
+                colors = CardDefaults.cardColors(containerColor = bgCard),
                 elevation = CardDefaults.cardElevation(1.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
@@ -357,18 +367,18 @@ fun AdminAdDetailView(
                             text = "Ad Creative & Content",
                             fontWeight = FontWeight.Bold,
                             fontSize = 15.sp,
-                            color = Color(0xFF050505)
+                            color = textPrimary
                         )
                     }
 
                     Spacer(modifier = Modifier.height(12.dp))
 
-                    Text(text = "Campaign Name:", fontSize = 12.sp, color = Color(0xFF65676B))
-                    Text(text = ad.campaignName, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color(0xFF050505))
+                    Text(text = "Campaign Name:", fontSize = 12.sp, color = textSecondary)
+                    Text(text = ad.campaignName, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = textPrimary)
 
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    Text(text = "Goal / Objective:", fontSize = 12.sp, color = Color(0xFF65676B))
+                    Text(text = "Goal / Objective:", fontSize = 12.sp, color = textSecondary)
                     Surface(
                         shape = RoundedCornerShape(6.dp),
                         color = Color(0xFF1877F2).copy(alpha = 0.1f),
@@ -385,18 +395,18 @@ fun AdminAdDetailView(
 
                     Spacer(modifier = Modifier.height(10.dp))
 
-                    Text(text = "Headline:", fontSize = 12.sp, color = Color(0xFF65676B))
-                    Text(text = ad.headline, fontSize = 15.sp, fontWeight = FontWeight.Bold, color = Color(0xFF050505))
+                    Text(text = "Headline:", fontSize = 12.sp, color = textSecondary)
+                    Text(text = ad.headline, fontSize = 15.sp, fontWeight = FontWeight.Bold, color = textPrimary)
 
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    Text(text = "Primary Text / Description:", fontSize = 12.sp, color = Color(0xFF65676B))
-                    Text(text = ad.description, fontSize = 14.sp, color = Color(0xFF333333))
+                    Text(text = "Primary Text / Description:", fontSize = 12.sp, color = textSecondary)
+                    Text(text = ad.description, fontSize = 14.sp, color = textPrimary.copy(alpha = 0.9f))
 
                     Spacer(modifier = Modifier.height(12.dp))
 
                     if (ad.mediaUrl.isNotBlank()) {
-                        Text(text = "Ad Banner Image:", fontSize = 12.sp, color = Color(0xFF65676B))
+                        Text(text = "Ad Banner Image:", fontSize = 12.sp, color = textSecondary)
                         Spacer(modifier = Modifier.height(4.dp))
                         Surface(
                             shape = RoundedCornerShape(8.dp),
@@ -416,7 +426,7 @@ fun AdminAdDetailView(
                     }
 
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                        Text("Destination Link:", fontSize = 13.sp, color = Color(0xFF65676B))
+                        Text("Destination Link:", fontSize = 13.sp, color = textSecondary)
                         Text(
                             text = ad.destinationUrl,
                             fontSize = 13.sp,
@@ -426,7 +436,7 @@ fun AdminAdDetailView(
                     }
                     Spacer(modifier = Modifier.height(6.dp))
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                        Text("CTA Button:", fontSize = 13.sp, color = Color(0xFF65676B))
+                        Text("CTA Button:", fontSize = 13.sp, color = textSecondary)
                         Surface(shape = RoundedCornerShape(6.dp), color = Color(0xFF1877F2)) {
                             Text(
                                 text = ad.callToAction,
@@ -443,7 +453,7 @@ fun AdminAdDetailView(
             // 4. Audience & Budget Specs
             Card(
                 shape = RoundedCornerShape(12.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White),
+                colors = CardDefaults.cardColors(containerColor = bgCard),
                 elevation = CardDefaults.cardElevation(1.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
@@ -455,45 +465,45 @@ fun AdminAdDetailView(
                             text = "Targeting & Performance Budget",
                             fontWeight = FontWeight.Bold,
                             fontSize = 15.sp,
-                            color = Color(0xFF050505)
+                            color = textPrimary
                         )
                     }
 
                     Spacer(modifier = Modifier.height(12.dp))
 
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                        Text("Location:", fontSize = 13.sp, color = Color(0xFF65676B))
-                        Text(ad.targetLocation, fontSize = 13.sp, fontWeight = FontWeight.Medium)
+                        Text("Location:", fontSize = 13.sp, color = textSecondary)
+                        Text(ad.targetLocation, fontSize = 13.sp, fontWeight = FontWeight.Medium, color = textPrimary)
                     }
                     Spacer(modifier = Modifier.height(6.dp))
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                        Text("Age Range:", fontSize = 13.sp, color = Color(0xFF65676B))
-                        Text(ad.targetAgeRange, fontSize = 13.sp, fontWeight = FontWeight.Medium)
+                        Text("Age Range:", fontSize = 13.sp, color = textSecondary)
+                        Text(ad.targetAgeRange, fontSize = 13.sp, fontWeight = FontWeight.Medium, color = textPrimary)
                     }
                     Spacer(modifier = Modifier.height(6.dp))
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                        Text("Gender:", fontSize = 13.sp, color = Color(0xFF65676B))
-                        Text(ad.targetGender, fontSize = 13.sp, fontWeight = FontWeight.Medium)
+                        Text("Gender:", fontSize = 13.sp, color = textSecondary)
+                        Text(ad.targetGender, fontSize = 13.sp, fontWeight = FontWeight.Medium, color = textPrimary)
                     }
                     Spacer(modifier = Modifier.height(6.dp))
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                        Text("Daily Budget:", fontSize = 13.sp, color = Color(0xFF65676B))
-                        Text("BDT ${ad.dailyBudget} / day", fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                        Text("Daily Budget:", fontSize = 13.sp, color = textSecondary)
+                        Text("BDT ${ad.dailyBudget} / day", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = textPrimary)
                     }
                     Spacer(modifier = Modifier.height(6.dp))
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                        Text("Duration:", fontSize = 13.sp, color = Color(0xFF65676B))
-                        Text("${ad.durationDays} Days", fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                        Text("Duration:", fontSize = 13.sp, color = textSecondary)
+                        Text("${ad.durationDays} Days", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = textPrimary)
                     }
                     Spacer(modifier = Modifier.height(6.dp))
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                        Text("Estimated Reach:", fontSize = 13.sp, color = Color(0xFF65676B))
+                        Text("Estimated Reach:", fontSize = 13.sp, color = textSecondary)
                         Text("~${ad.estimatedReach} People", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Color(0xFF008937))
                     }
                     Spacer(modifier = Modifier.height(6.dp))
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                        Text("Created Date:", fontSize = 13.sp, color = Color(0xFF65676B))
-                        Text(dateFormat.format(Date(ad.createdAt)), fontSize = 13.sp)
+                        Text("Created Date:", fontSize = 13.sp, color = textSecondary)
+                        Text(dateFormat.format(Date(ad.createdAt)), fontSize = 13.sp, color = textPrimary)
                     }
                 }
             }
@@ -501,13 +511,13 @@ fun AdminAdDetailView(
             if (ad.adminNote.isNotBlank()) {
                 Surface(
                     shape = RoundedCornerShape(10.dp),
-                    color = Color(0xFFFFF3E0),
+                    color = if (isDarkMode) Color(0xFFE65100).copy(alpha = 0.2f) else Color(0xFFFFF3E0),
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Column(modifier = Modifier.padding(12.dp)) {
-                        Text("Admin Remarks:", fontWeight = FontWeight.Bold, fontSize = 13.sp, color = Color(0xFFE65100))
+                        Text("Admin Remarks:", fontWeight = FontWeight.Bold, fontSize = 13.sp, color = if (isDarkMode) Color(0xFFFFB74D) else Color(0xFFE65100))
                         Spacer(modifier = Modifier.height(4.dp))
-                        Text(ad.adminNote, fontSize = 13.sp, color = Color(0xFFBF360C))
+                        Text(ad.adminNote, fontSize = 13.sp, color = if (isDarkMode) Color(0xFFFFCC80) else Color(0xFFBF360C))
                     }
                 }
             }
@@ -522,11 +532,15 @@ fun AdminAdDetailView(
 
         AlertDialog(
             onDismissRequest = { showStatusUpdateDialog = false },
+            containerColor = bgCard,
+            titleContentColor = textPrimary,
+            textContentColor = textSecondary,
             title = {
                 Text(
                     text = "Update Advertisement Status",
                     fontWeight = FontWeight.Bold,
-                    fontSize = 18.sp
+                    fontSize = 18.sp,
+                    color = textPrimary
                 )
             },
             text = {
@@ -534,7 +548,7 @@ fun AdminAdDetailView(
                     Text(
                         text = "Select what status to apply to this campaign:",
                         fontSize = 13.sp,
-                        color = Color(0xFF65676B)
+                        color = textSecondary
                     )
                     Spacer(modifier = Modifier.height(12.dp))
 
@@ -568,8 +582,8 @@ fun AdminAdDetailView(
                                         "PENDING" -> "PENDING (Under Review)" to "Under review"
                                         else -> statusOption to ""
                                     }
-                                    Text(name, fontWeight = FontWeight.Bold, fontSize = 14.sp)
-                                    Text(desc, fontSize = 11.sp, color = Color(0xFF65676B))
+                                    Text(name, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = textPrimary)
+                                    Text(desc, fontSize = 11.sp, color = textSecondary)
                                 }
                             }
                         }
@@ -601,8 +615,16 @@ fun AdminAdDetailView(
                     OutlinedTextField(
                         value = adminNoteInput,
                         onValueChange = { adminNoteInput = it },
-                        label = { Text("Admin Note / Remarks") },
-                        placeholder = { Text("Optional message to the advertiser...") },
+                        label = { Text("Admin Note / Remarks", color = textSecondary) },
+                        placeholder = { Text("Optional message to the advertiser...", color = textSecondary.copy(alpha = 0.7f)) },
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = textPrimary,
+                            unfocusedTextColor = textPrimary,
+                            focusedBorderColor = Color(0xFF1877F2),
+                            unfocusedBorderColor = dividerColor,
+                            focusedContainerColor = inputBg,
+                            unfocusedContainerColor = inputBg
+                        ),
                         modifier = Modifier.fillMaxWidth(),
                         minLines = 2
                     )
@@ -625,12 +647,12 @@ fun AdminAdDetailView(
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1877F2))
                 ) {
-                    Text("Apply Status")
+                    Text("Apply Status", color = Color.White)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showStatusUpdateDialog = false }) {
-                    Text("Cancel")
+                    Text("Cancel", color = textSecondary)
                 }
             }
         )
