@@ -2,6 +2,7 @@ package com.example.ui.menu.admin
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,6 +20,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Badge
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
@@ -49,13 +51,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import com.example.R
 import com.example.data.model.VerificationRequestItem
 import com.example.data.repository.AdminRequestRepository
@@ -587,6 +592,66 @@ private fun VerificationRequestCard(
                             color = Color(0xFFD32F2F),
                             fontWeight = FontWeight.SemiBold
                         )
+                    }
+
+                    // ID Card Photos if submitted
+                    if (item.idCardFrontUrl.isNotBlank() || item.idCardBackUrl.isNotBlank()) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Divider(thickness = 0.5.dp, color = dividerColor)
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        Text(
+                            text = "Submitted ID Card / NID Documents:",
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = textPrimary
+                        )
+                        Spacer(modifier = Modifier.height(6.dp))
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            if (item.idCardFrontUrl.isNotBlank()) {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text("Front Side", fontSize = 10.sp, color = textSecondary)
+                                    Spacer(modifier = Modifier.height(2.dp))
+                                    Surface(
+                                        shape = RoundedCornerShape(8.dp),
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .height(90.dp)
+                                    ) {
+                                        AsyncImage(
+                                            model = item.idCardFrontUrl,
+                                            contentDescription = "ID Front",
+                                            contentScale = ContentScale.Crop,
+                                            modifier = Modifier.fillMaxSize()
+                                        )
+                                    }
+                                }
+                            }
+
+                            if (item.idCardBackUrl.isNotBlank()) {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text("Back Side", fontSize = 10.sp, color = textSecondary)
+                                    Spacer(modifier = Modifier.height(2.dp))
+                                    Surface(
+                                        shape = RoundedCornerShape(8.dp),
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .height(90.dp)
+                                    ) {
+                                        AsyncImage(
+                                            model = item.idCardBackUrl,
+                                            contentDescription = "ID Back",
+                                            contentScale = ContentScale.Crop,
+                                            modifier = Modifier.fillMaxSize()
+                                        )
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }

@@ -1007,6 +1007,8 @@ class AdminRequestRepository(private val context: Context) {
             val status = child.child("status").getValue(String::class.java) ?: "PENDING"
             val createdAt = child.child("createdAt").getValue(Long::class.java) ?: System.currentTimeMillis()
             val adminNote = child.child("adminNote").getValue(String::class.java) ?: ""
+            val idCardFrontUrl = child.child("idCardFrontUrl").getValue(String::class.java) ?: ""
+            val idCardBackUrl = child.child("idCardBackUrl").getValue(String::class.java) ?: ""
             VerificationRequestItem(
                 id = id,
                 userId = userId,
@@ -1016,6 +1018,8 @@ class AdminRequestRepository(private val context: Context) {
                 planTitle = planTitle,
                 durationDays = durationDays,
                 price = price,
+                idCardFrontUrl = idCardFrontUrl,
+                idCardBackUrl = idCardBackUrl,
                 status = status,
                 createdAt = createdAt,
                 adminNote = adminNote
@@ -1042,6 +1046,8 @@ class AdminRequestRepository(private val context: Context) {
                         planTitle = obj.optString("planTitle", ""),
                         durationDays = obj.optInt("durationDays", 30),
                         price = obj.optDouble("price", 0.0),
+                        idCardFrontUrl = obj.optString("idCardFrontUrl", ""),
+                        idCardBackUrl = obj.optString("idCardBackUrl", ""),
                         status = obj.optString("status", "PENDING"),
                         createdAt = obj.optLong("createdAt", System.currentTimeMillis()),
                         adminNote = obj.optString("adminNote", "")
@@ -1065,6 +1071,8 @@ class AdminRequestRepository(private val context: Context) {
                     put("planTitle", item.planTitle)
                     put("durationDays", item.durationDays)
                     put("price", item.price)
+                    put("idCardFrontUrl", item.idCardFrontUrl)
+                    put("idCardBackUrl", item.idCardBackUrl)
                     put("status", item.status)
                     put("createdAt", item.createdAt)
                     put("adminNote", item.adminNote)
@@ -1082,7 +1090,9 @@ class AdminRequestRepository(private val context: Context) {
         userPhone: String,
         planTitle: String,
         durationDays: Int,
-        price: Double
+        price: Double,
+        idCardFrontUrl: String = "",
+        idCardBackUrl: String = ""
     ): VerificationRequestItem {
         val item = VerificationRequestItem(
             id = "ver_${System.currentTimeMillis()}_${UUID.randomUUID().toString().take(5)}",
@@ -1093,6 +1103,8 @@ class AdminRequestRepository(private val context: Context) {
             planTitle = planTitle,
             durationDays = durationDays,
             price = price,
+            idCardFrontUrl = idCardFrontUrl,
+            idCardBackUrl = idCardBackUrl,
             status = "PENDING",
             createdAt = System.currentTimeMillis()
         )

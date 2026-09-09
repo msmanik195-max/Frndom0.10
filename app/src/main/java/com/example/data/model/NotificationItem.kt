@@ -7,8 +7,10 @@ data class NotificationItem(
     val senderName: String = "User",
     val senderAvatarUrl: String = "",
     val postId: String = "",
-    val type: String = "like", // "like", "comment", "follow"
+    val type: String = "like", // "like", "comment", "follow", "admin_announcement"
+    val title: String = "",
     val content: String = "",
+    val imageUrl: String = "",
     val timestamp: Long = System.currentTimeMillis(),
     val isRead: Boolean = false
 ) {
@@ -20,7 +22,9 @@ data class NotificationItem(
         "senderAvatarUrl" to senderAvatarUrl,
         "postId" to postId,
         "type" to type,
+        "title" to title,
         "content" to content,
+        "imageUrl" to imageUrl,
         "timestamp" to timestamp,
         "isRead" to isRead
     )

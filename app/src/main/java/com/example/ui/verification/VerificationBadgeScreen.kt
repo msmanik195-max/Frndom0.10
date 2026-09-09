@@ -84,6 +84,7 @@ import com.example.R
 import com.example.data.model.UserProfile
 import com.example.data.repository.AdminRequestRepository
 import com.example.data.repository.UserRepository
+import com.example.data.repository.VerificationPlanRepository
 import com.example.data.repository.WalletRepository
 import com.example.ui.components.VerificationBadge
 import com.example.ui.menu.DepositScreen
@@ -128,6 +129,8 @@ fun VerificationBadgeScreen(
 ) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
+    val appSettings = remember { com.example.data.repository.AppSettingsRepository.getInstance(context) }
+    val isVerificationRequestsEnabled by appSettings.isVerificationRequestsEnabled.collectAsState()
     val walletRepo = remember { WalletRepository.getInstance(context) }
     val walletBalance by walletRepo.balanceFlow.collectAsState()
 
@@ -156,8 +159,10 @@ fun VerificationBadgeScreen(
 
     val isBadgeActive = activeProfile.isVerificationActive()
 
-    val plans = remember {
-        listOf(
+    val planRepository = remember { VerificationPlanRepository.getInstance(context) }
+    val dynamicPlans by planRepository.plansFlow.collectAsState()
+    val plans = remember(dynamicPlans) {
+        if (dynamicPlans.isNotEmpty()) dynamicPlans else listOf(
             VerificationPlan(
                 id = "plan_1_month",
                 title = "1 Month",
@@ -166,29 +171,11 @@ fun VerificationBadgeScreen(
                 price = 99.0,
                 tag = "Starter",
                 description = "Perfect to try out green badge benefits & trust"
-            ),
-            VerificationPlan(
-                id = "plan_6_months",
-                title = "6 Months",
-                durationText = "180 Days Validity",
-                durationDays = 180,
-                price = 499.0,
-                tag = "Popular • Save 16%",
-                description = "Great value for active creators & sellers"
-            ),
-            VerificationPlan(
-                id = "plan_12_months",
-                title = "12 Months (1 Year)",
-                durationText = "365 Days Validity",
-                durationDays = 365,
-                price = 999.0,
-                tag = "Best Value • Save 20%",
-                description = "Maximum savings with full year peace of mind"
             )
         )
     }
 
-    var selectedPlanIndex by remember { mutableIntStateOf(1) } // Default 6 months
+    var selectedPlanIndex by remember { mutableIntStateOf(0) }
     var isProcessingPurchase by remember { mutableStateOf(false) }
     var showConfirmDialog by remember { mutableStateOf(false) }
     var showThankYouDialog by remember { mutableStateOf(false) }
@@ -828,7 +815,7 @@ fun VerificationBadgeScreen(
                                         // Price in BDT
                                         Column(horizontalAlignment = Alignment.End) {
                                             Text(
-                                                text = "BDT ${plan.price.toInt()}",
+                                                text = if (plan.isFree || plan.price <= 0.0) "FREE" else "BDT ${plan.price.toInt()}",
                                                 fontSize = 18.sp,
                                                 fontWeight = FontWeight.ExtraBold,
                                                 color = if (isSelected) darkGreen else Color(0xFF050505)
@@ -868,7 +855,9 @@ fun VerificationBadgeScreen(
 
                 // 5. BUY / ACTIVATE BUTTON
                 item {
-                    val currentSelectedPlan = plans.getOrNull(selectedPlanIndex) ?: plans[0]
+                    val safeSelectedPlanIndex = selectedPlanIndex.coerceIn(0, (plans.size - 1).coerceAtLeast(0))
+                    val currentSelectedPlan = plans.getOrNull(safeSelectedPlanIndex) ?: plans.first()
+                    val isFreeSelectedPlan = currentSelectedPlan.isFree || currentSelectedPlan.price <= 0.0
 
                     Column(
                         modifier = Modifier
@@ -881,7 +870,7 @@ fun VerificationBadgeScreen(
                                     Toast.makeText(context, "Please log in first", Toast.LENGTH_SHORT).show()
                                     return@Button
                                 }
-                                if (walletBalance < currentSelectedPlan.price) {
+                                if (!isFreeSelectedPlan && walletBalance < currentSelectedPlan.price) {
                                     showInsufficientBalanceDialog = true
                                 } else {
                                     showConfirmDialog = true
@@ -914,7 +903,9 @@ fun VerificationBadgeScreen(
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Text(
-                                    text = if (isBadgeActive) {
+                                    text = if (isFreeSelectedPlan) {
+                                        "Claim Free Verification Badge"
+                                    } else if (isBadgeActive) {
                                         "Extend Verification (BDT ${currentSelectedPlan.price.toInt()})"
                                     } else {
                                         "Buy Verification Badge (BDT ${currentSelectedPlan.price.toInt()})"
@@ -1095,7 +1086,10 @@ fun VerificationBadgeScreen(
 
     // 5.5 PURCHASE CONFIRMATION DIALOG
     if (showConfirmDialog) {
-        val selectedPlan = plans.getOrNull(selectedPlanIndex) ?: plans[0]
+        val safeSelectedPlanIndex = selectedPlanIndex.coerceIn(0, (plans.size - 1).coerceAtLeast(0))
+        val selectedPlan = plans.getOrNull(safeSelectedPlanIndex) ?: plans.first()
+        val isFreePlan = selectedPlan.isFree || selectedPlan.price <= 0.0
+
         AlertDialog(
             onDismissRequest = {
                 if (!isProcessingPurchase) showConfirmDialog = false
@@ -1109,7 +1103,7 @@ fun VerificationBadgeScreen(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = if (isBadgeActive) "Confirm Extension" else "Confirm Verification",
+                        text = if (isFreePlan) "Claim Free Badge" else if (isBadgeActive) "Confirm Extension" else "Confirm Verification",
                         fontWeight = FontWeight.Bold,
                         fontSize = 18.sp,
                         color = Color(0xFF050505)
@@ -1119,7 +1113,11 @@ fun VerificationBadgeScreen(
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text(
-                        text = "BDT ${selectedPlan.price.toInt()} will be deducted from your wallet to activate the Green Verification Badge.",
+                        text = if (isFreePlan) {
+                            "Submit your application for a free Green Verification Badge (${selectedPlan.title}). No wallet balance is required."
+                        } else {
+                            "BDT ${selectedPlan.price.toInt()} will be deducted from your wallet to activate the Green Verification Badge."
+                        },
                         fontSize = 14.sp,
                         color = Color(0xFF050505),
                         lineHeight = 20.sp
@@ -1144,8 +1142,13 @@ fun VerificationBadgeScreen(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
-                                Text(text = "Price to Deduct:", fontSize = 13.sp, color = Color(0xFF008937), fontWeight = FontWeight.Medium)
-                                Text(text = "BDT ${selectedPlan.price.toInt()}", fontSize = 14.sp, fontWeight = FontWeight.ExtraBold, color = Color(0xFF008937))
+                                Text(text = "Price:", fontSize = 13.sp, color = Color(0xFF008937), fontWeight = FontWeight.Medium)
+                                Text(
+                                    text = if (isFreePlan) "FREE (0 BDT)" else "BDT ${selectedPlan.price.toInt()}",
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.ExtraBold,
+                                    color = Color(0xFF008937)
+                                )
                             }
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
@@ -1154,23 +1157,25 @@ fun VerificationBadgeScreen(
                                 Text(text = "Validity:", fontSize = 13.sp, color = Color(0xFF008937), fontWeight = FontWeight.Medium)
                                 Text(text = selectedPlan.durationText, fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Color(0xFF008937))
                             }
-                            Divider(thickness = 0.5.dp, color = Color(0xFFA5D6A7), modifier = Modifier.padding(vertical = 2.dp))
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween
-                            ) {
-                                Text(text = "Wallet Balance After:", fontSize = 12.sp, color = Color(0xFF2E7D32))
-                                Text(
-                                    text = "BDT ${String.format(Locale.US, "%.2f", walletBalance - selectedPlan.price)}",
-                                    fontSize = 12.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color(0xFF2E7D32)
-                                )
+                            if (!isFreePlan) {
+                                Divider(thickness = 0.5.dp, color = Color(0xFFA5D6A7), modifier = Modifier.padding(vertical = 2.dp))
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    Text(text = "Wallet Balance After:", fontSize = 12.sp, color = Color(0xFF2E7D32))
+                                    Text(
+                                        text = "BDT ${String.format(Locale.US, "%.2f", walletBalance - selectedPlan.price)}",
+                                        fontSize = 12.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = Color(0xFF2E7D32)
+                                    )
+                                }
                             }
                         }
                     }
                     Text(
-                        text = "Once confirmed, the amount will be deducted and sent for verification. Upon admin approval, the Green Badge will be activated beside your profile name. If rejected, the full amount will be refunded to your wallet.",
+                        text = "Once confirmed, your application will be submitted for verification. Upon admin approval, the Green Badge will be activated beside your profile name.",
                         fontSize = 12.sp,
                         color = Color(0xFF65676B),
                         lineHeight = 16.sp
@@ -1180,7 +1185,7 @@ fun VerificationBadgeScreen(
             confirmButton = {
                 Button(
                     onClick = {
-                        if (walletBalance < selectedPlan.price) {
+                        if (!isFreePlan && walletBalance < selectedPlan.price) {
                             showConfirmDialog = false
                             showInsufficientBalanceDialog = true
                             return@Button
@@ -1188,17 +1193,19 @@ fun VerificationBadgeScreen(
 
                         isProcessingPurchase = true
                         coroutineScope.launch {
-                            val deducted = walletRepo.deduct(
-                                amount = selectedPlan.price,
-                                title = "Verification Badge Request",
-                                subtitle = "Green Badge - ${selectedPlan.title} (${selectedPlan.durationDays} Days)"
-                            )
+                            if (!isFreePlan && selectedPlan.price > 0.0) {
+                                val deducted = walletRepo.deduct(
+                                    amount = selectedPlan.price,
+                                    title = "Verification Badge Request",
+                                    subtitle = "Green Badge - ${selectedPlan.title} (${selectedPlan.durationDays} Days)"
+                                )
 
-                            if (!deducted) {
-                                isProcessingPurchase = false
-                                showConfirmDialog = false
-                                showInsufficientBalanceDialog = true
-                                return@launch
+                                if (!deducted) {
+                                    isProcessingPurchase = false
+                                    showConfirmDialog = false
+                                    showInsufficientBalanceDialog = true
+                                    return@launch
+                                }
                             }
 
                             val estimatedExpiryTimestamp = System.currentTimeMillis() + (selectedPlan.durationDays.toLong() * 24L * 60L * 60L * 1000L)
@@ -1211,7 +1218,7 @@ fun VerificationBadgeScreen(
                                     userPhone = activeProfile.phoneNumber,
                                     planTitle = selectedPlan.title,
                                     durationDays = selectedPlan.durationDays,
-                                    price = selectedPlan.price
+                                    price = if (isFreePlan) 0.0 else selectedPlan.price
                                 )
 
                                 val sdf = SimpleDateFormat("dd MMMM, yyyy", Locale.getDefault())
@@ -1224,7 +1231,9 @@ fun VerificationBadgeScreen(
                                 isProcessingPurchase = false
                                 showConfirmDialog = false
                                 // Refund in case of submission failure
-                                walletRepo.recharge(selectedPlan.price, "Refund - Verification Submission Failed")
+                                if (!isFreePlan && selectedPlan.price > 0.0) {
+                                    walletRepo.recharge(selectedPlan.price, "Refund - Verification Submission Failed")
+                                }
                                 Toast.makeText(context, "Failed to submit verification request: ${e.message}", Toast.LENGTH_SHORT).show()
                             }
                         }

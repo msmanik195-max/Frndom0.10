@@ -431,6 +431,12 @@ class PostRepository(private val context: Context) {
     }
 
     fun setReaction(postId: String, userId: String, reaction: ReactionType?) {
+        if (reaction != null && !AppSettingsRepository.getInstance(context).isReactionsEnabled.value) {
+            android.os.Handler(android.os.Looper.getMainLooper()).post {
+                android.widget.Toast.makeText(context, "লাইক বা রিঅ্যাকশন সাময়িকভাবে বন্ধ আছে (Reactions disabled)", android.widget.Toast.LENGTH_SHORT).show()
+            }
+            return
+        }
         val current = _postsFlow.value.toMutableList()
         val index = current.indexOfFirst { it.id == postId }
         if (index >= 0) {
@@ -603,6 +609,12 @@ class PostRepository(private val context: Context) {
     }
 
     fun addDetailedComment(comment: com.example.data.model.CommentItem) {
+        if (!AppSettingsRepository.getInstance(context).isCommentsEnabled.value) {
+            android.os.Handler(android.os.Looper.getMainLooper()).post {
+                android.widget.Toast.makeText(context, "কমেন্ট করা সাময়িকভাবে বন্ধ আছে (Comments disabled)", android.widget.Toast.LENGTH_SHORT).show()
+            }
+            return
+        }
         // 1. Immediately save to local persistent cache
         saveLocalComment(comment)
 

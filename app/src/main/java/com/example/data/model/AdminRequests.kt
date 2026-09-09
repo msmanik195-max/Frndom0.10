@@ -120,6 +120,8 @@ data class VerificationRequestItem(
     val planTitle: String = "",
     val durationDays: Int = 30,
     val price: Double = 0.0,
+    val idCardFrontUrl: String = "",
+    val idCardBackUrl: String = "",
     val status: String = "PENDING", // PENDING, APPROVED, REJECTED
     val createdAt: Long = System.currentTimeMillis(),
     val adminNote: String = ""
@@ -133,6 +135,8 @@ data class VerificationRequestItem(
         "planTitle" to planTitle,
         "durationDays" to durationDays,
         "price" to price,
+        "idCardFrontUrl" to idCardFrontUrl,
+        "idCardBackUrl" to idCardBackUrl,
         "status" to status,
         "createdAt" to createdAt,
         "adminNote" to adminNote

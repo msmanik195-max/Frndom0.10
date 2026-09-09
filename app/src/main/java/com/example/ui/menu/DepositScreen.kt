@@ -84,6 +84,8 @@ fun DepositScreen(
     val clipboardManager = LocalClipboardManager.current
 
     val balance by walletRepo.balanceFlow.collectAsState()
+    val appSettings = remember { com.example.data.repository.AppSettingsRepository.getInstance(context) }
+    val isDepositsEnabled by appSettings.isDepositsEnabled.collectAsState()
     val paymentMethods by adminRepo.paymentMethodsFlow.collectAsState()
     val activeMethods = remember(paymentMethods) {
         val active = paymentMethods.filter { it.isActive }
@@ -268,6 +270,41 @@ fun DepositScreen(
                         }
                     }
                 } else {
+                    if (!isDepositsEnabled) {
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(14.dp),
+                            colors = CardDefaults.cardColors(
+                                containerColor = if (isDarkMode) Color(0xFF3E1F1F) else Color(0xFFFFEBEE)
+                            )
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(14.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Close,
+                                    contentDescription = null,
+                                    tint = Color(0xFFD32F2F)
+                                )
+                                Spacer(modifier = Modifier.width(10.dp))
+                                Column {
+                                    Text(
+                                        text = "ডিপোজিট সাময়িকভাবে বন্ধ আছে",
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 14.sp,
+                                        color = if (isDarkMode) Color(0xFFFF8A80) else Color(0xFFC62828)
+                                    )
+                                    Text(
+                                        text = "অ্যাডমিন সাময়িকভাবে ডিপোজিট রিকোয়েস্ট গ্রহণ স্থগিত রেখেছেন। অনুগ্রহ করে পরে চেষ্টা করুন।",
+                                        fontSize = 12.sp,
+                                        color = if (isDarkMode) Color(0xFFFFCDD2) else Color(0xFFB71C1C)
+                                    )
+                                }
+                            }
+                        }
+                    }
+
                     // 1. Amount Selection Card
                     Card(
                         modifier = Modifier.fillMaxWidth(),
@@ -676,7 +713,7 @@ fun DepositScreen(
                                 }
                             }
                         },
-                        enabled = depositAmt > 0 && senderNumber.isNotBlank() && transactionId.isNotBlank() && !isProcessing,
+                        enabled = isDepositsEnabled && depositAmt > 0 && senderNumber.isNotBlank() && transactionId.isNotBlank() && !isProcessing,
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(52.dp)

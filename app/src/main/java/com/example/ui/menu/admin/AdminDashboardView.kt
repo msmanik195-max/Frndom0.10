@@ -33,6 +33,7 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Assessment
 import androidx.compose.material.icons.filled.Block
 import androidx.compose.material.icons.filled.Campaign
+import androidx.compose.material.icons.filled.CardMembership
 import androidx.compose.material.icons.filled.Chat
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.CloudQueue
@@ -46,6 +47,7 @@ import androidx.compose.material.icons.filled.Groups
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MonetizationOn
+import androidx.compose.material.icons.filled.NotificationsActive
 import androidx.compose.material.icons.filled.Pages
 import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.Person
@@ -53,7 +55,7 @@ import androidx.compose.material.icons.filled.PostAdd
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material.icons.filled.Security
+import androidx.compose.material.icons.filled.Speed
 import androidx.compose.material.icons.filled.TrendingUp
 import androidx.compose.material.icons.filled.Verified
 import androidx.compose.material.icons.filled.VideoLibrary
@@ -125,6 +127,9 @@ enum class AdminActiveScreen {
     WITHDRAW_REQUESTS,
     MONETIZATION_REQUESTS,
     VERIFICATION_REQUESTS,
+    VERIFICATION_PACKAGES,
+    NOTIFICATION_SYSTEM,
+    POST_LIMITS,
     PAYMENT_METHODS,
     SETTINGS,
     AD_MANAGEMENT
@@ -272,6 +277,24 @@ fun AdminDashboardView(
         }
         AdminActiveScreen.VERIFICATION_REQUESTS -> {
             AdminVerificationRequestsView(
+                onBack = { currentAdminScreen = AdminActiveScreen.DASHBOARD_MAIN },
+                modifier = modifier
+            )
+        }
+        AdminActiveScreen.VERIFICATION_PACKAGES -> {
+            AdminVerificationPackagesView(
+                onBack = { currentAdminScreen = AdminActiveScreen.DASHBOARD_MAIN },
+                modifier = modifier
+            )
+        }
+        AdminActiveScreen.NOTIFICATION_SYSTEM -> {
+            AdminNotificationSystemView(
+                onBack = { currentAdminScreen = AdminActiveScreen.DASHBOARD_MAIN },
+                modifier = modifier
+            )
+        }
+        AdminActiveScreen.POST_LIMITS -> {
+            AdminPostLimitsView(
                 onBack = { currentAdminScreen = AdminActiveScreen.DASHBOARD_MAIN },
                 modifier = modifier
             )
@@ -538,6 +561,35 @@ fun AdminDashboardView(
                             modifier = Modifier.padding(horizontal = 12.dp, vertical = 2.dp)
                         )
 
+                        // 5.1 Verification Packages (Unlimited Packages Management)
+                        NavigationDrawerItem(
+                            icon = { Icon(Icons.Default.CardMembership, contentDescription = null, tint = Color(0xFF00C853)) },
+                            label = { Text("Verification Packages", fontWeight = FontWeight.Medium) },
+                            badge = {
+                                Surface(
+                                    shape = RoundedCornerShape(10.dp),
+                                    color = if (isDarkMode) Color(0xFF00C853).copy(alpha = 0.2f) else Color(0xFFE8F8F0)
+                                ) {
+                                    Text(
+                                        text = "Manage",
+                                        fontSize = 11.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = Color(0xFF00C853),
+                                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                                    )
+                                }
+                            },
+                            selected = false,
+                            onClick = {
+                                scope.launch {
+                                    drawerState.close()
+                                    currentAdminScreen = AdminActiveScreen.VERIFICATION_PACKAGES
+                                }
+                            },
+                            colors = drawerItemColors,
+                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 2.dp)
+                        )
+
                         // 6. Monetization Requests
                         NavigationDrawerItem(
                             icon = { Icon(Icons.Default.MonetizationOn, contentDescription = null, tint = Color(0xFFFFA000)) },
@@ -594,6 +646,36 @@ fun AdminDashboardView(
                                 scope.launch {
                                     drawerState.close()
                                     currentAdminScreen = AdminActiveScreen.AD_MANAGEMENT
+                                }
+                            },
+                            colors = drawerItemColors,
+                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 2.dp)
+                        )
+
+                        // 6.2 Notification System
+                        NavigationDrawerItem(
+                            icon = { Icon(Icons.Default.NotificationsActive, contentDescription = null, tint = Color(0xFF1877F2)) },
+                            label = { Text("Notification Broadcast & Settings", fontWeight = FontWeight.Medium) },
+                            selected = false,
+                            onClick = {
+                                scope.launch {
+                                    drawerState.close()
+                                    currentAdminScreen = AdminActiveScreen.NOTIFICATION_SYSTEM
+                                }
+                            },
+                            colors = drawerItemColors,
+                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 2.dp)
+                        )
+
+                        // 6.3 Daily Post Limits
+                        NavigationDrawerItem(
+                            icon = { Icon(Icons.Default.Speed, contentDescription = null, tint = Color(0xFFFF9800)) },
+                            label = { Text("Post & Story Limits", fontWeight = FontWeight.Medium) },
+                            selected = false,
+                            onClick = {
+                                scope.launch {
+                                    drawerState.close()
+                                    currentAdminScreen = AdminActiveScreen.POST_LIMITS
                                 }
                             },
                             colors = drawerItemColors,
@@ -1349,9 +1431,12 @@ fun AdminDashboardView(
                             Triple("Page Management", Icons.Default.Pages, AdminActiveScreen.PAGE_MANAGEMENT),
                             Triple("Deposit Requests", Icons.Default.AccountBalanceWallet, AdminActiveScreen.DEPOSIT_REQUESTS),
                             Triple("Withdraw Requests", Icons.Default.AccountBalance, AdminActiveScreen.WITHDRAW_REQUESTS),
-                            Triple("Verification", Icons.Default.Verified, AdminActiveScreen.VERIFICATION_REQUESTS),
+                            Triple("Verification Requests", Icons.Default.Verified, AdminActiveScreen.VERIFICATION_REQUESTS),
+                            Triple("Verification Packages", Icons.Default.CardMembership, AdminActiveScreen.VERIFICATION_PACKAGES),
                             Triple("Monetization", Icons.Default.MonetizationOn, AdminActiveScreen.MONETIZATION_REQUESTS),
                             Triple("Ad Management", Icons.Default.Campaign, AdminActiveScreen.AD_MANAGEMENT),
+                            Triple("Notification System", Icons.Default.NotificationsActive, AdminActiveScreen.NOTIFICATION_SYSTEM),
+                            Triple("Post & Story Limits", Icons.Default.Speed, AdminActiveScreen.POST_LIMITS),
                             Triple("Payment Setup", Icons.Default.Security, AdminActiveScreen.PAYMENT_METHODS),
                             Triple("Settings", Icons.Default.Settings, AdminActiveScreen.SETTINGS)
                         )

@@ -80,6 +80,7 @@ fun CommentsBottomSheet(
     val context = LocalContext.current
     val appSettingsRepo = remember { AppSettingsRepository.getInstance(context) }
     val isDarkMode by appSettingsRepo.isDarkMode.collectAsState()
+    val isCommentsEnabled by appSettingsRepo.isCommentsEnabled.collectAsState()
 
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val comments by postRepository.getCommentsFlow(postId).collectAsState(initial = emptyList<CommentItem>())
@@ -260,15 +261,44 @@ fun CommentsBottomSheet(
                 }
             }
 
-            // Quick Emoji Reaction Bar (One tap comment)
-            LazyRow(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(if (isDarkMode) Color(0xFF131D2E) else Color(0xFFF7F8FA))
-                    .padding(horizontal = 12.dp, vertical = 6.dp),
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+            if (!isCommentsEnabled) {
+                Surface(
+                    color = if (isDarkMode) Color(0xFF2D1B1B) else Color(0xFFFFF3F3),
+                    shape = RoundedCornerShape(12.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                        .navigationBarsPadding()
+                ) {
+                    Row(
+                        modifier = Modifier.padding(14.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            Icons.Default.Lock,
+                            contentDescription = null,
+                            tint = Color(0xFFE53935),
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Text(
+                            text = "অ্যাডমিন সাময়িকভাবে কমেন্ট করা বন্ধ রেখেছেন। (Comments disabled by administrator)",
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = if (isDarkMode) Color(0xFFFF8A80) else Color(0xFFC62828)
+                        )
+                    }
+                }
+            } else {
+                // Quick Emoji Reaction Bar (One tap comment)
+                LazyRow(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(if (isDarkMode) Color(0xFF131D2E) else Color(0xFFF7F8FA))
+                        .padding(horizontal = 12.dp, vertical = 6.dp),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
                 items(quickEmojis) { emoji ->
                     Surface(
                         shape = CircleShape,
@@ -405,6 +435,7 @@ fun CommentsBottomSheet(
                         )
                     }
                 }
+            }
             }
         }
     }
